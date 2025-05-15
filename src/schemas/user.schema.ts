@@ -7,13 +7,13 @@ export class User extends Document {
   email?: string;
 
   @Prop({ required: true })
-  password: string; // Should be hashed before saving
+  password: string; // Should be hashed before ssaving
 
   @Prop({ required: true, max: 13 })
   phone: string;
 
   @Prop({ required: false })
-  profilePicture?: string;
+  profileImage?: string;
 
   @Prop({ required: false })
   address?: string;
@@ -26,6 +26,21 @@ export class User extends Document {
 
   @Prop({ required: true, trim: true })
   lastName: string;
+
+  @Prop({ required: false, trim: true })
+  location: string;
+
+  @Prop({ required: false, trim: true })
+  latitude: number;
+
+  @Prop({ required: false, trim: true })
+  longitude: number;
+
+  @Prop({ required: false })
+  languages: [string];
+
+  @Prop({ required: false, default: 0 })
+  experience: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

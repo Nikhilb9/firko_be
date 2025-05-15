@@ -11,6 +11,15 @@ async function bootstrap() {
     .setTitle('RIRI')
     .setVersion('1.0')
     .addServer('http://localhost:3000/', 'Local environment')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter JWT token',
+      },
+      'jwt',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, options);

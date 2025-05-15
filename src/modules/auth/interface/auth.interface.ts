@@ -17,4 +17,5 @@ export interface IAuthData {
   firstName: string;
   lastName: string;
   address?: string;
+  id: string;
 }

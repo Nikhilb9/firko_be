@@ -1,0 +1,40 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { IRegister } from 'src/modules/auth/interface/auth.interface';
+import { User } from 'src/schemas/user.schema';
+import { IUserProfile } from './interfaces/user.interface';
+
+@Injectable()
+export class UserRepositoryService {
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  findOneByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
+  findOneByPhone(phone: string): Promise<User | null> {
+    return this.userModel.findOne({ phone }).exec();
+  }
+
+  createUser(user: IRegister): Promise<User> {
+    return this.userModel.create(user);
+  }
+
+  getUserById(id: string): Promise<User | null> {
+    const objectId = new Types.ObjectId(id);
+    return this.userModel.findById(objectId);
+  }
+
+  async updateUser(id: string, updateData: IUserProfile): Promise<void> {
+    const objectId = new Types.ObjectId(id);
+    await this.userModel.updateOne({ _id: objectId }, updateData);
+  }
+
+  async updatePassword(id: string, newPassword: string): Promise<void> {
+    const objectId = new Types.ObjectId(id);
+    await this.userModel.updateOne(
+      { _id: objectId },
+      { password: newPassword },
+    );
+  }
+}

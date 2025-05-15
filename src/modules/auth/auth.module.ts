@@ -4,9 +4,9 @@ import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/config/jwt.config';
-import { UserRepositoryService } from 'src/user/user.repository.service';
-import { JwtService as NestJwtService } from '../common/services/jwt.service'; // assuming the JWT service is already created
+import { jwtConstants } from '../../config/jwt/jwt.config';
+import { UserRepositoryService } from '../user/user.repository.service';
+import { JwtService as NestJwtService } from '../../common/services/jwt.service'; // assuming the JWT service is already created
 
 @Module({
   imports: [

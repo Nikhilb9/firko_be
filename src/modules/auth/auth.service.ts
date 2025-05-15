@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '../common/services/jwt.service'; // assuming the JWT service is already created
+import { JwtService } from '../../common/services/jwt.service'; // assuming the JWT service is already created
 import { UserRepositoryService } from '../user/user.repository.service'; // UserService to interact with DB
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto'; // DTO for login data
@@ -40,7 +40,7 @@ export class AuthService {
     }
 
     // Create JWT token if the password is valid
-    const payload = { userId: user._id, email: user.email };
+    const payload = { id: user._id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
 
     return {
@@ -49,6 +49,7 @@ export class AuthService {
       firstName: user.firstName,
       lastName: user.lastName,
       address: user.address,
+      id: String(user._id),
     };
   }
 
@@ -83,6 +84,7 @@ export class AuthService {
       firstName: user.firstName,
       lastName: user.lastName,
       address: user.address,
+      id: String(user._id),
     };
   }
 }

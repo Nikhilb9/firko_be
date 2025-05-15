@@ -4,12 +4,19 @@ import { UserService } from './user.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { UserRepositoryService } from './user.repository.service';
+import { JwtService as NestJwtService } from '../../common/services/jwt.service'; // assuming the JWT service is already created
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from 'src/config/jwt/jwt.config';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: jwtConstants.expiresIn },
+    }),
   ],
   controllers: [UserController],
-  providers: [UserService, UserRepositoryService],
+  providers: [UserService, UserRepositoryService, NestJwtService],
 })
 export class UserModule {}
