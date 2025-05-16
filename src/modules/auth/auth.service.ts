@@ -40,7 +40,7 @@ export class AuthService {
     }
 
     // Create JWT token if the password is valid
-    const payload = { id: user._id, email: user.email };
+    const payload = { id: user?._id?.toString(), email: user.email };
     const accessToken = this.jwtService.sign(payload);
 
     return {
@@ -75,7 +75,7 @@ export class AuthService {
     });
 
     // Create JWT token if the password is valid
-    const payload = { userId: user._id, email: user.email };
+    const payload = { id: user?._id?.toString(), email: user.email };
     const accessToken = this.jwtService.sign(payload);
 
     return {

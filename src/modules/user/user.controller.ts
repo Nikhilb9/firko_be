@@ -16,11 +16,11 @@ import { IAuthData } from '../auth/interface/auth.interface';
 
 @Controller('user')
 @UseGuards(AuthGuard)
+@ApiBearerAuth('jwt')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Put('/profile')
   @ApiOperation({ summary: 'Update user profile' })
-  @ApiBearerAuth('jwt')
   @ApiBody({ type: UpdateProfileDto })
   @ApiResponse({
     status: 200,
@@ -40,7 +40,6 @@ export class UserController {
 
   @Get('/profile')
   @ApiOperation({ summary: 'Get user profile' })
-  @ApiBearerAuth('jwt')
   @ApiResponse({
     status: 200,
     description: 'User profile',
@@ -49,6 +48,7 @@ export class UserController {
   async getProfile(
     @Request() req: Request & { user: IAuthData },
   ): Promise<ApiResponseDto<GetProfileResponseDto>> {
+    console.log(req.user);
     const profile: IUserProfile = await this.userService.getProfile(
       req.user.id,
     );
@@ -62,7 +62,6 @@ export class UserController {
 
   @Put('/password')
   @ApiOperation({ summary: 'Update user password' })
-  @ApiBearerAuth('jwt')
   @ApiBody({ type: UpdatePasswordDto })
   @ApiResponse({
     status: 200,
