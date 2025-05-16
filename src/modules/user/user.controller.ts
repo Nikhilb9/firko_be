@@ -2,6 +2,7 @@ import { Body, Controller, Get, Put, Request, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiExtraModels,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
@@ -17,6 +18,7 @@ import { IAuthData } from '../auth/interface/auth.interface';
 @Controller('user')
 @UseGuards(AuthGuard)
 @ApiBearerAuth('jwt')
+@ApiExtraModels(GetProfileResponseDto)
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Put('/profile')

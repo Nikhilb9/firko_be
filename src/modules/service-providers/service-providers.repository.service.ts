@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { ICreateServiceProduct } from './interfaces/service-providers.interface';
 import { ServiceProductType } from './enums/service-providers.enum';
+// import { ServiceProductListQueryDto } from './dto/list-query-service-providers.dto';
 
 @Injectable()
 export class ServiceProvidersRepositoryService {
@@ -21,7 +22,6 @@ export class ServiceProvidersRepositoryService {
       userId: new Types.ObjectId(userId),
     });
   }
-
   async updateServiceProduct(
     id: string,
     updateData: ICreateServiceProduct,
@@ -34,11 +34,15 @@ export class ServiceProvidersRepositoryService {
   async getServiceProductById(id: string): Promise<ServiceProduct | null> {
     return this.serviceProductSchema.findById(new Types.ObjectId(id));
   }
-
   async getServiceByUserId(userId: string): Promise<ServiceProduct | null> {
     return this.serviceProductSchema.findOne({
       userId: new Types.ObjectId(userId),
       type: ServiceProductType.SERVICE,
     });
   }
+  // async getServiceProductListbByFilterAndPagination(
+  //   filterData: ServiceProductListQueryDto,
+  // ): Promise<ServiceProduct[]> {
+
+  // }
 }

@@ -63,6 +63,12 @@ export class ServiceProduct extends Document {
   @Prop({ default: false })
   isVerified: boolean;
 
+  @Prop({ default: false })
+  isDeleted: boolean;
+
+  @Prop()
+  deletedAt?: Date;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

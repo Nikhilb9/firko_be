@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ServiceProductType, Weekday } from '../enums/service-providers.enum';
 import { IServiceProductResponse } from '../interfaces/service-providers.interface';
+import { ServiceProvidersProfileDto } from './service-providers.profile.dto';
+import { Type } from 'class-transformer';
 
 export class ServiceProductResponseDto implements IServiceProductResponse {
   @ApiProperty({
@@ -95,4 +97,8 @@ export class ServiceProductResponseDto implements IServiceProductResponse {
     description: 'Created date of the service or product (ISO format)',
   })
   createdAt: Date;
+
+  @ApiProperty({ description: 'User detail hwo upload service or product' })
+  @Type(() => ServiceProvidersProfileDto)
+  user: ServiceProvidersProfileDto;
 }

@@ -7,10 +7,12 @@ import {
   Put,
   Body,
   Post,
+  // Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiExtraModels,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -23,7 +25,10 @@ import { UpdateServiceProductDto } from './dto/update-service-product.dto';
 import { CreateServiceProductDto } from './dto/create-service-product.dto';
 import { ServiceProvidersService } from './service-providers.service';
 import { IServiceProductResponse } from './interfaces/service-providers.interface';
+// import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
+// import { ServiceProductListQueryDto } from './dto/list-query-service-providers.dto';
 
+@ApiExtraModels(ServiceProductResponseDto)
 @Controller('service-providers')
 export class ServiceProvidersController {
   constructor(
@@ -38,7 +43,7 @@ export class ServiceProvidersController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Service or product details by ID',
+    description: 'Service product details by ID',
     type: ApiResponseDto<ServiceProductResponseDto>,
   })
   async getProductOrService(
@@ -72,7 +77,7 @@ export class ServiceProvidersController {
   @ApiBearerAuth('jwt')
   async updateProductOrService(
     @Param('id') id: string,
-    @Body() updateServiceProductData: UpdateServiceProductDto, // Assuming the update DTO exists
+    @Body() updateServiceProductData: UpdateServiceProductDto,
     @Request() req: Request & { user: IAuthData },
   ): Promise<ApiResponseDto<null>> {
     await this.serviceProvidersService.updateServiceOrProduct(
@@ -94,14 +99,10 @@ export class ServiceProvidersController {
     description: 'Service or product created successfully',
     type: ApiResponseDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Bad request, invalid data',
-  })
   @UseGuards(AuthGuard)
   @ApiBearerAuth('jwt')
   async createProductOrService(
-    @Body() createServiceProductData: CreateServiceProductDto, // Assuming the create DTO exists
+    @Body() createServiceProductData: CreateServiceProductDto,
     @Request() req: Request & { user: IAuthData },
   ): Promise<ApiResponseDto<null>> {
     await this.serviceProvidersService.createServiceOrProduct(
@@ -114,4 +115,24 @@ export class ServiceProvidersController {
       'Service or product created successfully',
     );
   }
+
+  // @Get()
+  // @ApiOperation({ summary: 'Service or product list' })
+  // @ApiResponse({
+  //   status: 201,
+  //   description: 'Service or product list',
+  //   type: ApiResponseDto<ServiceProductListResponseDto>,
+  // })
+  // async getServiceProductList(
+  //   @Query() query: ServiceProductListQueryDto,
+  // ): Promise<ApiResponseDto<ServiceProductListResponseDto[]>> {
+  //   const data =
+  //     await this.serviceProvidersService.getServiceProductList(query);
+  //   return new ApiResponseDto(
+  //     200,
+  //     'SUCCESS',
+  //     'Service or product created successfully',
+  //     data,
+  //   );
+  // }
 }

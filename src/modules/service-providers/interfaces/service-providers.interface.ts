@@ -33,4 +33,13 @@ export interface IServiceProductResponse {
   serviceAreaKM?: number;
   isVerified: boolean;
   createdAt: Date;
+  user: IServiceProvidersProfile;
+}
+
+export interface IServiceProvidersProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  profileImage: string;
+  isVerified: boolean;
 }

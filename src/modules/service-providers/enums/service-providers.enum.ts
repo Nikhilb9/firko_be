@@ -1,4 +1,3 @@
-// enums/type.enum.ts
 export enum ServiceProductType {
   SERVICE = 'SERVICE',
   PRODUCT = 'PRODUCT',

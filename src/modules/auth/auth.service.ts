@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '../../common/services/jwt.service'; // assuming the JWT service is already created
+import { JwtService } from '../../common/services/jwt.service';
 import { UserRepositoryService } from '../user/user.repository.service'; // UserService to interact with DB
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto'; // DTO for login data

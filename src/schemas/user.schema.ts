@@ -7,7 +7,7 @@ export class User extends Document {
   email?: string;
 
   @Prop({ required: true })
-  password: string; // Should be hashed before ssaving
+  password: string;
 
   @Prop({ required: true, max: 13 })
   phone: string;

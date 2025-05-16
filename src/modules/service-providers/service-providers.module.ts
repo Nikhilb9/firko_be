@@ -9,12 +9,15 @@ import {
 } from './schema/service-providers.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/config/jwt/jwt.config';
-import { JwtService as NestJwtService } from '../../common/services/jwt.service'; // assuming the JWT service is already created
+import { JwtService as NestJwtService } from '../../common/services/jwt.service';
+import { UserRepositoryService } from '../user/user.repository.service';
+import { User, UserSchema } from 'src/schemas/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ServiceProduct.name, schema: ServiceProductSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     JwtModule.register({
       secret: jwtConstants.secret,
@@ -26,6 +29,7 @@ import { JwtService as NestJwtService } from '../../common/services/jwt.service'
     ServiceProvidersService,
     ServiceProvidersRepositoryService,
     NestJwtService,
+    UserRepositoryService,
   ],
 })
 export class ServiceProvidersModule {}

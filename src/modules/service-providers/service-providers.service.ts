@@ -4,11 +4,16 @@ import {
   IServiceProductResponse,
 } from './interfaces/service-providers.interface';
 import { ServiceProvidersRepositoryService } from './service-providers.repository.service';
+import { UserRepositoryService } from '../user/user.repository.service';
+import { User } from 'src/schemas/user.schema';
+// import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
+// import { ServiceProductListQueryDto } from './dto/list-query-service-providers.dto';
 
 @Injectable()
 export class ServiceProvidersService {
   constructor(
     private readonly serviceProductRepoSer: ServiceProvidersRepositoryService,
+    private readonly userRepoService: UserRepositoryService,
   ) {}
 
   async createServiceOrProduct(
@@ -47,6 +52,9 @@ export class ServiceProvidersService {
     if (!isExist) {
       throw new BadRequestException('Service or product not found');
     }
+    const userHwoUploadServiceOrProduct: User | null =
+      await this.userRepoService.getUserById(isExist.userId.toString());
+
     return {
       id: isExist._id?.toString() ?? '',
       location: isExist.location,
@@ -64,6 +72,19 @@ export class ServiceProvidersService {
       serviceAreaKM: isExist.serviceAreaKM,
       isVerified: isExist.isVerified,
       createdAt: isExist.createdAt ?? new Date(),
+      user: {
+        id: userHwoUploadServiceOrProduct?._id?.toString() ?? '',
+        first_name: userHwoUploadServiceOrProduct?.firstName ?? '',
+        last_name: userHwoUploadServiceOrProduct?.lastName ?? '',
+        profileImage: userHwoUploadServiceOrProduct?.profileImage ?? '',
+        isVerified: userHwoUploadServiceOrProduct?.isVerified ?? false,
+      },
     };
   }
+
+  // async getServiceProductList(
+  //   queryData: ServiceProductListQueryDto,
+  // ): Promise<ServiceProductListResponseDto[]> {
+  //   return [{}] as ServiceProductListResponseDto[];
+  // }
 }
