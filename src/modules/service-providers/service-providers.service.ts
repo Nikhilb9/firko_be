@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ICreateServiceProduct,
+  IServiceProductListQuery,
+  IServiceProductListResponse,
   IServiceProductResponse,
 } from './interfaces/service-providers.interface';
 import { ServiceProvidersRepositoryService } from './service-providers.repository.service';
@@ -82,9 +84,15 @@ export class ServiceProvidersService {
     };
   }
 
-  // async getServiceProductList(
-  //   queryData: ServiceProductListQueryDto,
-  // ): Promise<ServiceProductListResponseDto[]> {
-  //   return [{}] as ServiceProductListResponseDto[];
-  // }
+  async getUserProductAndServiceList(
+    userId: string,
+  ): Promise<IServiceProductListResponse[]> {
+    return this.serviceProductRepoSer.getUserServiceAndProductList(userId);
+  }
+
+  async getAllProductAndServiceList(
+    filterData: IServiceProductListQuery,
+  ): Promise<IServiceProductListResponse[]> {
+    return this.serviceProductRepoSer.getAllServiceAndProductList(filterData);
+  }
 }

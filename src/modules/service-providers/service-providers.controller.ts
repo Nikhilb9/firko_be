@@ -7,7 +7,7 @@ import {
   Put,
   Body,
   Post,
-  // Query,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -24,11 +24,14 @@ import { IAuthData } from '../auth/interface/auth.interface';
 import { UpdateServiceProductDto } from './dto/update-service-product.dto';
 import { CreateServiceProductDto } from './dto/create-service-product.dto';
 import { ServiceProvidersService } from './service-providers.service';
-import { IServiceProductResponse } from './interfaces/service-providers.interface';
-// import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
-// import { ServiceProductListQueryDto } from './dto/list-query-service-providers.dto';
+import {
+  IServiceProductListResponse,
+  IServiceProductResponse,
+} from './interfaces/service-providers.interface';
+import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
+import { ServiceProductListQueryDto } from './dto/list-query-service-product.dto';
 
-@ApiExtraModels(ServiceProductResponseDto)
+@ApiExtraModels(ServiceProductResponseDto, ServiceProductListResponseDto)
 @Controller('service-providers')
 export class ServiceProvidersController {
   constructor(
@@ -116,23 +119,46 @@ export class ServiceProvidersController {
     );
   }
 
-  // @Get()
-  // @ApiOperation({ summary: 'Service or product list' })
-  // @ApiResponse({
-  //   status: 201,
-  //   description: 'Service or product list',
-  //   type: ApiResponseDto<ServiceProductListResponseDto>,
-  // })
-  // async getServiceProductList(
-  //   @Query() query: ServiceProductListQueryDto,
-  // ): Promise<ApiResponseDto<ServiceProductListResponseDto[]>> {
-  //   const data =
-  //     await this.serviceProvidersService.getServiceProductList(query);
-  //   return new ApiResponseDto(
-  //     200,
-  //     'SUCCESS',
-  //     'Service or product created successfully',
-  //     data,
-  //   );
-  // }
+  @Get()
+  @ApiOperation({ description: 'Get user product and service list' })
+  @ApiResponse({
+    status: 201,
+    description: 'Service or product list',
+    type: ApiResponseDto<ServiceProductListResponseDto>,
+  })
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('jwt')
+  async getUserProductAndService(
+    @Request() req: Request & { user: IAuthData },
+  ) {
+    const serviceAndProductList: IServiceProductListResponse[] =
+      await this.serviceProvidersService.getUserProductAndServiceList(
+        req.user.id,
+      );
+    return new ApiResponseDto(
+      200,
+      'SUCCESS',
+      'Service or product created successfully',
+      serviceAndProductList,
+    );
+  }
+
+  @Get('/list')
+  @ApiOperation({ description: 'Get product and service list' })
+  @ApiResponse({
+    status: 201,
+    description: 'Service or product list',
+    type: ApiResponseDto<ServiceProductListResponseDto>,
+  })
+  async getProductAndServiceList(@Query() query: ServiceProductListQueryDto) {
+    const productAndService: IServiceProductListResponse[] =
+      await this.serviceProvidersService.getAllProductAndServiceList(query);
+
+    return new ApiResponseDto(
+      200,
+      'SUCCESS',
+      'Service or product created successfully',
+      productAndService,
+    );
+  }
 }

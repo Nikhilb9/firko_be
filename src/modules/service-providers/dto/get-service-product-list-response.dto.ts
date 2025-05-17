@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsBoolean, IsArray } from 'class-validator';
+import { IServiceProductListResponse } from '../interfaces/service-providers.interface';
 
-export class ServiceProductListResponseDto {
+export class ServiceProductListResponseDto
+  implements IServiceProductListResponse
+{
   @ApiProperty({ description: 'ID of the service/product' })
   @IsString()
   id: string;

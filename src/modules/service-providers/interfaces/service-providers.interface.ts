@@ -43,3 +43,21 @@ export interface IServiceProvidersProfile {
   profileImage: string;
   isVerified: boolean;
 }
+
+export interface IServiceProductListResponse {
+  id: string;
+  location: string;
+  price: number;
+  title: string;
+  images: string[];
+  isVerified: boolean;
+}
+
+export interface IServiceProductListQuery {
+  latitude?: string;
+  longitude?: string;
+  search?: string;
+  type?: ServiceProductType;
+  page?: number;
+  limit?: number;
+}

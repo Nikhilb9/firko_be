@@ -69,9 +69,41 @@ export class ServiceProduct extends Document {
   @Prop()
   deletedAt?: Date;
 
+  // Add geoLocation field for geospatial queries
+  @Prop({
+    type: {
+      type: String,
+      enum: ['Point'],
+      required: true,
+      default: 'Point',
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      required: true,
+      index: '2dsphere',
+    },
+  })
+  geoLocation: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export const ServiceProductSchema =
   SchemaFactory.createForClass(ServiceProduct);
+
+ServiceProductSchema.index({ geoLocation: '2dsphere' });
+
+// Add pre-save hook to set geoLocation.coordinates from longitude and latitude
+ServiceProductSchema.pre<ServiceProduct>('save', function (next) {
+  if (this.longitude != null && this.latitude != null) {
+    this.geoLocation = {
+      type: 'Point',
+      coordinates: [this.longitude, this.latitude],
+    };
+  }
+  next();
+});

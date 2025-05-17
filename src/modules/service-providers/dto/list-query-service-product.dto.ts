@@ -1,52 +1,31 @@
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-  ValidateIf,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { ServiceProductType } from '../enums/service-providers.enum';
 import { Transform } from 'class-transformer';
+import { IServiceProductListQuery } from '../interfaces/service-providers.interface';
 
-export class ServiceProductListQueryDto {
-  @ApiPropertyOptional({
-    type: String,
-    description: 'User ID (MongoDB ObjectId) to filter for a specific user',
-  })
-  @IsOptional()
-  @IsMongoId({ message: 'forUser must be a valid MongoDB ObjectId' })
-  forUser?: string;
-
+export class ServiceProductListQueryDto implements IServiceProductListQuery {
   @ApiProperty({
     type: String,
     required: false,
-    description: 'Latitude - required if forUser is not provided',
+    description: 'Latitude',
   })
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.forUser !== true)
   @IsString()
   latitude?: string;
 
   @ApiProperty({
     type: String,
     required: false,
-    description: 'Longitude - required if forUser is not provided',
+    description: 'Longitude',
   })
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.forUser !== true)
   @IsString()
   longitude?: string;
 
   @ApiProperty({
     type: String,
     required: false,
-    description: 'Search query - required if forUser is not provided',
+    description: 'Search query',
   })
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.forUser !== true)
   @IsString()
   search?: string;
 
@@ -55,8 +34,6 @@ export class ServiceProductListQueryDto {
     description: 'Search type (SERVICE or PRODUCT)',
   })
   @IsOptional()
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.forUser !== true)
   @IsEnum(ServiceProductType)
   type?: ServiceProductType;
 

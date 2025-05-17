@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ServiceProduct } from './schema/service-providers.schema';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { ICreateServiceProduct } from './interfaces/service-providers.interface';
+import {
+  ICreateServiceProduct,
+  IServiceProductListQuery,
+  IServiceProductListResponse,
+} from './interfaces/service-providers.interface';
 import { ServiceProductType } from './enums/service-providers.enum';
-// import { ServiceProductListQueryDto } from './dto/list-query-service-providers.dto';
+import type { PipelineStage } from 'mongoose';
 
 @Injectable()
 export class ServiceProvidersRepositoryService {
@@ -40,9 +44,63 @@ export class ServiceProvidersRepositoryService {
       type: ServiceProductType.SERVICE,
     });
   }
-  // async getServiceProductListbByFilterAndPagination(
-  //   filterData: ServiceProductListQueryDto,
-  // ): Promise<ServiceProduct[]> {
 
-  // }
+  async getUserServiceAndProductList(
+    userId: string,
+  ): Promise<IServiceProductListResponse[]> {
+    return this.serviceProductSchema
+      .find<IServiceProductListResponse>({
+        userId: new Types.ObjectId(userId),
+      })
+      .select('id location price title images isVerified');
+  }
+
+  async getAllServiceAndProductList(
+    filterData: IServiceProductListQuery,
+  ): Promise<IServiceProductListResponse[]> {
+    const page = filterData.page ?? 1;
+    const limit = filterData.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const matchFilter: Record<string, any> = {
+      ...(filterData.type && { type: filterData.type }),
+      ...(filterData.search && {
+        title: { $regex: filterData.search, $options: 'i' },
+      }),
+    };
+
+    const pipeline: PipelineStage[] = [];
+
+    pipeline.push({
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [
+            parseFloat(filterData.longitude!),
+            parseFloat(filterData.latitude!),
+          ],
+        },
+        distanceField: 'distance',
+        spherical: true,
+        query: matchFilter,
+      },
+    });
+
+    pipeline.push({
+      $project: {
+        id: '$_id',
+        location: 1,
+        price: 1,
+        title: 1,
+        images: 1,
+        isVerified: 1,
+        distance: 1,
+      },
+    });
+
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+
+    return this.serviceProductSchema.aggregate(pipeline);
+  }
 }
