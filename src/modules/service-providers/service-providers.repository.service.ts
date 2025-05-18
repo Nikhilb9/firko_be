@@ -66,8 +66,6 @@ export class ServiceProvidersRepositoryService {
   async getAllServiceAndProductList(
     filterData: IServiceProductListQuery,
   ): Promise<IServiceProductListResponse[]> {
-    console.log(filterData);
-
     const page = filterData.page ?? 1;
     const limit = filterData.limit ?? 10;
     const skip = (page - 1) * limit;

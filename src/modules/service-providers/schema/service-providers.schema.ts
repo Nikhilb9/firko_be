@@ -80,7 +80,6 @@ export class ServiceProduct extends Document {
     coordinates: {
       type: [Number], // [longitude, latitude]
       required: true,
-      index: '2dsphere',
     },
   })
   geoLocation: {

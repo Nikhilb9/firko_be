@@ -50,7 +50,6 @@ export class UserController {
   async getProfile(
     @Request() req: Request & { user: IAuthData },
   ): Promise<ApiResponseDto<GetProfileResponseDto>> {
-    console.log(req.user);
     const profile: IUserProfile = await this.userService.getProfile(
       req.user.id,
     );
