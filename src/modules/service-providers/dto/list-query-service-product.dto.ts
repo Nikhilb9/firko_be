@@ -1,5 +1,13 @@
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsLatitude,
+  IsLongitude,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { ServiceProductType } from '../enums/service-providers.enum';
 import { Transform } from 'class-transformer';
 import { IServiceProductListQuery } from '../interfaces/service-providers.interface';
@@ -10,16 +18,18 @@ export class ServiceProductListQueryDto implements IServiceProductListQuery {
     required: false,
     description: 'Latitude',
   })
-  @IsString()
-  latitude?: string;
+  @IsLatitude()
+  @Transform(({ value }) => parseFloat(value))
+  latitude: string;
 
   @ApiProperty({
     type: String,
     required: false,
     description: 'Longitude',
   })
-  @IsString()
-  longitude?: string;
+  @IsLongitude()
+  @Transform(({ value }) => parseFloat(value))
+  longitude: string;
 
   @ApiProperty({
     type: String,
@@ -27,6 +37,7 @@ export class ServiceProductListQueryDto implements IServiceProductListQuery {
     description: 'Search query',
   })
   @IsString()
+  @IsOptional()
   search?: string;
 
   @ApiPropertyOptional({

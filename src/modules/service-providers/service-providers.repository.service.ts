@@ -48,16 +48,26 @@ export class ServiceProvidersRepositoryService {
   async getUserServiceAndProductList(
     userId: string,
   ): Promise<IServiceProductListResponse[]> {
-    return this.serviceProductSchema
-      .find<IServiceProductListResponse>({
-        userId: new Types.ObjectId(userId),
-      })
-      .select('id location price title images isVerified');
+    const docs: ServiceProduct[] = await this.serviceProductSchema
+      .find<ServiceProduct>({ userId })
+      .select('_id location price title images isVerified')
+      .lean();
+
+    return docs.map((doc) => ({
+      id: doc?._id?.toString() ?? '',
+      location: doc.location,
+      price: doc.price,
+      title: doc.title,
+      images: doc.images,
+      isVerified: doc.isVerified,
+    }));
   }
 
   async getAllServiceAndProductList(
     filterData: IServiceProductListQuery,
   ): Promise<IServiceProductListResponse[]> {
+    console.log(filterData);
+
     const page = filterData.page ?? 1;
     const limit = filterData.limit ?? 10;
     const skip = (page - 1) * limit;
@@ -98,8 +108,8 @@ export class ServiceProvidersRepositoryService {
       },
     });
 
-    pipeline.push({ $skip: skip });
-    pipeline.push({ $limit: limit });
+    pipeline.push({ $skip: Number(skip) });
+    pipeline.push({ $limit: Number(limit) });
 
     return this.serviceProductSchema.aggregate(pipeline);
   }

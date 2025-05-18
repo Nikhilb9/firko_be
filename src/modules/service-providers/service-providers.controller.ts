@@ -37,6 +37,25 @@ export class ServiceProvidersController {
   constructor(
     private readonly serviceProvidersService: ServiceProvidersService,
   ) {}
+  @Get('/all-list')
+  @ApiOperation({ description: 'Get product and service list' })
+  @ApiResponse({
+    status: 201,
+    description: 'Service or product list',
+    type: ApiResponseDto<ServiceProductListResponseDto>,
+  })
+  async getProductAndServiceList(@Query() query: ServiceProductListQueryDto) {
+    const productAndService: IServiceProductListResponse[] =
+      await this.serviceProvidersService.getAllProductAndServiceList(query);
+
+    return new ApiResponseDto(
+      200,
+      'SUCCESS',
+      'Service or product list',
+      productAndService,
+    );
+  }
+
   @Get('/:id')
   @ApiOperation({ summary: 'Get service or product by ID' })
   @ApiParam({
@@ -135,30 +154,12 @@ export class ServiceProvidersController {
       await this.serviceProvidersService.getUserProductAndServiceList(
         req.user.id,
       );
+
     return new ApiResponseDto(
       200,
       'SUCCESS',
-      'Service or product created successfully',
+      'Service or product list',
       serviceAndProductList,
-    );
-  }
-
-  @Get('/list')
-  @ApiOperation({ description: 'Get product and service list' })
-  @ApiResponse({
-    status: 201,
-    description: 'Service or product list',
-    type: ApiResponseDto<ServiceProductListResponseDto>,
-  })
-  async getProductAndServiceList(@Query() query: ServiceProductListQueryDto) {
-    const productAndService: IServiceProductListResponse[] =
-      await this.serviceProvidersService.getAllProductAndServiceList(query);
-
-    return new ApiResponseDto(
-      200,
-      'SUCCESS',
-      'Service or product created successfully',
-      productAndService,
     );
   }
 }

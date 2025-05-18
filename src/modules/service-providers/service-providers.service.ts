@@ -8,8 +8,6 @@ import {
 import { ServiceProvidersRepositoryService } from './service-providers.repository.service';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { User } from 'src/schemas/user.schema';
-// import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
-// import { ServiceProductListQueryDto } from './dto/list-query-service-providers.dto';
 
 @Injectable()
 export class ServiceProvidersService {
