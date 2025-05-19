@@ -19,6 +19,9 @@ export class CommunicationRoom extends Document {
 
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   receiverId: Types.ObjectId;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const CommunicationRoomSchema =
