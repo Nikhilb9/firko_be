@@ -71,7 +71,7 @@ export class ServiceProvidersService {
       workingHours: isExist.workingHours,
       serviceAreaKM: isExist.serviceAreaKM,
       isVerified: isExist.isVerified,
-      createdAt: isExist.createdAt ?? new Date(),
+      createdAt: isExist?.createdAt ?? new Date(),
       user: {
         id: userHwoUploadServiceOrProduct?._id?.toString() ?? '',
         first_name: userHwoUploadServiceOrProduct?.firstName ?? '',
@@ -91,6 +91,18 @@ export class ServiceProvidersService {
   async getAllProductAndServiceList(
     filterData: IServiceProductListQuery,
   ): Promise<IServiceProductListResponse[]> {
-    return this.serviceProductRepoSer.getAllServiceAndProductList(filterData);
+    return (
+      await this.serviceProductRepoSer.getAllServiceAndProductList(filterData)
+    ).map((data) => {
+      return {
+        id: data.id,
+        location: data.location,
+        price: data.price,
+        title: data.title,
+        images: data.images,
+        isVerified: data.isVerified,
+        type: data.type,
+      };
+    });
   }
 }

@@ -95,14 +95,3 @@ export const ServiceProductSchema =
   SchemaFactory.createForClass(ServiceProduct);
 
 ServiceProductSchema.index({ geoLocation: '2dsphere' });
-
-// Add pre-save hook to set geoLocation.coordinates from longitude and latitude
-ServiceProductSchema.pre<ServiceProduct>('save', function (next) {
-  if (this.longitude != null && this.latitude != null) {
-    this.geoLocation = {
-      type: 'Point',
-      coordinates: [this.longitude, this.latitude],
-    };
-  }
-  next();
-});

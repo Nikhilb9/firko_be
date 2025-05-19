@@ -1,4 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { RatingRepositoryService } from './rating.repository.service';
+import { ICreateRating, IRatingResponse } from './interface/rating.interface';
+import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
+import { Types } from 'mongoose';
 
 @Injectable()
-export class RatingService {}
+export class RatingService {
+  constructor(
+    private readonly ratingRepo: RatingRepositoryService,
+    private readonly serviceProviderRepo: ServiceProvidersRepositoryService,
+  ) {}
+  async giveRating(userId: string, data: ICreateRating): Promise<void> {
+    const isServiceExist = await this.serviceProviderRepo.getServiceProductById(
+      data.serviceId.toString(),
+    );
+
+    if (!isServiceExist) {
+      throw new NotFoundException('Service id not exist');
+    }
+
+    const existing = await this.ratingRepo.findUserRatingForService(
+      data.serviceId.toString(),
+      userId,
+    );
+    if (existing) {
+      throw new ConflictException('You have already rated this service');
+    }
+    await this.ratingRepo.createRating(userId, {
+      ...data,
+      serviceId: new Types.ObjectId(data.serviceId),
+    });
+  }
+  async getRatings(serviceId: string): Promise<IRatingResponse[]> {
+    return this.ratingRepo.getAllRatingForService(serviceId);
+  }
+}

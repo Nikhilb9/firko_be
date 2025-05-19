@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsBoolean, IsArray } from 'class-validator';
 import { IServiceProductListResponse } from '../interfaces/service-providers.interface';
+import { ServiceProductType } from '../enums/service-providers.enum';
 
 export class ServiceProductListResponseDto
   implements IServiceProductListResponse
@@ -43,4 +44,10 @@ export class ServiceProductListResponseDto
   })
   @IsBoolean()
   isVerified: boolean;
+
+  @ApiProperty({
+    description: 'Is this a service or product',
+    default: false,
+  })
+  type: ServiceProductType;
 }

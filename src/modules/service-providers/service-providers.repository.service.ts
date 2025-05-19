@@ -24,8 +24,13 @@ export class ServiceProvidersRepositoryService {
     await this.serviceProductSchema.create({
       ...createData,
       userId: new Types.ObjectId(userId),
+      geoLocation: {
+        type: 'Point',
+        coordinates: [createData.longitude, createData.latitude],
+      },
     });
   }
+
   async updateServiceProduct(
     id: string,
     updateData: ICreateServiceProduct,
@@ -36,7 +41,7 @@ export class ServiceProvidersRepositoryService {
     );
   }
   async getServiceProductById(id: string): Promise<ServiceProduct | null> {
-    return this.serviceProductSchema.findById(new Types.ObjectId(id));
+    return this.serviceProductSchema.findById(id);
   }
   async getServiceByUserId(userId: string): Promise<ServiceProduct | null> {
     return this.serviceProductSchema.findOne({
@@ -50,7 +55,7 @@ export class ServiceProvidersRepositoryService {
   ): Promise<IServiceProductListResponse[]> {
     const docs: ServiceProduct[] = await this.serviceProductSchema
       .find<ServiceProduct>({ userId })
-      .select('_id location price title images isVerified')
+      .select('_id location price title images isVerified type')
       .lean();
 
     return docs.map((doc) => ({
@@ -60,6 +65,7 @@ export class ServiceProvidersRepositoryService {
       title: doc.title,
       images: doc.images,
       isVerified: doc.isVerified,
+      type: doc.type,
     }));
   }
 

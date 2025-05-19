@@ -9,9 +9,11 @@ export class CommunicationService {
   async getUserCommunicationRooms(userId: string): Promise<void> {
     const communicationRoom =
       await this.communicationRepo.getUserCommunicationRooms(userId);
+    console.log(communicationRoom);
   }
   async getCommunicationRoomMessages(roomId: string): Promise<void> {
     const communicationRoomMessages =
       await this.communicationRepo.getCommunicationRoomMessages(roomId);
+    console.log(communicationRoomMessages);
   }
 }

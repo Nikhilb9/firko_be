@@ -51,6 +51,7 @@ export interface IServiceProductListResponse {
   title: string;
   images: string[];
   isVerified: boolean;
+  type: ServiceProductType;
 }
 
 export interface IServiceProductListQuery {
