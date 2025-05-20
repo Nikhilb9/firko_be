@@ -8,6 +8,7 @@ import { CommunicationModule } from './modules/communication/communication.modul
 import { ServiceProvidersModule } from './modules/service-providers/service-providers.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
     SubscriptionModule,
     CommunicationModule,
     ServiceProvidersModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
