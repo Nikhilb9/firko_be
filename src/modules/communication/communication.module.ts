@@ -13,12 +13,17 @@ import {
 } from './schema/communication-room.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/config/jwt/jwt.config';
+import { ChatGateway } from './chat/chat.gateway';
+import { User, UserSchema } from 'src/schemas/user.schema';
+import { UserRepositoryService } from '../user/user.repository.service';
+import { JwtService } from '../../common/services/jwt.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: CommunicationMessage.name, schema: CommunicationMessageSchema },
       { name: CommunicationRoom.name, schema: CommunicationRoomSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     JwtModule.register({
       secret: jwtConstants.secret,
@@ -26,6 +31,12 @@ import { jwtConstants } from 'src/config/jwt/jwt.config';
     }),
   ],
   controllers: [CommunicationController],
-  providers: [CommunicationService, CommunicationRepositoryService],
+  providers: [
+    CommunicationService,
+    CommunicationRepositoryService,
+    UserRepositoryService,
+    ChatGateway,
+    JwtService,
+  ],
 })
 export class CommunicationModule {}

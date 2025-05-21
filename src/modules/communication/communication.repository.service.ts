@@ -87,4 +87,8 @@ export class CommunicationRepositoryService {
       receiverId: msg.receiverId.toString(),
     })) as ICommunicationRoomMessageResponse[];
   }
+
+  async createCommunicationMessage() {}
+  async createCommunicationRoom() {}
+  async updateCommunicationRoom() {}
 }

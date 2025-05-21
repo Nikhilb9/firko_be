@@ -41,6 +41,9 @@ export class User extends Document {
 
   @Prop({ required: false, default: 0 })
   experience: number;
+
+  @Prop({ required: false })
+  connectionId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

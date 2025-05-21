@@ -30,7 +30,6 @@ export class CommunicationController {
     type: ApiResponseDto<CommunicationRoomResponseDto>,
   })
   async getCommunicationsRooms(@Request() req: Request & { user: IAuthData }) {
-    console.log(req.user);
     const res = await this.communicateService.getUserCommunicationRooms(
       req.user.id,
     );

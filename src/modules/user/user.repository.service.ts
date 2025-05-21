@@ -37,4 +37,14 @@ export class UserRepositoryService {
       { password: newPassword },
     );
   }
+
+  async updateUserConnectionId(
+    connectionId: string | null,
+    userId: string,
+  ): Promise<void> {
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(userId) },
+      { connectionId: connectionId },
+    );
+  }
 }
