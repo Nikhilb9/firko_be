@@ -10,6 +10,7 @@ export interface IUserProfile {
   email?: string;
   experience?: number;
   isVerified?: boolean;
+  deviceToken?: string;
 }
 
 export interface IUpdatePassword {

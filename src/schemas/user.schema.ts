@@ -44,6 +44,9 @@ export class User extends Document {
 
   @Prop({ required: false })
   connectionId: string;
+
+  @Prop({ required: false, type: String })
+  deviceToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

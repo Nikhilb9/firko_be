@@ -6,7 +6,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { S3Service } from '../../common/services/s3/s3.service';
+import { S3Service } from '../../common/services/s3.service';
 import { imageFileFilter } from './filters/image-file.filter';
 import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { ApiResponseDto } from '../../common/dto/api-response.dto';

@@ -76,4 +76,9 @@ export class UpdateProfileDto implements IUserProfile {
   @Max(100)
   @Min(0)
   experience?: number;
+
+  @ApiPropertyOptional({ description: 'Push notfication toke' })
+  @IsString()
+  @IsOptional()
+  deviceToken: string;
 }

@@ -50,6 +50,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client?.handshake?.query?.token as string,
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     await this.userRepoService.updateUserConnectionId(client.id, payload.id);
     client.emit('connected', {
       message: 'Connected successfully',
