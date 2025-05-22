@@ -13,6 +13,7 @@ import { WsJwtGuard } from './ws-jwt.guard';
 import { AuthenticatedSocket } from '../interface/chat.interface';
 import { CommunicationRepositoryService } from '../communication.repository.service';
 import { JwtService } from '../../../common/services/jwt.service';
+import { Types } from 'mongoose';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsJwtGuard)
@@ -28,42 +29,41 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: AuthenticatedSocket) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const payload = this.jwtService.verify(
+    const payload: { id: string } | null = this.jwtService.verify(
       client?.handshake?.query?.token as string,
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    await this.userRepoService.updateUserConnectionId(null, payload.id);
-    // return this.server.emit('Connection deleted successfully');
-
-    client.emit('disconnected', {
-      message: 'Disconnected successfully',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      userId: payload.id,
-      socketId: client.id,
-    });
+    if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+      await this.userRepoService.updateUserConnectionId(null, payload.id);
+      client.emit('disconnected', {
+        message: 'Disconnected successfully',
+        userId: payload?.id,
+        socketId: client.id,
+      });
+    }
   }
 
   async handleConnection(client: AuthenticatedSocket) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const payload = this.jwtService.verify(
+    const payload: { id: string } | null = this.jwtService.verify(
       client?.handshake?.query?.token as string,
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    await this.userRepoService.updateUserConnectionId(client.id, payload.id);
-    client.emit('connected', {
-      message: 'Connected successfully',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      userId: payload.id,
-      socketId: client.id,
-    });
+    if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+      await this.userRepoService.updateUserConnectionId(client.id, payload.id);
+      client.emit('connected', {
+        message: 'Connected successfully',
+        userId: payload.id,
+        socketId: client.id,
+      });
+    }
   }
 
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
     const { productServiceId, roomId, chatContext, message } = payload;
 
+    // Update message in db with some change in query
     await Promise.all([
       this.communicationRepoService.createCommunicationRoom(),
       this.communicationRepoService.updateCommunicationRoom(),
