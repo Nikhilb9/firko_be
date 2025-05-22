@@ -9,6 +9,7 @@ import { ServiceProvidersModule } from './modules/service-providers/service-prov
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UploadModule } from './modules/upload/upload.module';
     CommunicationModule,
     ServiceProvidersModule,
     UploadModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
