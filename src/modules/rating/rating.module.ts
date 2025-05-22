@@ -11,6 +11,7 @@ import {
   ServiceProduct,
   ServiceProductSchema,
 } from '../service-providers/schema/service-providers.schema';
+import { JwtService } from 'src/common/services/jwt.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import {
     RatingService,
     RatingRepositoryService,
     ServiceProvidersRepositoryService,
+    JwtService,
   ],
 })
 export class RatingModule {}

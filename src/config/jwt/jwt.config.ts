@@ -1,4 +1,4 @@
 export const jwtConstants = {
-  secret: process.env.JWT_SECRET,
+  secret: 'ririnBackendTesting',
   expiresIn: '9d',
 };

@@ -22,14 +22,13 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: imageFileFilter,
+      limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )
-  @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Upload a file to S3' })
   @ApiConsumes('multipart/form-data')
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     const data = await this.s3Service.uploadFile(file);
-
     return new ApiResponseDto(200, 'SUCCESS', 'File upload handled', {
       key: data.key,
       originalName: data.url,
