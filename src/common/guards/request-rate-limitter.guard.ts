@@ -24,6 +24,9 @@ export class RequestRateLimiterGuard implements CanActivate {
     private readonly SKIP_RATE_LIMITTER: boolean,
   ) {}
   canActivate(context: ExecutionContext): boolean {
+    if (context.getType() === 'ws') {
+      return true;
+    }
     if (this.SKIP_RATE_LIMITTER) {
       return true;
     }
