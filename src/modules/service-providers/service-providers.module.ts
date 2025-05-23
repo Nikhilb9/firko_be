@@ -8,7 +8,7 @@ import {
   ServiceProductSchema,
 } from './schema/service-providers.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/config/jwt/jwt.config';
+import { jwtConstants } from '../../config/config';
 import { JwtService as NestJwtService } from '../../common/services/jwt.service';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { User, UserSchema } from 'src/schemas/user.schema';

@@ -6,7 +6,7 @@ import { User, UserSchema } from 'src/schemas/user.schema';
 import { UserRepositoryService } from './user.repository.service';
 import { JwtService as NestJwtService } from '../../common/services/jwt.service';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/config/jwt/jwt.config';
+import { jwtConstants } from '../../config/config';
 
 @Module({
   imports: [

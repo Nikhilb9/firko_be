@@ -4,7 +4,7 @@ import { NotificationService } from './notification.service';
 import { NotificationRepositoryService } from './notification.repository.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/config/jwt/jwt.config';
+import { jwtConstants } from '../../config/config';
 import { Notification, NotificationSchema } from './schema/notification.schema';
 import { JwtService } from 'src/common/services/jwt.service';
 

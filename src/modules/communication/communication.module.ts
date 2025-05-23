@@ -12,7 +12,7 @@ import {
   CommunicationRoomSchema,
 } from './schema/communication-room.schema';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from 'src/config/jwt/jwt.config';
+import { jwtConstants } from '../../config/config';
 import { ChatGateway } from './chat/chat.gateway';
 import { User, UserSchema } from 'src/schemas/user.schema';
 import { UserRepositoryService } from '../user/user.repository.service';
