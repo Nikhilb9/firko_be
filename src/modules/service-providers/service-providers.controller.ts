@@ -19,7 +19,7 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { ServiceProductResponseDto } from './dto/get-service-product.dto';
 import { IAuthData } from '../auth/interface/auth.interface';

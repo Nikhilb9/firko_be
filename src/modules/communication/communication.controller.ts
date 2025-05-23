@@ -15,7 +15,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { CommunicationRoomResponseDto } from './dto/get-communication-room.response';
 import { CommunicationRoomMessageResponseDto } from './dto/get-communication-room-messages.response.dto';
 

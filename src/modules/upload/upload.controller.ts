@@ -11,7 +11,7 @@ import { S3Service } from '../../common/services/s3.service';
 import { imageFileFilter } from './filters/image-file.filter';
 import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { ApiResponseDto } from '../../common/dto/api-response.dto';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 
 @Controller('upload')
 @UseGuards(AuthGuard)

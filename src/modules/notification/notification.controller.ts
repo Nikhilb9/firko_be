@@ -8,7 +8,7 @@ import {
   Param,
   HttpStatus,
 } from '@nestjs/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import {
   ApiBearerAuth,
   ApiExtraModels,

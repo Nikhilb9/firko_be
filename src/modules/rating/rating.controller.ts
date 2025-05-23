@@ -17,7 +17,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { IAuthData } from '../auth/interface/auth.interface';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { RatingResponseDto } from './dto/get-rating.response.dto';

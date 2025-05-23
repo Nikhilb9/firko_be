@@ -14,7 +14,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { IUserProfile } from './interfaces/user.interface';
