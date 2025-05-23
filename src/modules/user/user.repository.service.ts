@@ -7,7 +7,9 @@ import { IUserProfile } from './interfaces/user.interface';
 
 @Injectable()
 export class UserRepositoryService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<User>,
+  ) {}
   findOneByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).exec();
   }
