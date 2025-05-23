@@ -7,7 +7,10 @@ import {
   IServiceProductListQuery,
   IServiceProductListResponse,
 } from './interfaces/service-providers.interface';
-import { ServiceProductType } from './enums/service-providers.enum';
+import {
+  ProductOrServiceStatus,
+  ServiceProductType,
+} from './enums/service-providers.enum';
 import type { PipelineStage } from 'mongoose';
 
 @Injectable()
@@ -66,6 +69,7 @@ export class ServiceProvidersRepositoryService {
       images: doc.images,
       isVerified: doc.isVerified,
       type: doc.type,
+      status: doc.status,
     }));
   }
 
@@ -79,7 +83,12 @@ export class ServiceProvidersRepositoryService {
     const matchFilter: Record<string, any> = {
       ...(filterData.type && { type: filterData.type }),
       ...(filterData.search && {
-        title: { $regex: filterData.search, $options: 'i' },
+        $or: [
+          { title: { $regex: filterData.search, $options: 'i' } },
+          { description: { $regex: filterData.search, $options: 'i' } },
+          { skills: { $in: [new RegExp(filterData.search, 'i')] } },
+        ],
+        status: ProductOrServiceStatus.ACTIVE,
       }),
     };
 

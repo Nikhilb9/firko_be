@@ -1,6 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ServiceProductType, Weekday } from '../enums/service-providers.enum';
+import {
+  ProductOrServiceStatus,
+  ServiceProductType,
+  Weekday,
+} from '../enums/service-providers.enum';
 import { User } from '../../user/schemas/user.schema';
 
 @Schema({ timestamps: true })
@@ -86,6 +90,9 @@ export class ServiceProduct extends Document {
     type: 'Point';
     coordinates: [number, number];
   };
+
+  @Prop({ default: ProductOrServiceStatus.ACTIVE })
+  status: ProductOrServiceStatus;
 
   createdAt?: Date;
   updatedAt?: Date;

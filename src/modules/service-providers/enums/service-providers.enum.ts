@@ -12,3 +12,15 @@ export enum Weekday {
   SATURDAY = 'SATURDAY',
   SUNDAY = 'SUNDAY',
 }
+
+export enum ProductOrServiceStatus {
+  EXPIRED = 'EXPIRED', // Product or service can expire based on business logic
+  ACTIVE = 'ACTIVE', // Initial state of the product or service
+  SOLD = 'SOLD', // User can mark as sold
+  DEACTIVATED = 'DEACTIVATED', // User can deactivate the ad
+}
+
+export enum AllowedUserStatuses {
+  ACTIVE = 'DEACTIVATED',
+  SOLD = 'SOLD',
+}

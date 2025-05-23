@@ -1,4 +1,9 @@
-import { ServiceProductType, Weekday } from '../enums/service-providers.enum';
+import {
+  AllowedUserStatuses,
+  ProductOrServiceStatus,
+  ServiceProductType,
+  Weekday,
+} from '../enums/service-providers.enum';
 
 export interface ICreateServiceProduct {
   location: string;
@@ -14,6 +19,7 @@ export interface ICreateServiceProduct {
   availableDays?: Weekday[];
   workingHours?: string;
   serviceAreaKM?: number;
+  status?: AllowedUserStatuses;
 }
 
 export interface IServiceProductResponse {
@@ -52,6 +58,7 @@ export interface IServiceProductListResponse {
   images: string[];
   isVerified: boolean;
   type: ServiceProductType;
+  status: ProductOrServiceStatus;
 }
 
 export interface IServiceProductListQuery {

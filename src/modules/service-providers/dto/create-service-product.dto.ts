@@ -12,8 +12,12 @@ import {
   IsOptional,
   MaxLength,
 } from 'class-validator';
-import { ServiceProductType, Weekday } from '../enums/service-providers.enum';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  AllowedUserStatuses,
+  ServiceProductType,
+  Weekday,
+} from '../enums/service-providers.enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ICreateServiceProduct } from '../interfaces/service-providers.interface';
 
 export class CreateServiceProductDto implements ICreateServiceProduct {
@@ -142,4 +146,14 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   @Max(1000)
   @IsPositive()
   serviceAreaKM?: number;
+
+  @ApiPropertyOptional({
+    description: 'Status of the service or product',
+    enum: AllowedUserStatuses,
+    required: false,
+  })
+  @IsEnum(AllowedUserStatuses)
+  @IsString()
+  @IsOptional()
+  status?: AllowedUserStatuses;
 }

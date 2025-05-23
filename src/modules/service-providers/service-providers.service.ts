@@ -8,6 +8,11 @@ import {
 import { ServiceProvidersRepositoryService } from './service-providers.repository.service';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { User } from '../user/schemas/user.schema';
+import {
+  ProductOrServiceStatus,
+  ServiceProductType,
+} from './enums/service-providers.enum';
+import { ServiceProduct } from './schema/service-providers.schema';
 
 @Injectable()
 export class ServiceProvidersService {
@@ -20,12 +25,18 @@ export class ServiceProvidersService {
     createData: ICreateServiceProduct,
     userId: string,
   ): Promise<void> {
-    const isServiceExist: ICreateServiceProduct | null =
-      await this.serviceProductRepoSer.getServiceByUserId(userId);
+    if (createData.type === ServiceProductType.SERVICE) {
+      const isServiceExist: ServiceProduct | null =
+        await this.serviceProductRepoSer.getServiceByUserId(userId);
 
-    if (isServiceExist) {
-      throw new BadRequestException('Service already exist');
+      if (isServiceExist) {
+        throw new BadRequestException(
+          'Service already exist - at a time only one service can activated or you can update current service',
+        );
+      }
     }
+
+    delete createData.status;
 
     await this.serviceProductRepoSer.createServiceProduct(createData, userId);
   }
@@ -36,12 +47,18 @@ export class ServiceProvidersService {
     userId: string,
   ): Promise<void> {
     const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
-    if (!isExist) {
-      throw new BadRequestException('Service or product not found');
-    }
-
-    if (userId !== isExist.userId.toString()) {
-      throw new BadRequestException('Service or product not found');
+    if (
+      !isExist ||
+      userId !== isExist.userId.toString() ||
+      [
+        ProductOrServiceStatus.DEACTIVATED,
+        ProductOrServiceStatus.SOLD,
+        ProductOrServiceStatus.EXPIRED,
+      ].includes(isExist.status)
+    ) {
+      throw new BadRequestException(
+        'Service or product not found or sold or expired or deactivated',
+      );
     }
 
     await this.serviceProductRepoSer.updateServiceProduct(id, updateData);
@@ -102,6 +119,7 @@ export class ServiceProvidersService {
         images: data.images,
         isVerified: data.isVerified,
         type: data.type,
+        status: data.status,
       };
     });
   }
