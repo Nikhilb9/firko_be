@@ -1,5 +1,6 @@
 import {
   Controller,
+  HttpStatus,
   Post,
   UploadedFile,
   UseGuards,
@@ -29,7 +30,7 @@ export class UploadController {
   @ApiConsumes('multipart/form-data')
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     const data = await this.s3Service.uploadFile(file);
-    return new ApiResponseDto(200, 'SUCCESS', 'File upload handled', {
+    return new ApiResponseDto(HttpStatus.OK, 'SUCCESS', 'File upload handled', {
       key: data.key,
       originalName: data.url,
     });

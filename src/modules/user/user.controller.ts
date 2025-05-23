@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Put, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Put,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -25,7 +33,7 @@ export class UserController {
   @ApiOperation({ summary: 'Update user profile' })
   @ApiBody({ type: UpdateProfileDto })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User profile updated successfully',
   })
   async updateProfile(
@@ -34,7 +42,7 @@ export class UserController {
   ): Promise<ApiResponseDto<GetProfileResponseDto>> {
     await this.userService.updateProfile(req.user.id, updateProfileData);
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'User profile updated successfully',
     );
@@ -43,7 +51,7 @@ export class UserController {
   @Get('/profile')
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User profile',
     type: ApiResponseDto<GetProfileResponseDto>,
   })
@@ -54,7 +62,7 @@ export class UserController {
       req.user.id,
     );
     return new ApiResponseDto<GetProfileResponseDto>(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'User profile',
       profile,
@@ -65,7 +73,7 @@ export class UserController {
   @ApiOperation({ summary: 'Update user password' })
   @ApiBody({ type: UpdatePasswordDto })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Password updated successfully',
   })
   async updatePassword(
@@ -73,6 +81,10 @@ export class UserController {
     @Request() req: Request & { user: IAuthData },
   ): Promise<ApiResponseDto<''>> {
     await this.userService.updatePassword(req.user.id, updatePasswordData);
-    return new ApiResponseDto(200, 'SUCCESS', 'Password updated successfully');
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      'Password updated successfully',
+    );
   }
 }

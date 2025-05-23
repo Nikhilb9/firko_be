@@ -1,11 +1,10 @@
-// src/common/dto/api-response.dto.ts
-
+import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ApiResponseDto<T> {
   @ApiProperty({
     description: 'HTTP status code of the response',
-    example: 200,
+    example: HttpStatus.OK,
   })
   statusCode: number;
 

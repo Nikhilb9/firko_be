@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { PlacesService } from './places.service';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
@@ -11,7 +11,7 @@ export class PlacesController {
   @Get('autocomplete')
   @ApiOperation({ summary: 'Places list on search' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Places list',
     type: ApiResponseDto,
   })
@@ -28,13 +28,18 @@ export class PlacesController {
     const { predictions }: { predictions: []; status: string } =
       await this.placesService.autocomplete(input);
 
-    return new ApiResponseDto(200, 'SUCCESS', 'Places list', predictions);
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      'Places list',
+      predictions,
+    );
   }
 
   @Get('coordinates')
   @ApiOperation({ summary: 'Places cordinates' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Place cordinates',
     type: ApiResponseDto<IGetPlaceCoordinates>,
   })

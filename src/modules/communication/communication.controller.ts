@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { CommunicationService } from './communication.service';
 import { IAuthData } from '../auth/interface/auth.interface';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
@@ -25,7 +32,7 @@ export class CommunicationController {
   @Get('/rooms')
   @ApiOperation({ summary: 'Get user communication room' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Communication rooms',
     type: ApiResponseDto<CommunicationRoomResponseDto>,
   })
@@ -33,13 +40,18 @@ export class CommunicationController {
     const res = await this.communicateService.getUserCommunicationRooms(
       req.user.id,
     );
-    return new ApiResponseDto(200, 'SUCCESS', 'Communication rooms', res);
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      'Communication rooms',
+      res,
+    );
   }
 
   @Get('/:roomId')
   @ApiOperation({ summary: 'Get communication room messages' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Communication rooms message',
     type: ApiResponseDto<CommunicationRoomMessageResponseDto>,
   })
@@ -47,7 +59,7 @@ export class CommunicationController {
     const res =
       await this.communicateService.getCommunicationRoomMessages(roomId);
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Communication rooms message',
       res,

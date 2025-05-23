@@ -8,6 +8,7 @@ import {
   Body,
   Post,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -15,6 +16,7 @@ import {
   ApiExtraModels,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
@@ -40,16 +42,17 @@ export class ServiceProvidersController {
   @Get('/all-list')
   @ApiOperation({ description: 'Get product and service list' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Service or product list',
     type: ApiResponseDto<ServiceProductListResponseDto>,
   })
+  @ApiQuery({ type: ServiceProductListQueryDto })
   async getProductAndServiceList(@Query() query: ServiceProductListQueryDto) {
     const productAndService: IServiceProductListResponse[] =
       await this.serviceProvidersService.getAllProductAndServiceList(query);
 
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Service or product list',
       productAndService,
@@ -64,7 +67,7 @@ export class ServiceProvidersController {
     type: String,
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Service product details by ID',
     type: ApiResponseDto<ServiceProductResponseDto>,
   })
@@ -75,7 +78,7 @@ export class ServiceProvidersController {
       await this.serviceProvidersService.getServiceOrProduct(id);
 
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Service or product details by ID',
       serviceOrProduct,
@@ -90,7 +93,7 @@ export class ServiceProvidersController {
     type: String,
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Service or product updated successfully',
     type: ApiResponseDto,
   })
@@ -108,7 +111,7 @@ export class ServiceProvidersController {
       req.user.id,
     );
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Service or product updated successfully',
     );
@@ -117,7 +120,7 @@ export class ServiceProvidersController {
   @Post()
   @ApiOperation({ summary: 'Create a new service or product' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Service or product created successfully',
     type: ApiResponseDto,
   })
@@ -132,7 +135,7 @@ export class ServiceProvidersController {
       req.user.id,
     );
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Service or product created successfully',
     );
@@ -141,7 +144,7 @@ export class ServiceProvidersController {
   @Get()
   @ApiOperation({ description: 'Get user product and service list' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Service or product list',
     type: ApiResponseDto<ServiceProductListResponseDto>,
   })
@@ -156,7 +159,7 @@ export class ServiceProvidersController {
       );
 
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Service or product list',
       serviceAndProductList,

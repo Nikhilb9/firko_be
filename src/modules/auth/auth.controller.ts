@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -14,14 +14,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Login user with email or phone' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User logged in successfully',
     type: ApiResponseDto<IAuthData>,
   })
   async login(@Body() loginDto: LoginDto): Promise<ApiResponseDto<IAuthData>> {
     const user = await this.authService.login(loginDto);
     return new ApiResponseDto<IAuthData>(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'User logged in successfully',
       user,
@@ -32,7 +32,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiBody({ type: RegisterDto })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'User registered successfully',
     type: ApiResponseDto<IAuthData>,
   })
@@ -41,7 +41,7 @@ export class AuthController {
   ): Promise<ApiResponseDto<IAuthData>> {
     const user = await this.authService.register(registerDto);
     return new ApiResponseDto<IAuthData>(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'User logged in successfully',
       user,

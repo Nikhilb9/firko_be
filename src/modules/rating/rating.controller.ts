@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
   Post,
   Request,
@@ -32,7 +33,7 @@ export class RatingController {
   @ApiOperation({ summary: 'Post service rating' })
   @ApiBody({ type: CreateRatingDto })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Rating created successfully',
     type: ApiResponseDto,
   })
@@ -42,19 +43,28 @@ export class RatingController {
   ): Promise<ApiResponseDto<null>> {
     const userId = req.user.id;
     await this.ratingService.giveRating(userId, dto);
-    return new ApiResponseDto(200, 'SUCCESS', 'Rating created successfully');
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      'Rating created successfully',
+    );
   }
 
   @Get('/:serviceId')
   @ApiOperation({ summary: 'Service rating list' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Service rating list',
     type: ApiResponseDto<[RatingResponseDto]>,
   })
   async getServiceProductRatings(@Param('serviceId') serviceId: string) {
     const res: IRatingResponse[] =
       await this.ratingService.getRatings(serviceId);
-    return new ApiResponseDto(200, 'SUCCESS', 'Service rating list', res);
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      'Service rating list',
+      res,
+    );
   }
 }

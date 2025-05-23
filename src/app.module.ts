@@ -11,6 +11,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PlacesModule } from './modules/places/places.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RequestRateLimiterGuard } from './common/guards/request-rate-limitter.guard';
 
 @Module({
   imports: [
@@ -26,7 +28,13 @@ import { PlacesModule } from './modules/places/places.module';
     PlacesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useFactory: () => new RequestRateLimiterGuard(6, 60 * 1000, false),
+    },
+    AppService,
+  ],
   exports: [],
 })
 export class AppModule {}

@@ -6,6 +6,7 @@ import {
   Query,
   Put,
   Param,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import {
@@ -30,7 +31,7 @@ export class NotificationController {
   @Get('/list')
   @ApiOperation({ summary: 'Get user notification list' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'User notification list',
     type: ApiResponseDto<NotificationResponseDto>,
   })
@@ -45,7 +46,7 @@ export class NotificationController {
         query.limit,
       );
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'User profile updated successfully',
       notifications,
@@ -60,7 +61,7 @@ export class NotificationController {
     type: String,
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Notification update successfully',
     type: ApiResponseDto,
   })
@@ -74,7 +75,7 @@ export class NotificationController {
     );
 
     return new ApiResponseDto(
-      200,
+      HttpStatus.OK,
       'SUCCESS',
       'Notification update successfully',
     );
