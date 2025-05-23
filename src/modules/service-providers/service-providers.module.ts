@@ -11,7 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../../config/config';
 import { JwtService as NestJwtService } from '../../common/services/jwt.service';
 import { UserRepositoryService } from '../user/user.repository.service';
-import { User, UserSchema } from 'src/schemas/user.schema';
+import { User, UserSchema } from '../user/schemas/user.schema';
 
 @Module({
   imports: [

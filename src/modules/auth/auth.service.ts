@@ -7,7 +7,7 @@ import { JwtService } from '../../common/services/jwt.service';
 import { UserRepositoryService } from '../user/user.repository.service'; // UserService to interact with DB
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto'; // DTO for login data
-import { User } from 'src/schemas/user.schema';
+import { User } from '../user/schemas/user.schema';
 import { IAuthData } from './interface/auth.interface';
 import { RegisterDto } from './dto/register.dto';
 

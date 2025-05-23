@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { UserRepositoryService } from './user.repository.service'; // Assuming you have a repo
 import { IUpdatePassword, IUserProfile } from './interfaces/user.interface';
-import { User } from 'src/schemas/user.schema';
+import { User } from './schemas/user.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import * as bcrypt from 'bcryptjs';
 

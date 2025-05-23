@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ServiceProductType, Weekday } from '../enums/service-providers.enum';
-import { User } from 'src/schemas/user.schema';
+import { User } from '../../user/schemas/user.schema';
 
 @Schema({ timestamps: true })
 export class ServiceProduct extends Document {

@@ -14,7 +14,7 @@ import {
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../../config/config';
 import { ChatGateway } from './chat/chat.gateway';
-import { User, UserSchema } from 'src/schemas/user.schema';
+import { User, UserSchema } from '../user/schemas/user.schema';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { JwtService } from '../../common/services/jwt.service';
 

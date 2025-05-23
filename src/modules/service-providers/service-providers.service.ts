@@ -7,7 +7,7 @@ import {
 } from './interfaces/service-providers.interface';
 import { ServiceProvidersRepositoryService } from './service-providers.repository.service';
 import { UserRepositoryService } from '../user/user.repository.service';
-import { User } from 'src/schemas/user.schema';
+import { User } from '../user/schemas/user.schema';
 
 @Injectable()
 export class ServiceProvidersService {

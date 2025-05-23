@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/schemas/user.schema';
+import { User } from '../../user/schemas/user.schema';
 import { CommunicationRoom } from './communication-room.schema';
 
 @Schema({ timestamps: true })
