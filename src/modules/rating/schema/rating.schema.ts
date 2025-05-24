@@ -8,7 +8,7 @@ export class Rating extends Document {
   @Prop({ type: Types.ObjectId, ref: ServiceProduct.name, required: true })
   serviceId: string;
 
-  @Prop({ required: true, min: 0 })
+  @Prop({ required: true, min: 1, type: Number })
   rating: number;
 
   @Prop({ type: String, required: true })

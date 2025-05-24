@@ -11,7 +11,7 @@ export class CommunicationMessage extends Document {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   receiverId: Types.ObjectId;
 
-  @Prop({ type: String })
+  @Prop({ type: String, required: true })
   message: string;
 
   @Prop({ enum: ['TEXT', 'LOCATION'], required: true })

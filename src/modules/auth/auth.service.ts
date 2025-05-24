@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -61,11 +60,7 @@ export class AuthService {
     let existingUser: User | null = null;
     const userUniqueValue: { phone?: string; email?: string } = {};
 
-    if (email && phone) {
-      throw new BadRequestException(
-        'Provide either email or phone, but not both',
-      );
-    } else if (email) {
+    if (email) {
       existingUser = await this.usersRepoService.findOneByEmail(email);
       userUniqueValue['email'] = email;
     } else if (phone) {

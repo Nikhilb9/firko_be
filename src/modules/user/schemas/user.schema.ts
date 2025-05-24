@@ -3,49 +3,55 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document {
-  @Prop({ required: false, trim: true, lowercase: true, unique: true })
+  @Prop({
+    trim: true,
+    lowercase: true,
+    unique: true,
+    sparse: true,
+    type: String,
+  })
   email?: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   password: string;
 
-  @Prop({ required: false, max: 13, unique: true })
+  @Prop({ maxlength: 13, unique: true, sparse: true })
   phone?: string;
 
-  @Prop({ required: false })
+  @Prop({ type: String })
   profileImage?: string;
 
-  @Prop({ required: false })
+  @Prop({ type: String })
   address?: string;
 
-  @Prop({ default: false })
+  @Prop({ type: Boolean })
   isVerified: boolean;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ required: true, trim: true, type: String })
   firstName: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ required: true, trim: true, type: String })
   lastName: string;
 
-  @Prop({ required: false, trim: true })
+  @Prop({ type: String, trim: true })
   location: string;
 
-  @Prop({ required: false, trim: true })
+  @Prop({ type: Number, trim: true })
   latitude: number;
 
-  @Prop({ required: false, trim: true })
+  @Prop({ type: Number, trim: true })
   longitude: number;
 
-  @Prop({ required: false })
+  @Prop({ type: [String] })
   languages: [string];
 
-  @Prop({ required: false, default: 0 })
+  @Prop({ type: Number, default: 0 })
   experience: number;
 
-  @Prop({ required: false })
+  @Prop({ type: String })
   connectionId: string;
 
-  @Prop({ required: false, type: String })
+  @Prop({ type: String })
   deviceToken: string;
 }
 

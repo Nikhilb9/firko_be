@@ -12,22 +12,22 @@ export class ServiceProduct extends Document {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   userId: Types.ObjectId;
 
-  @Prop({ required: true, maxlength: 400 })
+  @Prop({ required: true, maxlength: 400, type: String })
   location: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   longitude: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   latitude: number;
 
-  @Prop({ required: true, min: 0 })
+  @Prop({ required: true, min: 0, type: Number })
   price: number;
 
-  @Prop({ required: true, maxlength: 200 })
+  @Prop({ required: true, maxlength: 200, type: String })
   title: string;
 
-  @Prop({ required: true, maxlength: 1000 })
+  @Prop({ required: true, maxlength: 1000, type: String })
   description: string;
 
   @Prop({
@@ -37,7 +37,7 @@ export class ServiceProduct extends Document {
   })
   images: string[];
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   category: string;
 
   @Prop({ required: true, enum: ServiceProductType })
@@ -45,7 +45,6 @@ export class ServiceProduct extends Document {
 
   @Prop({
     type: [String],
-    required: false,
     validate: [(val: string[]) => val == null || val.length > 0],
   })
   skills?: string[];
@@ -53,21 +52,20 @@ export class ServiceProduct extends Document {
   @Prop({
     type: [String],
     enum: Weekday,
-    required: false,
     validate: [(val: string[]) => val == null || val.length > 0],
   })
   availableDays?: Weekday[];
 
-  @Prop()
+  @Prop({ type: String })
   workingHours?: string;
 
-  @Prop({ min: 1, required: false })
+  @Prop({ min: 1, type: Number })
   serviceAreaKM?: number;
 
-  @Prop({ default: false })
+  @Prop({ default: false, type: Boolean })
   isVerified: boolean;
 
-  @Prop({ default: false })
+  @Prop({ default: false, type: Boolean })
   isDeleted: boolean;
 
   @Prop()

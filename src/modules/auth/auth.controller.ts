@@ -43,7 +43,7 @@ export class AuthController {
     return new ApiResponseDto<IAuthData>(
       HttpStatus.OK,
       'SUCCESS',
-      'User logged in successfully',
+      'User registered successfully',
       user,
     );
   }
