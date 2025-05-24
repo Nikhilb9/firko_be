@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -47,9 +48,23 @@ export class UserService {
     const dataToUpdate = updateProfileData;
 
     if (updateProfileData.phone && user.phone !== updateProfileData.phone) {
+      const isPhoneExist: User | null =
+        await this.userRepositorySer.findOneByPhone(updateProfileData.phone);
+      if (isPhoneExist) {
+        throw new ConflictException(
+          `${updateProfileData.phone} already exists`,
+        );
+      }
       dataToUpdate['isPhoneVerified'] = false;
     }
     if (updateProfileData.email && user.email !== updateProfileData.email) {
+      const isEmailExist: User | null =
+        await this.userRepositorySer.findOneByEmail(updateProfileData.email);
+      if (isEmailExist) {
+        throw new ConflictException(
+          `${updateProfileData.email} already exists`,
+        );
+      }
       dataToUpdate['isEmailVerified'] = false;
     }
 
