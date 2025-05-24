@@ -94,7 +94,10 @@ export class ServiceProvidersService {
         first_name: userHwoUploadServiceOrProduct?.firstName ?? '',
         last_name: userHwoUploadServiceOrProduct?.lastName ?? '',
         profileImage: userHwoUploadServiceOrProduct?.profileImage ?? '',
-        isVerified: userHwoUploadServiceOrProduct?.isVerified ?? false,
+        isEmailVerified:
+          userHwoUploadServiceOrProduct?.isEmailVerified ?? false,
+        isPhoneVerified:
+          userHwoUploadServiceOrProduct?.isPhoneVerified ?? false,
       },
     };
   }

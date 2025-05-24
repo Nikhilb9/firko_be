@@ -37,6 +37,15 @@ export class GetProfileResponseDto implements IUserProfile {
   @ApiPropertyOptional()
   experience?: number;
 
-  @ApiProperty({ description: 'True if both phone and email are verified' })
-  isVerified?: boolean;
+  @ApiProperty({
+    description: 'Is phone verified',
+    type: Boolean,
+  })
+  isPhoneVerified?: boolean;
+
+  @ApiProperty({
+    description: 'Is email verified',
+    type: Boolean,
+  })
+  isEmailVerified?: boolean;
 }

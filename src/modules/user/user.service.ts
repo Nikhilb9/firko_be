@@ -29,7 +29,8 @@ export class UserService {
       phone: user.phone,
       email: user.email,
       experience: user.experience,
-      isVerified: user.isVerified,
+      isEmailVerified: user.isEmailVerified,
+      isPhoneVerified: user.isPhoneVerified,
     };
   }
 
@@ -38,10 +39,21 @@ export class UserService {
     updateProfileData: UpdateProfileDto,
   ): Promise<void> {
     const user = await this.userRepositorySer.getUserById(userId);
+
     if (!user) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
-    await this.userRepositorySer.updateUser(userId, updateProfileData);
+
+    const dataToUpdate = updateProfileData;
+
+    if (updateProfileData.phone && user.phone !== updateProfileData.phone) {
+      dataToUpdate['isPhoneVerified'] = false;
+    }
+    if (updateProfileData.email && user.email !== updateProfileData.email) {
+      dataToUpdate['isEmailVerified'] = false;
+    }
+
+    await this.userRepositorySer.updateUser(userId, { ...dataToUpdate });
   }
 
   async updatePassword(

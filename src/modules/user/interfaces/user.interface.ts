@@ -9,7 +9,8 @@ export interface IUserProfile {
   phone?: string;
   email?: string;
   experience?: number;
-  isVerified?: boolean;
+  isPhoneVerified?: boolean;
+  isEmailVerified?: boolean;
   deviceToken?: string;
 }
 

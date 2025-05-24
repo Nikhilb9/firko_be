@@ -38,8 +38,14 @@ export class ServiceProvidersProfileDto implements IServiceProvidersProfile {
   profileImage: string;
 
   @ApiProperty({
-    description: 'Is user is verfied or not by using email and phone no',
+    description: 'Is user email verified',
   })
   @Expose()
-  isVerified: boolean;
+  isEmailVerified: boolean;
+
+  @ApiProperty({
+    description: 'Is user phone verified',
+  })
+  @Expose()
+  isPhoneVerified: boolean;
 }

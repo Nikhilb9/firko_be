@@ -24,8 +24,11 @@ export class User extends Document {
   @Prop({ type: String })
   address?: string;
 
-  @Prop({ type: Boolean })
-  isVerified: boolean;
+  @Prop({ type: Boolean, default: false })
+  isEmailVerified: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  isPhoneVerified: boolean;
 
   @Prop({ required: true, trim: true, type: String })
   firstName: string;
