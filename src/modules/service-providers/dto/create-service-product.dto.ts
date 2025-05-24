@@ -11,6 +11,8 @@ import {
   IsUrl,
   IsOptional,
   MaxLength,
+  IsLatitude,
+  IsLongitude,
 } from 'class-validator';
 import {
   AllowedUserStatuses,
@@ -33,14 +35,15 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   @ApiProperty({
     description: 'Longitude for service or product',
   })
-  @IsNumber()
   @IsNotEmpty()
+  @IsLongitude()
   longitude: number;
 
   @ApiProperty({
     description: 'Latitude for service or product',
   })
-  @IsNumber()
+  @IsNotEmpty()
+  @IsLatitude()
   latitude: number;
 
   @ApiProperty({

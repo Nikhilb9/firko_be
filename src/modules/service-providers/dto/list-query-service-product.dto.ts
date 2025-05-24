@@ -51,7 +51,6 @@ export class ServiceProductListQueryDto implements IServiceProductListQuery {
   @ApiPropertyOptional({
     type: Number,
     description: 'Page number (starting from 1)',
-    default: 1,
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
@@ -62,7 +61,6 @@ export class ServiceProductListQueryDto implements IServiceProductListQuery {
   @ApiPropertyOptional({
     type: Number,
     description: 'Number of items per page',
-    default: 10,
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
