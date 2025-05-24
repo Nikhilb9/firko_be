@@ -32,8 +32,6 @@ export class CommunicationRepositoryService {
       .populate('serviceProductId', 'images')
       .exec();
 
-    console.log(communicationRoomData);
-
     return communicationRoomData.map((room) => {
       const sender = room.senderId as unknown as {
         firstName: string;

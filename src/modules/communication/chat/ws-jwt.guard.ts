@@ -17,7 +17,7 @@ export class WsJwtGuard implements CanActivate {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify(token as string);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       client.user = payload; // attach to socket
       return true;

@@ -32,10 +32,9 @@ export class RequestRateLimiterGuard implements CanActivate {
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const req = context.switchToHttp().getRequest();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const ip = `${req.ip}${req.path}`;
 
-    console.log(ip);
     const now = Date.now();
     const entry = this.requests.get(ip);
 

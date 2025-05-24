@@ -33,7 +33,7 @@ export class LoginDto implements ILogin {
 
   @ApiProperty()
   @ValidateIf((o: ILogin) => !o.email)
-  @IsPhoneNumber(undefined)
+  @IsPhoneNumber()
   @IsOptional()
   phone?: string;
 

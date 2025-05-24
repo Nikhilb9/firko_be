@@ -35,7 +35,6 @@ export class RatingRepositoryService {
     });
   }
   async findUserRatingForService(serviceId: string, userId: string) {
-    console.log(serviceId, userId);
     const data = await this.ratingModel.findOne({
       serviceId: new Types.ObjectId(serviceId),
       userId: new Types.ObjectId(userId),

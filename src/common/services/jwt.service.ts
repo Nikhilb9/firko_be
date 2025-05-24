@@ -18,8 +18,8 @@ export class JwtService {
       return this.jwt.verify(token, {
         secret: jwtConstants.secret,
       });
-    } catch (error: any) {
-      throw new Error('Invalid token', error);
+    } catch (error) {
+      throw new Error('Invalid token', error as Error);
     }
   }
 }

@@ -19,16 +19,15 @@ export class S3Service {
   }
 
   async uploadFile(file: Express.Multer.File) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
     const extension: string | undefined = file.originalname.split('.').pop();
     const key = `${randomUUID()}.${extension}`;
 
     const command = new PutObjectCommand({
       Bucket: this.configService.get('AWS_S3_BUCKET_NAME'),
       Key: key,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
       Body: file.buffer,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
       ContentType: file.mimetype,
     });
 

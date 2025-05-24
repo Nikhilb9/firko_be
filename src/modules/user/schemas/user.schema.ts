@@ -3,14 +3,14 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document {
-  @Prop({ required: false, trim: true, lowercase: true })
+  @Prop({ required: false, trim: true, lowercase: true, unique: true })
   email?: string;
 
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true, max: 13 })
-  phone: string;
+  @Prop({ required: false, max: 13, unique: true })
+  phone?: string;
 
   @Prop({ required: false })
   profileImage?: string;

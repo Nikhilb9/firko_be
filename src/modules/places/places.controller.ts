@@ -37,10 +37,10 @@ export class PlacesController {
   }
 
   @Get('coordinates')
-  @ApiOperation({ summary: 'Places cordinates' })
+  @ApiOperation({ summary: 'Places coordinates' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Place cordinates',
+    description: 'Place coordinates',
     type: ApiResponseDto<IGetPlaceCoordinates>,
   })
   @ApiQuery({
@@ -53,6 +53,6 @@ export class PlacesController {
     const data: IGetPlaceCoordinates =
       await this.placesService.getPlaceCoordinates(placeId);
 
-    return new ApiResponseDto(200, 'SUCCESS', 'Places cordinates', data);
+    return new ApiResponseDto(200, 'SUCCESS', 'Places coordinates', data);
   }
 }

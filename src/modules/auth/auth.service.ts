@@ -54,13 +54,21 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<IAuthData> {
-    const { phone, password, firstName, lastName } = registerDto;
+    const { phone, password, firstName, lastName, email } = registerDto;
 
-    // Check if the phone number is already taken
-    const existingUser = await this.usersRepoService.findOneByPhone(phone);
+    let existingUser: User | null = null;
+    const userUniqueValue: { phone?: string; email?: string } = {};
+    // Check if the user exists
+    if (email) {
+      existingUser = await this.usersRepoService.findOneByEmail(email);
+      userUniqueValue['email'] = email;
+    } else if (phone) {
+      existingUser = await this.usersRepoService.findOneByPhone(phone);
+      userUniqueValue['phone'] = phone;
+    }
 
     if (existingUser) {
-      throw new ConflictException('Phone number already exists');
+      throw new ConflictException(`${phone ? phone : email} already exists`);
     }
 
     // Hash the password before saving
@@ -68,7 +76,7 @@ export class AuthService {
 
     // Call the repository method to create and save the user
     const user = await this.usersRepoService.createUser({
-      phone,
+      ...userUniqueValue,
       password: hashedPassword,
       firstName,
       lastName,
@@ -80,7 +88,7 @@ export class AuthService {
 
     return {
       token: accessToken,
-      phone: user.phone,
+      ...userUniqueValue,
       firstName: user.firstName,
       lastName: user.lastName,
       address: user.address,

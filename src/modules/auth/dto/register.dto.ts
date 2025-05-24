@@ -1,19 +1,30 @@
 import {
+  IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
-import { IRegister } from '../interface/auth.interface';
+import { ILogin, IRegister } from '../interface/auth.interface';
 import { ApiProperty } from '@nestjs/swagger';
+@ValidatorConstraint({ name: 'EmailOrPhone', async: false })
+export class EmailOrPhoneConstraint implements ValidatorConstraintInterface {
+  validate(_: any, args: ValidationArguments) {
+    const { email, phone } = args.object as IRegister;
+    return (!!email && !phone) || (!!phone && !email);
+  }
 
+  defaultMessage() {
+    return 'Provide either email or phone, but not both';
+  }
+}
 export class RegisterDto implements IRegister {
-  @ApiProperty()
-  @IsPhoneNumber(undefined, { message: 'Phone number is not valid' })
-  @IsNotEmpty({ message: 'Phone number is required' })
-  phone: string;
-
   @ApiProperty()
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(6, { message: 'Password must be at least 6 characters' })
@@ -31,4 +42,16 @@ export class RegisterDto implements IRegister {
   @IsString()
   @MaxLength(40)
   lastName: string;
+
+  @ApiProperty()
+  @ValidateIf((o: ILogin) => !o.phone)
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty()
+  @ValidateIf((o: ILogin) => !o.email)
+  @IsPhoneNumber()
+  @IsOptional()
+  phone?: string;
 }

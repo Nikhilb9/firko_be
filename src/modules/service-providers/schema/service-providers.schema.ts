@@ -91,7 +91,10 @@ export class ServiceProduct extends Document {
     coordinates: [number, number];
   };
 
-  @Prop({ default: ProductOrServiceStatus.ACTIVE })
+  @Prop({
+    enum: ProductOrServiceStatus,
+    default: ProductOrServiceStatus.ACTIVE,
+  })
   status: ProductOrServiceStatus;
 
   createdAt?: Date;

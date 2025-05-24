@@ -28,33 +28,48 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   async handleDisconnect(client: AuthenticatedSocket) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const payload: { id: string } | null = this.jwtService.verify(
-      client?.handshake?.query?.token as string,
-    );
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const payload: { id: string } | null = await this.jwtService.verify(
+        client?.handshake?.query?.token as string,
+      );
 
-    if (payload?.id && Types.ObjectId.isValid(payload.id)) {
-      await this.userRepoService.updateUserConnectionId(null, payload.id);
-      client.emit('disconnected', {
-        message: 'Disconnected successfully',
-        userId: payload?.id,
-        socketId: client.id,
+      if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+        await this.userRepoService.updateUserConnectionId(null, payload.id);
+        client.emit('disconnected', {
+          message: 'Disconnected successfully',
+          userId: payload?.id,
+          socketId: client.id,
+        });
+      }
+    } catch {
+      client.emit('error', {
+        message: 'Token expired',
       });
     }
   }
 
   async handleConnection(client: AuthenticatedSocket) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const payload: { id: string } | null = this.jwtService.verify(
-      client?.handshake?.query?.token as string,
-    );
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const payload: { id: string } | null = await this.jwtService.verify(
+        client?.handshake?.query?.token as string,
+      );
 
-    if (payload?.id && Types.ObjectId.isValid(payload.id)) {
-      await this.userRepoService.updateUserConnectionId(client.id, payload.id);
-      client.emit('connected', {
-        message: 'Connected successfully',
-        userId: payload.id,
-        socketId: client.id,
+      if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+        await this.userRepoService.updateUserConnectionId(
+          client.id,
+          payload.id,
+        );
+        client.emit('connected', {
+          message: 'Connected successfully',
+          userId: payload.id,
+          socketId: client.id,
+        });
+      }
+    } catch {
+      client.emit('error', {
+        message: 'Token expired',
       });
     }
   }
