@@ -19,7 +19,7 @@ export class S3Service {
   }
 
   async uploadFile(file: Express.Multer.File) {
-    const extension: string | undefined = file.originalname.split('.').pop();
+    const extension: string | undefined = file?.originalname?.split('.').pop();
     const key = `${randomUUID()}.${extension}`;
 
     const command = new PutObjectCommand({
