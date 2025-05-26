@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { NotificationRepositoryService } from './notification.repository.service';
 import { Notification } from './schema/notification.schema';
 import { NotificationResponseDto } from './dto/get-notification-list-response.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class NotificationService {
@@ -39,6 +40,9 @@ export class NotificationService {
     notificationId: string,
     userId: string,
   ): Promise<void> {
+    if (!notificationId || !Types.ObjectId.isValid(notificationId)) {
+      throw new BadRequestException('Invalid notification id');
+    }
     const isExist: Notification | null =
       await this.notificationRepoService.getNotificationById(
         notificationId,

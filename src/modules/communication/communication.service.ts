@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CommunicationRepositoryService } from './communication.repository.service';
 import {
   ICommunicationRoomMessageResponse,
   ICommunicationRoomResponse,
 } from './interface/communication.interface';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class CommunicationService {
@@ -18,6 +19,9 @@ export class CommunicationService {
   async getCommunicationRoomMessages(
     roomId: string,
   ): Promise<ICommunicationRoomMessageResponse[]> {
+    if (!roomId || !Types.ObjectId.isValid(roomId)) {
+      throw new BadRequestException('Invalid room id');
+    }
     return this.communicationRepo.getCommunicationRoomMessages(roomId);
   }
 }

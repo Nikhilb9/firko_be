@@ -38,7 +38,7 @@ export class RatingService {
   }
   async getRatings(serviceId: string): Promise<IRatingResponse[]> {
     if (!Types.ObjectId.isValid(serviceId)) {
-      new BadRequestException('Invalid service id');
+      throw new BadRequestException('Invalid service id');
     }
     return this.ratingRepo.getAllRatingForService(serviceId);
   }

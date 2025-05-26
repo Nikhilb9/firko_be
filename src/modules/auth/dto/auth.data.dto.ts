@@ -1,5 +1,3 @@
-// src/auth/dto/auth-data.dto.ts
-
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { IAuthData } from '../interface/auth.interface';
