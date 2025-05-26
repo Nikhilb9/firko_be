@@ -36,4 +36,7 @@ export class AuthDataDto implements IAuthData {
 
   @ApiProperty({ description: 'User id' })
   id: string;
+
+  @ApiProperty({ description: 'User email' })
+  email?: string;
 }

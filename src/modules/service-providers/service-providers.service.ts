@@ -99,8 +99,8 @@ export class ServiceProvidersService {
       createdAt: isExist?.createdAt ?? new Date(),
       user: {
         id: userHwoUploadServiceOrProduct?._id?.toString() ?? '',
-        first_name: userHwoUploadServiceOrProduct?.firstName ?? '',
-        last_name: userHwoUploadServiceOrProduct?.lastName ?? '',
+        firstName: userHwoUploadServiceOrProduct?.firstName ?? '',
+        lastName: userHwoUploadServiceOrProduct?.lastName ?? '',
         profileImage: userHwoUploadServiceOrProduct?.profileImage ?? '',
         isEmailVerified:
           userHwoUploadServiceOrProduct?.isEmailVerified ?? false,
