@@ -6,6 +6,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  Validate,
   ValidateIf,
   ValidationArguments,
   ValidatorConstraint,
@@ -54,4 +55,7 @@ export class RegisterDto implements IRegister {
   @IsPhoneNumber()
   @IsOptional()
   phone?: string;
+
+  @Validate(EmailOrPhoneConstraint)
+  private readonly _onlyOneContact!: unknown;
 }
