@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 import { GOOGLE_API_BASE_URL } from 'src/config/config';
@@ -16,6 +16,9 @@ export class PlacesService {
   constructor(private readonly configService: ConfigService) {}
 
   async autocomplete(input: string): Promise<any> {
+    if (!input) {
+      throw new BadRequestException('Input cannot be empty');
+    }
     const params: { input: string; key: string; components: string } = {
       input,
       key: this.configService.get('GOOGLE_API_KEY') ?? '',
@@ -30,6 +33,9 @@ export class PlacesService {
   }
 
   async getPlaceCoordinates(placeId: string): Promise<IGetPlaceCoordinates> {
+    if (!placeId) {
+      throw new BadRequestException('Place id cannot be empty');
+    }
     const params = {
       placeid: placeId,
       key: this.configService.get<string>('GOOGLE_API_KEY') ?? '',

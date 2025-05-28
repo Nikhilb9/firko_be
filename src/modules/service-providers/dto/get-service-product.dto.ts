@@ -45,7 +45,8 @@ export class ServiceProductResponseDto implements IServiceProductResponse {
 
   @ApiProperty({
     description: 'Images of the service or product',
-    type: [String],
+    type: String,
+    isArray: true,
   })
   images: string[];
 
@@ -62,7 +63,8 @@ export class ServiceProductResponseDto implements IServiceProductResponse {
 
   @ApiProperty({
     description: 'Skills required for the service (only for services)',
-    type: [String],
+    type: String,
+    isArray: true,
     required: false,
   })
   skills?: string[];
@@ -70,7 +72,8 @@ export class ServiceProductResponseDto implements IServiceProductResponse {
   @ApiProperty({
     description: 'Available days of the service (only for services)',
     enum: Weekday,
-    type: [String],
+    type: String,
+    isArray: true,
     required: false,
   })
   availableDays?: Weekday[];
