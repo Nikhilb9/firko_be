@@ -47,5 +47,5 @@ $ mau deploy
 
 ```bash
 $ npm run build
-$ pm2 start dist/main.js --name riri-app
+$ pm2 start dist/main.js --name pusly-app
 ```
