@@ -16,45 +16,67 @@ export class PlacesService {
   constructor(private readonly configService: ConfigService) {}
 
   async autocomplete(input: string): Promise<any> {
-    if (!input) {
-      throw new BadRequestException('Input cannot be empty');
+    try {
+      if (!input) {
+        throw new BadRequestException('Input cannot be empty');
+      }
+      const params: { input: string; key: string; components: string } = {
+        input,
+        key: this.configService.get('GOOGLE_API_KEY') ?? '',
+        components: 'country:IN',
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const response = await axios.get(this.getPlacesUrl, { params });
+
+      if (!response.data) {
+        throw new BadRequestException('Input search not found');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      return response.data;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new BadRequestException(err.message);
+      }
+      throw new BadRequestException('An unknown error occurred');
     }
-    const params: { input: string; key: string; components: string } = {
-      input,
-      key: this.configService.get('GOOGLE_API_KEY') ?? '',
-      components: 'country:IN',
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const response = await axios.get(this.getPlacesUrl, { params });
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return response.data;
   }
 
   async getPlaceCoordinates(placeId: string): Promise<IGetPlaceCoordinates> {
-    if (!placeId) {
-      throw new BadRequestException('Place id cannot be empty');
+    try {
+      if (!placeId) {
+        throw new BadRequestException('Place id cannot be empty');
+      }
+      const params = {
+        placeid: placeId,
+        key: this.configService.get<string>('GOOGLE_API_KEY') ?? '',
+        fields: 'name,formatted_address,geometry',
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const detailsResponse: AxiosResponse<IPlaceDetailsApiResponse> =
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        await axios.get(this.placeDetailUrl, { params });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const result: IPlaceDetailsResult = detailsResponse.data.result;
+
+      if (!result) {
+        throw new BadRequestException('Place not found');
+      }
+
+      return {
+        name: result.name,
+        address: result.formatted_address,
+        latitude: result.geometry.location.lat,
+        longitude: result.geometry.location.lng,
+      };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        throw new BadRequestException(err.message);
+      }
+      throw new BadRequestException('An unknown error occurred');
     }
-    const params = {
-      placeid: placeId,
-      key: this.configService.get<string>('GOOGLE_API_KEY') ?? '',
-      fields: 'name,formatted_address,geometry',
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const detailsResponse: AxiosResponse<IPlaceDetailsApiResponse> =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      await axios.get(this.placeDetailUrl, { params });
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const result: IPlaceDetailsResult = detailsResponse.data.result;
-
-    return {
-      name: result.name,
-      address: result.formatted_address,
-      latitude: result.geometry.location.lat,
-      longitude: result.geometry.location.lng,
-    };
   }
 }
