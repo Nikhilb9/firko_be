@@ -31,5 +31,6 @@ import { User, UserSchema } from '../user/schemas/user.schema';
     NestJwtService,
     UserRepositoryService,
   ],
+  exports: [ServiceProvidersService, ServiceProvidersRepositoryService],
 })
 export class ServiceProvidersModule {}

@@ -22,10 +22,8 @@ export class PlacesService {
       components: 'country:IN',
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const response = await axios.get(this.getPlacesUrl, { params });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return response.data;
   }
 
@@ -36,12 +34,9 @@ export class PlacesService {
       fields: 'name,formatted_address,geometry',
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const detailsResponse: AxiosResponse<IPlaceDetailsApiResponse> =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       await axios.get(this.placeDetailUrl, { params });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const result: IPlaceDetailsResult = detailsResponse.data.result;
 
     return {

@@ -13,6 +13,8 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { PlacesModule } from './modules/places/places.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RequestRateLimiterGuard } from './common/guards/request-rate-limitter.guard';
+import { FeedbackModule } from './modules/feedback';
+import { SharedJwtModule } from './common/modules/jwt.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { RequestRateLimiterGuard } from './common/guards/request-rate-limitter.g
     UploadModule,
     NotificationModule,
     PlacesModule,
+    SharedJwtModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [
