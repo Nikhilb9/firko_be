@@ -2,14 +2,15 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ServiceProduct } from 'src/modules/service-providers/schema/service-providers.schema';
 import { User } from '../../user/schemas/user.schema';
+import { ServiceProductType } from 'src/modules/service-providers/enums/service-providers.enum';
 
 @Schema({ timestamps: true })
 export class CommunicationRoom extends Document {
   @Prop({ type: Types.ObjectId, ref: ServiceProduct.name, required: true })
   serviceProductId: Types.ObjectId;
 
-  @Prop({ enum: ['SERVICE', 'PRODUCT'], required: true })
-  chatContext: 'SERVICE' | 'PRODUCT';
+  @Prop({ enum: ServiceProductType, required: true })
+  chatContext: ServiceProductType;
 
   @Prop({ type: String, default: '' })
   latestMessage: string;

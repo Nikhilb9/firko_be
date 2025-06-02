@@ -44,8 +44,8 @@ export interface IServiceProductResponse {
 
 export interface IServiceProvidersProfile {
   id: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   profileImage: string;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;

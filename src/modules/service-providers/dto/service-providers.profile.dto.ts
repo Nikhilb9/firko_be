@@ -18,7 +18,7 @@ export class ServiceProvidersProfileDto implements IServiceProvidersProfile {
   })
   @IsString()
   @Expose()
-  first_name: string;
+  firstName: string;
 
   @ApiProperty({
     example: 'Doe',
@@ -26,7 +26,7 @@ export class ServiceProvidersProfileDto implements IServiceProvidersProfile {
   })
   @IsString()
   @Expose()
-  last_name: string;
+  lastName: string;
 
   @ApiProperty({
     example: 'https://example.com/images/profile.jpg',

@@ -46,7 +46,7 @@ export class User extends Document {
   longitude: number;
 
   @Prop({ type: [String] })
-  languages: [string];
+  languages: string[];
 
   @Prop({ type: Number, default: 0 })
   experience: number;

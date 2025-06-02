@@ -55,7 +55,7 @@ export class RatingController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Service rating list',
-    type: ApiResponseDto<[RatingResponseDto]>,
+    type: ApiResponseDto<RatingResponseDto[]>,
   })
   async getServiceProductRatings(@Param('serviceId') serviceId: string) {
     const res: IRatingResponse[] =

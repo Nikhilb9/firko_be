@@ -9,7 +9,7 @@ export class ServiceProductSummaryDto implements IServiceProductSummary {
   @ApiProperty()
   id: string;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ type: String, isArray: true })
   images: string[];
 }
 
@@ -22,7 +22,7 @@ export class CommunicationRoomResponseDto
   @ApiProperty({ type: ServiceProductSummaryDto })
   serviceProductId: ServiceProductSummaryDto;
 
-  @ApiProperty({ enum: ['SERVICE', 'PRODUCT'] })
+  @ApiProperty({ enum: ServiceProductType })
   chatContext: ServiceProductType;
 
   @ApiProperty()

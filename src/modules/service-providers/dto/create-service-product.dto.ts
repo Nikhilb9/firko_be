@@ -74,7 +74,8 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
 
   @ApiProperty({
     description: 'Images of the service or product',
-    type: [String],
+    type: String,
+    isArray: true,
     example: [
       'https://example.com/image1.jpg',
       'https://example.com/image2.jpg',
@@ -106,7 +107,8 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   @ValidateIf((o) => o.type === ServiceProductType.SERVICE)
   @ApiProperty({
     description: 'Skills required for the service (only for services)',
-    type: [String],
+    type: String,
+    isArray: true,
     example: ['Plumbing', 'Electrician'],
     required: false,
   })
@@ -121,7 +123,8 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   @ApiProperty({
     description: 'Available days of the service (only for services)',
     enum: Weekday,
-    type: [String],
+    type: String,
+    isArray: true,
     required: false,
   })
   @IsArray()

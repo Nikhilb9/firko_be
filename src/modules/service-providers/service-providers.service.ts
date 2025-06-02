@@ -13,6 +13,7 @@ import {
   ServiceProductType,
 } from './enums/service-providers.enum';
 import { ServiceProduct } from './schema/service-providers.schema';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class ServiceProvidersService {
@@ -46,6 +47,10 @@ export class ServiceProvidersService {
     updateData: ICreateServiceProduct,
     userId: string,
   ): Promise<void> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid service or product id');
+    }
+
     const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
     if (
       !isExist ||
@@ -65,6 +70,9 @@ export class ServiceProvidersService {
   }
 
   async getServiceOrProduct(id: string): Promise<IServiceProductResponse> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid service or product id');
+    }
     const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
     if (!isExist) {
       throw new BadRequestException('Service or product not found');
@@ -91,8 +99,8 @@ export class ServiceProvidersService {
       createdAt: isExist?.createdAt ?? new Date(),
       user: {
         id: userHwoUploadServiceOrProduct?._id?.toString() ?? '',
-        first_name: userHwoUploadServiceOrProduct?.firstName ?? '',
-        last_name: userHwoUploadServiceOrProduct?.lastName ?? '',
+        firstName: userHwoUploadServiceOrProduct?.firstName ?? '',
+        lastName: userHwoUploadServiceOrProduct?.lastName ?? '',
         profileImage: userHwoUploadServiceOrProduct?.profileImage ?? '',
         isEmailVerified:
           userHwoUploadServiceOrProduct?.isEmailVerified ?? false,

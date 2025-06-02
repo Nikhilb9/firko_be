@@ -1,5 +1,5 @@
 export const jwtConstants = {
-  secret: 'ririnBackendTesting',
+  secret: 'puslyBackendTesting',
   expiresIn: '9d',
 };
 

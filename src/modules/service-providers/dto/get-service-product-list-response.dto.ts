@@ -35,7 +35,8 @@ export class ServiceProductListResponseDto
 
   @ApiProperty({
     description: 'Images of the service or product',
-    type: [String],
+    type: String,
+    isArray: true,
   })
   @IsArray()
   @IsString({ each: true })
