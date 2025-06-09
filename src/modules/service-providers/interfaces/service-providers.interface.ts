@@ -70,3 +70,9 @@ export interface IServiceProductListQuery {
   page?: number;
   limit?: number;
 }
+
+export interface IServiceProductCategory {
+  name: string;
+  type: string;
+  icon: string;
+}

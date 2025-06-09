@@ -27,11 +27,13 @@ import { UpdateServiceProductDto } from './dto/update-service-product.dto';
 import { CreateServiceProductDto } from './dto/create-service-product.dto';
 import { ServiceProvidersService } from './service-providers.service';
 import {
+  IServiceProductCategory,
   IServiceProductListResponse,
   IServiceProductResponse,
 } from './interfaces/service-providers.interface';
 import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
 import { ServiceProductListQueryDto } from './dto/list-query-service-product.dto';
+import { ServiceProductCategory } from './dto/get-service-product-category.dto';
 
 @ApiExtraModels(ServiceProductResponseDto, ServiceProductListResponseDto)
 @Controller('service-providers')
@@ -56,6 +58,25 @@ export class ServiceProvidersController {
       'SUCCESS',
       'Service or product list',
       productAndService,
+    );
+  }
+
+  @Get('/category')
+  @ApiOperation({ summary: 'Service or product category list' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Service product details by ID',
+    type: ApiResponseDto<ServiceProductCategory[]>,
+  })
+  getServiceProductCategory(): ServiceProductCategoryDt[] {
+    const data: IServiceProductCategory[] =
+      this.serviceProvidersService.getServiceProductCategory();
+
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      'Service or product category list',
+      data,
     );
   }
 

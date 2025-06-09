@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ICreateServiceProduct,
+  IServiceProductCategory,
   IServiceProductListQuery,
   IServiceProductListResponse,
   IServiceProductResponse,
@@ -14,6 +15,7 @@ import {
 } from './enums/service-providers.enum';
 import { ServiceProduct } from './schema/service-providers.schema';
 import { Types } from 'mongoose';
+import { serviceProductCategoryType } from '../../common/constant/service-product-category';
 
 @Injectable()
 export class ServiceProvidersService {
@@ -133,5 +135,9 @@ export class ServiceProvidersService {
         status: data.status,
       };
     });
+  }
+
+  getServiceProductCategory(): IServiceProductCategory[] {
+    return serviceProductCategoryType;
   }
 }
