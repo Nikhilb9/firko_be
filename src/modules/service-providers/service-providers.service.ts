@@ -16,6 +16,7 @@ import {
 import { ServiceProduct } from './schema/service-providers.schema';
 import { Types } from 'mongoose';
 import { serviceProductCategoryType } from '../../common/constant/service-product-category';
+import { ServiceProductCategoryDto } from './dto/get-service-product-category.dto';
 
 @Injectable()
 export class ServiceProvidersService {
@@ -137,7 +138,7 @@ export class ServiceProvidersService {
     });
   }
 
-  getServiceProductCategory(): IServiceProductCategory[] {
-    return serviceProductCategoryType;
+  getServiceProductCategory(): ServiceProductCategoryDto[] {
+    return serviceProductCategoryType as ServiceProductCategoryDto[];
   }
 }
