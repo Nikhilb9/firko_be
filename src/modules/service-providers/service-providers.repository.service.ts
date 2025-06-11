@@ -82,13 +82,14 @@ export class ServiceProvidersRepositoryService {
 
     const matchFilter: Record<string, any> = {
       ...(filterData.type && { type: filterData.type }),
-      ...{status: ProductOrServiceStatus.ACTIVE},
+      ...{ status: ProductOrServiceStatus.ACTIVE },
       ...(filterData.search && {
         $or: [
           { title: { $regex: filterData.search, $options: 'i' } },
           { description: { $regex: filterData.search, $options: 'i' } },
           { skills: { $in: [new RegExp(filterData.search, 'i')] } },
-        ]
+          { category: { $regex: filterData.search, $options: 'i' } },
+        ],
       }),
     };
 
