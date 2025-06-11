@@ -57,7 +57,7 @@ export class ServiceProvidersRepositoryService {
     userId: string,
   ): Promise<IServiceProductListResponse[]> {
     const docs: ServiceProduct[] = await this.serviceProductSchema
-      .find<ServiceProduct>({ userId })
+      .find<ServiceProduct>({ userId: new Types.ObjectId(userId) })
       .select('_id location price title images isVerified type')
       .lean();
 
