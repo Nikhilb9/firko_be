@@ -11,8 +11,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PlacesModule } from './modules/places/places.module';
-import { APP_GUARD } from '@nestjs/core';
-import { RequestRateLimiterGuard } from './common/guards/request-rate-limitter.guard';
+// import { APP_GUARD } from '@nestjs/core';
+// import { RequestRateLimiterGuard } from './common/guards/request-rate-limitter.guard';
 import { FeedbackModule } from './modules/feedback';
 import { SharedJwtModule } from './common/modules/jwt.module';
 
@@ -33,10 +33,10 @@ import { SharedJwtModule } from './common/modules/jwt.module';
   ],
   controllers: [AppController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useFactory: () => new RequestRateLimiterGuard(6, 60 * 1000, false),
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useFactory: () => new RequestRateLimiterGuard(6, 60 * 1000, false),
+    // },
     AppService,
   ],
   exports: [],
