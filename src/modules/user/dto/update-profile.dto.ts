@@ -6,12 +6,10 @@ import {
   IsLatitude,
   IsLongitude,
   IsNotEmpty,
-  Max,
   IsUrl,
   IsIn,
   IsPhoneNumber,
   IsEmail,
-  Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IUserProfile } from '../interfaces/user.interface';
