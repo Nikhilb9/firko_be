@@ -27,7 +27,6 @@ export class CreateRatingDto implements ICreateRating {
   })
   @IsInt()
   @Min(1)
-  @Max(5)
   rating: number;
 
   @ApiProperty({

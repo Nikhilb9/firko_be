@@ -30,7 +30,6 @@ export class CreateFeedbackDto {
   })
   @IsInt()
   @Min(1)
-  @Max(5)
   rating: number;
 
   @ApiPropertyOptional({

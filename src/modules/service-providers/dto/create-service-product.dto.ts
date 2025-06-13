@@ -7,7 +7,6 @@ import {
   ArrayNotEmpty,
   IsNotEmpty,
   IsPositive,
-  Max,
   IsUrl,
   IsOptional,
   MaxLength,
@@ -51,7 +50,6 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   })
   @IsPositive()
   @IsNotEmpty()
-  @Max(5000000)
   price: number;
 
   @ApiProperty({
@@ -150,7 +148,6 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
     required: false,
   })
   @IsNumber()
-  @Max(1000)
   @IsPositive()
   serviceAreaKM?: number;
 
