@@ -15,6 +15,7 @@ import { PlacesModule } from './modules/places/places.module';
 // import { RequestRateLimiterGuard } frompca './common/guards/request-rate-limitter.guard';
 import { FeedbackModule } from './modules/feedback';
 import { SharedJwtModule } from './common/modules/jwt.module';
+import { FAQModule } from './modules/faq/faq.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { SharedJwtModule } from './common/modules/jwt.module';
     PlacesModule,
     SharedJwtModule,
     FeedbackModule,
+    FAQModule,
   ],
   controllers: [AppController],
   providers: [
