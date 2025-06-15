@@ -73,19 +73,22 @@ export class FeedbackController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all feedback for a service' })
+  @ApiOperation({ summary: 'Get all feedback for the authenticated user' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Feedback list retrieved successfully',
+    description: 'User feedback list retrieved successfully',
     type: ApiResponseDto,
   })
-  async getAllFeedback(): Promise<ApiResponseDto<FeedbackResponseDto[]>> {
-    const feedback = await this.feedbackService.getAllFeedback();
+  async getAllFeedback(
+    @Request() req: Request & { user: IAuthData },
+  ): Promise<ApiResponseDto<FeedbackResponseDto[]>> {
+    const userId = req.user.id;
+    const feedback = await this.feedbackService.getAllFeedbackByUserId(userId)
 
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Feedback list retrieved successfully',
+      'User feedback list retrieved successfully',
       feedback,
     );
   }

@@ -46,6 +46,13 @@ export class FeedbackRepositoryService {
     return this.feedbackModel.findById(feedbackId).exec();
   }
 
+  async getAllFeedbackByUserId(userId: string): Promise<Feedback[]> {
+    return this.feedbackModel
+      .find({ userId: new Types.ObjectId(userId) })
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
   async getFeedbackCount(): Promise<number> {
     return this.feedbackModel.countDocuments().exec();
   }

@@ -59,6 +59,11 @@ export class FeedbackService {
     return this.toFeedbackResponseDto(feedback);
   }
 
+  async getAllFeedbackByUserId(userId: string): Promise<FeedbackResponseDto[]> {
+    const feedbacks = await this.feedbackRepo.getAllFeedbackByUserId(userId);
+    return feedbacks.map((feedback) => this.toFeedbackResponseDto(feedback));
+  }
+
   private toFeedbackResponseDto(feedback: Feedback): FeedbackResponseDto {
     const response = new FeedbackResponseDto();
     response.id = (feedback._id as Types.ObjectId).toString();
