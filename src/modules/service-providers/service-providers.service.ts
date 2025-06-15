@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ICreateServiceProduct,
-  IServiceProductCategory,
   IServiceProductListQuery,
   IServiceProductListResponse,
   IServiceProductResponse,
@@ -109,6 +108,8 @@ export class ServiceProvidersService {
           userHwoUploadServiceOrProduct?.isEmailVerified ?? false,
         isPhoneVerified:
           userHwoUploadServiceOrProduct?.isPhoneVerified ?? false,
+        experience: userHwoUploadServiceOrProduct?.experience || 0,
+        languages: userHwoUploadServiceOrProduct?.languages,
       },
     };
   }

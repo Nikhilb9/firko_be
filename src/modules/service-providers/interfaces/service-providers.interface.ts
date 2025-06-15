@@ -49,6 +49,8 @@ export interface IServiceProvidersProfile {
   profileImage: string;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
+  experience: number;
+  languages?: string[];
 }
 
 export interface IServiceProductListResponse {
@@ -69,6 +71,7 @@ export interface IServiceProductListQuery {
   type?: ServiceProductType;
   page?: number;
   limit?: number;
+  category?: string;
 }
 
 export interface IServiceProductCategory {
