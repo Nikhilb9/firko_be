@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ICreateServiceProduct,
-  IServiceProductCategory,
   IServiceProductListQuery,
   IServiceProductListResponse,
   IServiceProductResponse,

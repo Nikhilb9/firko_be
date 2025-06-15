@@ -69,6 +69,7 @@ export interface IServiceProductListQuery {
   type?: ServiceProductType;
   page?: number;
   limit?: number;
+  category?: string;
 }
 
 export interface IServiceProductCategory {

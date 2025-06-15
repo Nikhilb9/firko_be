@@ -67,4 +67,13 @@ export class ServiceProductListQueryDto implements IServiceProductListQuery {
   @IsNumber()
   @Min(1)
   limit?: number = 10;
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: 'Category query',
+  })
+  @IsString()
+  @IsOptional()
+  category: string;
 }
