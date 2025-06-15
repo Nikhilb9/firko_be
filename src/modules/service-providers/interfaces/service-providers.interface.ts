@@ -49,6 +49,8 @@ export interface IServiceProvidersProfile {
   profileImage: string;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
+  experience: number;
+  languages?: string[];
 }
 
 export interface IServiceProductListResponse {

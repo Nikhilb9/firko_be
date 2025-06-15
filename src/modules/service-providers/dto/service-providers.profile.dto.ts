@@ -48,4 +48,14 @@ export class ServiceProvidersProfileDto implements IServiceProvidersProfile {
   })
   @Expose()
   isPhoneVerified: boolean;
+
+  @ApiProperty({
+    description: 'User experience',
+  })
+  experience: number;
+
+  @ApiProperty({
+    description: 'User languages',
+  })
+  languages?: string[] | undefined;
 }
