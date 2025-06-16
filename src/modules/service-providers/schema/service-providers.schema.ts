@@ -45,14 +45,12 @@ export class ServiceProduct extends Document {
 
   @Prop({
     type: [String],
-    validate: [(val: string[]) => val == null || val.length > 0],
   })
   skills?: string[];
 
   @Prop({
     type: [String],
     enum: Weekday,
-    validate: [(val: string[]) => val == null || val.length > 0],
   })
   availableDays?: Weekday[];
 
