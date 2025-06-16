@@ -26,18 +26,20 @@ export class UpdateProfileDto implements IUserProfile {
   @IsNotEmpty()
   lastName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: 'User location address' })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  location: string;
+  location?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: 'User latitude' })
+  @IsOptional()
   @IsLatitude()
-  latitude: number;
+  latitude?: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ description: 'User longitude' })
+  @IsOptional()
   @IsLongitude()
-  longitude: number;
+  longitude?: number;
 
   @ApiPropertyOptional()
   @IsOptional()

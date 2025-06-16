@@ -1,9 +1,9 @@
 export interface IUserProfile {
   firstName: string;
   lastName: string;
-  location: string;
-  latitude: number;
-  longitude: number;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
   profileImage?: string;
   languages?: string[];
   phone?: string;

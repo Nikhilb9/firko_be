@@ -10,13 +10,13 @@ export class GetProfileResponseDto implements IUserProfile {
   lastName: string;
 
   @ApiProperty()
-  location: string;
+  location?: string;
 
   @ApiProperty()
-  latitude: number;
+  latitude?: number;
 
   @ApiProperty()
-  longitude: number;
+  longitude?: number;
 
   @ApiPropertyOptional()
   profileImage?: string;
