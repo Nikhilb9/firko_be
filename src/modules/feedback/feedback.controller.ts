@@ -83,7 +83,7 @@ export class FeedbackController {
     @Request() req: Request & { user: IAuthData },
   ): Promise<ApiResponseDto<FeedbackResponseDto[]>> {
     const userId = req.user.id;
-    const feedback = await this.feedbackService.getAllFeedbackByUserId(userId)
+    const feedback = await this.feedbackService.getAllFeedbackByUserId(userId);
 
     return new ApiResponseDto(
       HttpStatus.OK,

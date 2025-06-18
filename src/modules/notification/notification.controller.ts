@@ -77,7 +77,7 @@ export class NotificationController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Notification update successfully',
+      'Notification updated successfully',
     );
   }
 }
