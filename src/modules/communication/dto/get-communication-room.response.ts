@@ -3,7 +3,7 @@ import {
   ICommunicationRoomResponse,
   IServiceProductSummary,
 } from '../interface/communication.interface';
-import { ServiceProductType } from 'src/modules/service-providers/enums/service-providers.enum';
+import { ServiceProductType } from '../../../modules/service-providers/enums/service-providers.enum';
 
 export class ServiceProductSummaryDto implements IServiceProductSummary {
   @ApiProperty()

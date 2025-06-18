@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ServiceProduct } from 'src/modules/service-providers/schema/service-providers.schema';
+import { ServiceProduct } from '../../../modules/service-providers/schema/service-providers.schema';
 import { User } from '../../user/schemas/user.schema';
-import { ServiceProductType } from 'src/modules/service-providers/enums/service-providers.enum';
+import { ServiceProductType } from '../../../modules/service-providers/enums/service-providers.enum';
 
 @Schema({ timestamps: true })
 export class CommunicationRoom extends Document {

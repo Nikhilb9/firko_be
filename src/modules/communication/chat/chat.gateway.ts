@@ -14,6 +14,11 @@ import { AuthenticatedSocket } from '../interface/chat.interface';
 import { CommunicationRepositoryService } from '../communication.repository.service';
 import { JwtService } from '../../../common/services/jwt.service';
 import { Types } from 'mongoose';
+import { CommunicationRoom } from '../schema/communication-room.schema';
+import { ServiceProvidersRepositoryService } from '../../../modules/service-providers/service-providers.repository.service';
+import { ServiceProduct } from '../../../modules/service-providers/schema/service-providers.schema';
+import { User } from '../../../modules/user/schemas/user.schema';
+import { ProductOrServiceStatus } from '../../../modules/service-providers/enums/service-providers.enum';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsJwtGuard)
@@ -25,6 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly userRepoService: UserRepositoryService,
     private readonly communicationRepoService: CommunicationRepositoryService,
     private readonly jwtService: JwtService,
+    private readonly serviceProvidersRepositoryService: ServiceProvidersRepositoryService,
   ) {}
 
   async handleDisconnect(client: AuthenticatedSocket) {
@@ -76,14 +82,63 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
-    const { productServiceId, roomId, chatContext, message } = payload;
+    const { productServiceId, roomId, chatContext, message, receiverId } =
+      payload;
 
-    // Update message in db with some change in query
-    await Promise.all([
-      this.communicationRepoService.createCommunicationRoom(),
-      this.communicationRepoService.updateCommunicationRoom(),
-      this.communicationRepoService.createCommunicationMessage(),
+    // eslint-disable-next-line prefer-const
+    let [isRoomExist, isServiceProductExist, isReceiverExist]: [
+      CommunicationRoom | null,
+      ServiceProduct | null,
+      User | null,
+    ] = await Promise.all([
+      this.communicationRepoService.getCommunicationRoom(
+        client.user.id,
+        receiverId,
+        productServiceId,
+      ),
+      this.serviceProvidersRepositoryService.getServiceProductById(
+        productServiceId,
+      ),
+      this.userRepoService.getUserById(receiverId),
     ]);
+
+    if (
+      !isServiceProductExist ||
+      isServiceProductExist.status !== ProductOrServiceStatus.ACTIVE
+    ) {
+      client.emit('error', {
+        message: 'Service product id not exist',
+      });
+    }
+
+    if (!isReceiverExist) {
+      client.emit('error', {
+        message: 'Receiver not exists',
+      });
+    }
+
+    if (!isRoomExist) {
+      isRoomExist = await this.communicationRepoService.createCommunicationRoom(
+        payload,
+        client.user.id,
+      );
+      await this.communicationRepoService.createCommunicationMessage(
+        { ...payload, roomId: String(isRoomExist._id) },
+        client.user.id,
+      );
+    } else {
+      await Promise.all([
+        this.communicationRepoService.createCommunicationMessage(
+          payload,
+          client.user.id,
+        ),
+        this.communicationRepoService.updateCommunicationRoom(
+          roomId as string,
+          message,
+        ),
+      ]);
+    }
+
     this.server.to(payload.receiverSocketId).emit('receive_message', {
       productServiceId: productServiceId,
       senderId: client.user.id,

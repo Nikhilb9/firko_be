@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { User } from '../../user/schemas/user.schema';
-import { ServiceProduct } from 'src/modules/service-providers/schema/service-providers.schema';
+import { ServiceProduct } from '../../../modules/service-providers/schema/service-providers.schema';
 
 @Schema({ timestamps: true })
 export class Rating extends Document {

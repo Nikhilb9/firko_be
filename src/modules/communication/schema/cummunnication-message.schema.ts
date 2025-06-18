@@ -14,7 +14,7 @@ export class CommunicationMessage extends Document {
   @Prop({ type: String, required: true })
   message: string;
 
-  @Prop({ enum: ['TEXT', 'LOCATION'], required: true })
+  @Prop({ enum: ['TEXT', 'LOCATION'], required: true, default: 'TEXT' })
   contentType: 'TEXT' | 'LOCATION';
 
   @Prop({ type: Types.ObjectId, ref: CommunicationRoom.name, required: true })

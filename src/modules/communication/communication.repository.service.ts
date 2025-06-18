@@ -7,6 +7,7 @@ import {
   ICommunicationRoomMessageResponse,
   ICommunicationRoomResponse,
 } from './interface/communication.interface';
+import { ICreateMessage } from './interface/chat.interface';
 
 @Injectable()
 export class CommunicationRepositoryService {
@@ -86,7 +87,50 @@ export class CommunicationRepositoryService {
     })) as ICommunicationRoomMessageResponse[];
   }
 
-  async createCommunicationMessage() {}
-  async createCommunicationRoom() {}
-  async updateCommunicationRoom() {}
+  async createCommunicationRoom(
+    data: ICreateMessage,
+    senderId: string,
+  ): Promise<CommunicationRoom> {
+    return this.communicationRoom.create({
+      serviceProductId: new Types.ObjectId(data.productServiceId),
+      chatContext: data.chatContext,
+      latestMessage: data.message,
+      senderId: new Types.ObjectId(senderId),
+      receiverId: new Types.ObjectId(data.receiverId),
+    });
+  }
+
+  async getCommunicationRoom(
+    senderId: string,
+    receiverId: string,
+    productServiceId: string,
+  ): Promise<CommunicationRoom | null> {
+    return this.communicationRoom.findOne({
+      senderId: new Types.ObjectId(senderId),
+      receiverId: new Types.ObjectId(receiverId),
+      serviceProductId: new Types.ObjectId(productServiceId),
+    });
+  }
+
+  async updateCommunicationRoom(
+    roomId: string,
+    message: string,
+  ): Promise<void> {
+    await this.communicationRoom.updateOne(new Types.ObjectId(roomId), {
+      latestMessage: message,
+    });
+  }
+
+  async createCommunicationMessage(
+    data: ICreateMessage,
+    senderId: string,
+  ): Promise<void> {
+    await this.communicationMessage.create({
+      senderId: new Types.ObjectId(senderId),
+      receiverId: new Types.ObjectId(data.receiverId),
+      roomId: new Types.ObjectId(data.roomId),
+      message: data.message,
+      chatContext: data.chatContext,
+    });
+  }
 }
