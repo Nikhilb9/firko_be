@@ -50,7 +50,7 @@ export class CommunicationRepositoryService {
       return {
         id: room?._id?.toString(),
         serviceProductId: {
-          id: serviceProduct?._id?.toString() || '',
+          id: serviceProduct?._id?.toString() ?? '',
           images: serviceProduct?.images || [],
         },
         chatContext: room.chatContext,

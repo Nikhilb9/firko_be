@@ -2,7 +2,6 @@ import {
   IsMongoId,
   IsInt,
   Min,
-  Max,
   IsString,
   MaxLength,
   IsEnum,

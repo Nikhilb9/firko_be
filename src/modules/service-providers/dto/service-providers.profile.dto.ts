@@ -57,5 +57,5 @@ export class ServiceProvidersProfileDto implements IServiceProvidersProfile {
   @ApiProperty({
     description: 'User languages',
   })
-  languages?: string[] | undefined;
+  languages?: string[];
 }

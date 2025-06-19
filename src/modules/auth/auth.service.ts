@@ -69,7 +69,7 @@ export class AuthService {
     }
 
     if (existingUser) {
-      throw new ConflictException(`${phone ? phone : email} already exists`);
+      throw new ConflictException(`${phone ?? email} already exists`);
     }
 
     // Hash the password before saving

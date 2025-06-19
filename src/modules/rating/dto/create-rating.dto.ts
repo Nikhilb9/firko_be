@@ -1,11 +1,4 @@
-import {
-  IsMongoId,
-  IsInt,
-  Min,
-  Max,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsMongoId, IsInt, Min, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ICreateRating } from '../interface/rating.interface';
 import { Types } from 'mongoose';

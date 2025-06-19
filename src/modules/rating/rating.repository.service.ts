@@ -10,7 +10,9 @@ import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class RatingRepositoryService {
-  constructor(@InjectModel(Rating.name) private ratingModel: Model<Rating>) {}
+  constructor(
+    @InjectModel(Rating.name) private readonly ratingModel: Model<Rating>,
+  ) {}
   async getAllRatingForService(serviceId: string): Promise<IRatingResponse[]> {
     const ratings = await this.ratingModel
       .find({
