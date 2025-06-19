@@ -22,6 +22,7 @@ import { IAuthData } from '../auth/interface/auth.interface';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { RatingResponseDto } from './dto/get-rating.response.dto';
 import { IRatingResponse } from './interface/rating.interface';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('rating')
 @ApiExtraModels(RatingResponseDto)
@@ -34,7 +35,7 @@ export class RatingController {
   @ApiBody({ type: CreateRatingDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Rating created successfully',
+    description: ResponseMessage.created('Rating'),
     type: ApiResponseDto,
   })
   async giveRating(
@@ -46,7 +47,7 @@ export class RatingController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Rating created successfully',
+      ResponseMessage.created('Rating'),
     );
   }
 
@@ -54,7 +55,7 @@ export class RatingController {
   @ApiOperation({ summary: 'Service rating list' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Service rating list',
+    description: ResponseMessage.fetchedSuccessfully('Ratings'),
     type: ApiResponseDto<RatingResponseDto[]>,
   })
   async getServiceProductRatings(@Param('serviceId') serviceId: string) {
@@ -63,7 +64,7 @@ export class RatingController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service rating list',
+      ResponseMessage.fetchedSuccessfully('Ratings'),
       res,
     );
   }

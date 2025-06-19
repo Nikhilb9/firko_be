@@ -22,4 +22,8 @@ export class ResponseMessage {
   static fetchedSuccessfully(entity: string): string {
     return `${entity} fetched successfully`;
   }
+
+  static uploadedSuccessfully(entity: string): string {
+    return `${entity} uploaded successfully`;
+  }
 }

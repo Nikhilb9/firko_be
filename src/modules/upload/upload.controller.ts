@@ -12,6 +12,7 @@ import { imageFileFilter } from './filters/image-file.filter';
 import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('upload')
 @UseGuards(AuthGuard)
@@ -30,9 +31,14 @@ export class UploadController {
   @ApiConsumes('multipart/form-data')
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     const data = await this.s3Service.uploadFile(file);
-    return new ApiResponseDto(HttpStatus.OK, 'SUCCESS', 'File upload handled', {
-      key: data.key,
-      originalName: data.url,
-    });
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      ResponseMessage.uploadedSuccessfully('Image'),
+      {
+        key: data.key,
+        originalName: data.url,
+      },
+    );
   }
 }

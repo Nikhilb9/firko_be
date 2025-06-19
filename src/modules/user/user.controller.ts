@@ -22,6 +22,7 @@ import { GetProfileResponseDto } from './dto/get-profile.dto';
 import { UpdatePasswordDto } from './dto/change-password.dto';
 import { UserService } from './user.service';
 import { IAuthData } from '../auth/interface/auth.interface';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('user')
 @UseGuards(AuthGuard)
@@ -34,7 +35,7 @@ export class UserController {
   @ApiBody({ type: UpdateProfileDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'User profile updated successfully',
+    description: ResponseMessage.updated('User profile'),
   })
   async updateProfile(
     @Body() updateProfileData: UpdateProfileDto,
@@ -44,7 +45,7 @@ export class UserController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'User profile updated successfully',
+      ResponseMessage.updated('User profile'),
     );
   }
 
@@ -52,7 +53,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'User profile',
+    description: ResponseMessage.fetchedSuccessfully('User profile'),
     type: ApiResponseDto<GetProfileResponseDto>,
   })
   async getProfile(
@@ -64,7 +65,7 @@ export class UserController {
     return new ApiResponseDto<GetProfileResponseDto>(
       HttpStatus.OK,
       'SUCCESS',
-      'User profile',
+      ResponseMessage.fetchedSuccessfully('User profile'),
       profile,
     );
   }
@@ -74,7 +75,7 @@ export class UserController {
   @ApiBody({ type: UpdatePasswordDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Password updated successfully',
+    description: ResponseMessage.updated('Password'),
   })
   async updatePassword(
     @Body() updatePasswordData: UpdatePasswordDto,
@@ -84,7 +85,7 @@ export class UserController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Password updated successfully',
+      ResponseMessage.updated('Password'),
     );
   }
 }

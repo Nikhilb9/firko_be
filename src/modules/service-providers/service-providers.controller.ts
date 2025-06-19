@@ -33,6 +33,7 @@ import {
 import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
 import { ServiceProductListQueryDto } from './dto/list-query-service-product.dto';
 import { ServiceProductCategoryDto } from './dto/get-service-product-category.dto';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @ApiExtraModels(ServiceProductResponseDto, ServiceProductListResponseDto)
 @Controller('service-providers')
@@ -44,7 +45,7 @@ export class ServiceProvidersController {
   @ApiOperation({ description: 'Get product and service list' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Service or product list',
+    description: ResponseMessage.fetchedSuccessfully('Service or product list'),
     type: ApiResponseDto<ServiceProductListResponseDto>,
   })
   @ApiQuery({ type: ServiceProductListQueryDto })
@@ -55,7 +56,7 @@ export class ServiceProvidersController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service or product list',
+      ResponseMessage.fetchedSuccessfully('Service or product list'),
       productAndService,
     );
   }
@@ -64,14 +65,16 @@ export class ServiceProvidersController {
   @ApiOperation({ summary: 'Service or product category list' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Service product details by ID',
+    description: ResponseMessage.fetchedSuccessfully(
+      'Service or product category list',
+    ),
     type: ApiResponseDto<ServiceProductCategoryDto>,
   })
   getServiceProductCategory(): ApiResponseDto<ServiceProductCategoryDto[]> {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service or product category list',
+      ResponseMessage.fetchedSuccessfully('Service or product category list'),
       this.serviceProvidersService.getServiceProductCategory(),
     );
   }
@@ -85,7 +88,9 @@ export class ServiceProvidersController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Service product details by ID',
+    description: ResponseMessage.fetchedSuccessfully(
+      'Service or product detail',
+    ),
     type: ApiResponseDto<ServiceProductResponseDto>,
   })
   async getProductOrService(
@@ -97,7 +102,7 @@ export class ServiceProvidersController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service or product details by ID',
+      ResponseMessage.fetchedSuccessfully('Service or product detail'),
       serviceOrProduct,
     );
   }
@@ -111,7 +116,7 @@ export class ServiceProvidersController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Service or product updated successfully',
+    description: ResponseMessage.updated('Service or product'),
     type: ApiResponseDto,
   })
   @ApiBody({ type: UpdateServiceProductDto })
@@ -130,7 +135,7 @@ export class ServiceProvidersController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service or product updated successfully',
+      ResponseMessage.updated('Service or product'),
     );
   }
 
@@ -138,7 +143,7 @@ export class ServiceProvidersController {
   @ApiOperation({ summary: 'Create a new service or product' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Service or product created successfully',
+    description: ResponseMessage.created('Service or product'),
     type: ApiResponseDto,
   })
   @UseGuards(AuthGuard)
@@ -154,7 +159,7 @@ export class ServiceProvidersController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service or product created successfully',
+      ResponseMessage.created('Service or product'),
     );
   }
 
@@ -162,7 +167,7 @@ export class ServiceProvidersController {
   @ApiOperation({ description: 'Get user product and service list' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'Service or product list',
+    description: ResponseMessage.fetchedSuccessfully('Services or products'),
     type: ApiResponseDto<ServiceProductListResponseDto>,
   })
   @UseGuards(AuthGuard)
@@ -178,7 +183,7 @@ export class ServiceProvidersController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Service or product list',
+      ResponseMessage.fetchedSuccessfully('Services or products'),
       serviceAndProductList,
     );
   }
