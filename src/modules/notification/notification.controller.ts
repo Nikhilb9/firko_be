@@ -21,6 +21,7 @@ import { NotificationService } from './notification.service';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { IAuthData } from '../auth/interface/auth.interface';
 import { GetNotificationListQueryDto } from './dto/get-notification-list-query.dto';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('notification')
 @UseGuards(AuthGuard)
@@ -32,7 +33,7 @@ export class NotificationController {
   @ApiOperation({ summary: 'Get user notification list' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'User notification list',
+    description: ResponseMessage.updated('User notifications'),
     type: ApiResponseDto<NotificationResponseDto>,
   })
   async getUserNotifications(
@@ -48,7 +49,7 @@ export class NotificationController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'User profile updated successfully',
+      ResponseMessage.fetchedSuccessfully('User notifications'),
       notifications,
     );
   }
@@ -62,7 +63,7 @@ export class NotificationController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Notification update successfully',
+    description: ResponseMessage.updated('Notification'),
     type: ApiResponseDto,
   })
   async updateUserNotificationIsRead(
@@ -77,7 +78,7 @@ export class NotificationController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Notification updated successfully',
+      ResponseMessage.updated('Notification'),
     );
   }
 }

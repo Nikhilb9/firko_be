@@ -3,6 +3,7 @@ import { PlacesService } from './places.service';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { IGetPlaceCoordinates } from './places.interface';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('places')
 export class PlacesController {
@@ -12,7 +13,7 @@ export class PlacesController {
   @ApiOperation({ summary: 'Places list on search' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Places list',
+    description: ResponseMessage.fetchedSuccessfully('Places list'),
     type: ApiResponseDto,
   })
   @ApiParam({
@@ -31,7 +32,7 @@ export class PlacesController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Places list',
+      ResponseMessage.fetchedSuccessfully('Places list'),
       predictions,
     );
   }
@@ -40,7 +41,7 @@ export class PlacesController {
   @ApiOperation({ summary: 'Places coordinates' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Place coordinates',
+    description: ResponseMessage.fetchedSuccessfully('Places coordinates'),
     type: ApiResponseDto<IGetPlaceCoordinates>,
   })
   @ApiQuery({
@@ -53,6 +54,11 @@ export class PlacesController {
     const data: IGetPlaceCoordinates =
       await this.placesService.getPlaceCoordinates(placeId);
 
-    return new ApiResponseDto(200, 'SUCCESS', 'Places coordinates', data);
+    return new ApiResponseDto(
+      200,
+      'SUCCESS',
+      ResponseMessage.fetchedSuccessfully('Places coordinates'),
+      data,
+    );
   }
 }

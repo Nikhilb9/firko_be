@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { IAuthData } from './interface/auth.interface';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('auth')
 export class AuthController {
@@ -15,7 +16,7 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'User logged in successfully',
+    description: ResponseMessage.loggedInSuccessfully(),
     type: ApiResponseDto<IAuthData>,
   })
   async login(@Body() loginDto: LoginDto): Promise<ApiResponseDto<IAuthData>> {
@@ -23,7 +24,7 @@ export class AuthController {
     return new ApiResponseDto<IAuthData>(
       HttpStatus.OK,
       'SUCCESS',
-      'User logged in successfully',
+      ResponseMessage.loggedInSuccessfully(),
       user,
     );
   }
@@ -33,7 +34,7 @@ export class AuthController {
   @ApiBody({ type: RegisterDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'User registered successfully',
+    description: ResponseMessage.registeredSuccessfully(),
     type: ApiResponseDto<IAuthData>,
   })
   async register(
@@ -43,7 +44,7 @@ export class AuthController {
     return new ApiResponseDto<IAuthData>(
       HttpStatus.OK,
       'SUCCESS',
-      'User registered successfully',
+      ResponseMessage.registeredSuccessfully(),
       user,
     );
   }

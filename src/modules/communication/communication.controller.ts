@@ -18,6 +18,7 @@ import {
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CommunicationRoomResponseDto } from './dto/get-communication-room.response';
 import { CommunicationRoomMessageResponseDto } from './dto/get-communication-room-messages.response.dto';
+import { ResponseMessage } from 'src/common/utils/api-response-message.util';
 
 @Controller('communication')
 @UseGuards(AuthGuard)
@@ -33,7 +34,7 @@ export class CommunicationController {
   @ApiOperation({ summary: 'Get user communication room' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Communication rooms',
+    description: ResponseMessage.fetchedSuccessfully('Communication rooms'),
     type: ApiResponseDto<CommunicationRoomResponseDto>,
   })
   async getCommunicationsRooms(@Request() req: Request & { user: IAuthData }) {
@@ -43,7 +44,7 @@ export class CommunicationController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Communication rooms',
+      ResponseMessage.fetchedSuccessfully('Communication rooms'),
       res,
     );
   }
@@ -52,7 +53,9 @@ export class CommunicationController {
   @ApiOperation({ summary: 'Get communication room messages' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Communication rooms message',
+    description: ResponseMessage.fetchedSuccessfully(
+      'Communication rooms message',
+    ),
     type: ApiResponseDto<CommunicationRoomMessageResponseDto>,
   })
   async getCommunicationRoomMessages(@Param('roomId') roomId: string) {
@@ -61,7 +64,7 @@ export class CommunicationController {
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      'Communication rooms message',
+      ResponseMessage.fetchedSuccessfully('Communication rooms message'),
       res,
     );
   }
