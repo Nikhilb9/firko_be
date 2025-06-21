@@ -8,6 +8,7 @@ export interface ICreateMessage {
   roomId?: string;
   chatContext: ServiceProductType;
   message: string;
+  receiverSocketId?: string;
 }
 
 export interface AuthenticatedSocket extends Socket {

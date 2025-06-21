@@ -82,74 +82,85 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
-    const { productServiceId, roomId, chatContext, message, receiverId } =
-      payload;
+    try {
+      const { productServiceId, roomId, chatContext, message, receiverId } =
+        payload;
 
-    // eslint-disable-next-line prefer-const
-    let [isRoomExist, isServiceProductExist, isReceiverExist]: [
-      CommunicationRoom | null,
-      ServiceProduct | null,
-      User | null,
-    ] = await Promise.all([
-      this.communicationRepoService.getCommunicationRoom(
-        client.user.id,
-        receiverId,
-        productServiceId,
-      ),
-      this.serviceProvidersRepositoryService.getServiceProductById(
-        productServiceId,
-      ),
-      this.userRepoService.getUserById(receiverId),
-    ]);
+      const [isRoomExist, isServiceProductExist, isReceiverExist] =
+        await Promise.all([
+          this.communicationRepoService.getCommunicationRoom(
+            client.user.id,
+            receiverId,
+            productServiceId,
+          ),
+          this.serviceProvidersRepositoryService.getServiceProductById(
+            productServiceId,
+          ),
+          this.userRepoService.getUserById(receiverId),
+        ]);
 
-    if (
-      !isServiceProductExist ||
-      isServiceProductExist.status !== ProductOrServiceStatus.ACTIVE
-    ) {
-      return client.emit('error', {
-        message: 'Service product id not exist',
-      });
-    }
+      if (
+        !isServiceProductExist ||
+        isServiceProductExist.status !== ProductOrServiceStatus.ACTIVE
+      ) {
+        client.emit('error', {
+          message: 'Service product does not exist or is not active',
+        });
+        return;
+      }
 
-    if (!isReceiverExist) {
-      return client.emit('error', {
-        message: 'Receiver not exists',
-      });
-    }
+      if (!isReceiverExist) {
+        client.emit('error', {
+          message: 'Receiver does not exist',
+        });
+        return;
+      }
 
-    if (!isRoomExist) {
-      isRoomExist = await this.communicationRepoService.createCommunicationRoom(
-        payload,
-        client.user.id,
-      );
-      await this.communicationRepoService.createCommunicationMessage(
-        { ...payload, roomId: String(isRoomExist._id) },
-        client.user.id,
-      );
-    } else {
-      await Promise.all([
-        this.communicationRepoService.createCommunicationMessage(
-          payload,
+      let roomIdToUse = roomId;
+
+      if (!isRoomExist) {
+        const newRoom =
+          await this.communicationRepoService.createCommunicationRoom(
+            payload,
+            client.user.id,
+          );
+        roomIdToUse = String(newRoom._id);
+        await this.communicationRepoService.createCommunicationMessage(
+          { ...payload, roomId: roomIdToUse },
           client.user.id,
-        ),
-        this.communicationRepoService.updateCommunicationRoom(
-          roomId as string,
-          message,
-        ),
-      ]);
-    }
-    client.emit('message_send_successfully', {
-      roomId: roomId,
-    });
+        );
+      } else {
+        roomIdToUse = roomId || String(isRoomExist._id);
+        await Promise.all([
+          this.communicationRepoService.createCommunicationMessage(
+            { ...payload, roomId: roomIdToUse },
+            client.user.id,
+          ),
+          this.communicationRepoService.updateCommunicationRoom(
+            roomIdToUse,
+            message,
+          ),
+        ]);
+      }
 
-    if (isReceiverExist?.connectionId) {
-      this.server.to(isReceiverExist.connectionId).emit('receive_message', {
-        productServiceId: productServiceId,
-        senderId: client.user.id,
-        senderSocketId: client.id,
-        roomId: roomId,
-        chatContext: chatContext,
-        message: message,
+      this.server.emit('message_send_successfully', {
+        roomId: roomIdToUse,
+      });
+
+      if (isReceiverExist?.connectionId) {
+        this.server.to(isReceiverExist.connectionId).emit('receive_message', {
+          productServiceId: productServiceId,
+          senderId: client.user.id,
+          senderSocketId: client.id,
+          roomId: roomIdToUse,
+          chatContext: chatContext,
+          message: message,
+        });
+      }
+    } catch (error) {
+      client.emit('error', {
+        message: 'Failed to send message',
+        details: error.message,
       });
     }
 

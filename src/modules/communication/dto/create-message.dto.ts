@@ -39,4 +39,9 @@ export class CreateMessageDto implements ICreateMessage {
   @IsString()
   @IsNotEmpty()
   message: string;
+
+  @ApiProperty({ description: 'Receiver socket id', required: false })
+  @IsString()
+  @IsOptional()
+  receiverSocketId?: string;
 }
