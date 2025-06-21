@@ -28,8 +28,8 @@ export class CommunicationRepositoryService {
         $or: [{ receiverId: _userId }, { senderId: _userId }],
       })
       .sort({ updatedAt: 1 })
-      .populate('senderId', 'firstName lastName')
-      .populate('receiverId', 'firstName lastName')
+      .populate('senderId', 'firstName lastName _id')
+      .populate('receiverId', 'firstName lastName _id')
       .populate('serviceProductId', 'images')
       .exec();
 
@@ -37,10 +37,12 @@ export class CommunicationRepositoryService {
       const sender = room.senderId as unknown as {
         firstName: string;
         lastName: string;
+        _id: Types.ObjectId;
       };
       const receiver = room.receiverId as unknown as {
         firstName: string;
         lastName: string;
+        _id: Types.ObjectId;
       };
       const serviceProduct = room.serviceProductId as unknown as {
         _id: Types.ObjectId;
@@ -48,7 +50,7 @@ export class CommunicationRepositoryService {
       };
 
       return {
-        id: room?._id?.toString(),
+        id: String(room?._id),
         serviceProductId: {
           id: serviceProduct?._id?.toString() ?? '',
           images: serviceProduct?.images || [],
@@ -59,8 +61,8 @@ export class CommunicationRepositoryService {
         receiverName: receiver
           ? `${receiver.firstName} ${receiver.lastName}`
           : '',
-        senderId: room.senderId.toString(),
-        receiverId: room.receiverId.toString(),
+        senderId: sender._id.toString(),
+        receiverId: receiver._id.toString(),
         updatedAt: room.updatedAt,
       };
     }) as ICommunicationRoomResponse[];
