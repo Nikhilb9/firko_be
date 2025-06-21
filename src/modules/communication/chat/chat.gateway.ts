@@ -138,14 +138,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ),
       ]);
     }
-
-    this.server.to(payload.receiverSocketId).emit('receive_message', {
-      productServiceId: productServiceId,
-      senderId: client.user.id,
-      senderSocketId: client.id,
-      roomId: roomId,
-      chatContext: chatContext,
-      message: message,
-    });
+    if (isReceiverExist?.connectionId) {
+      this.server.to(isReceiverExist.connectionId).emit('receive_message', {
+        productServiceId: productServiceId,
+        senderId: client.user.id,
+        senderSocketId: client.id,
+        roomId: roomId,
+        chatContext: chatContext,
+        message: message,
+      });
+    }
   }
 }
