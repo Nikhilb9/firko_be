@@ -14,10 +14,7 @@ import { AuthenticatedSocket } from '../interface/chat.interface';
 import { CommunicationRepositoryService } from '../communication.repository.service';
 import { JwtService } from '../../../common/services/jwt.service';
 import { Types } from 'mongoose';
-import { CommunicationRoom } from '../schema/communication-room.schema';
 import { ServiceProvidersRepositoryService } from '../../../modules/service-providers/service-providers.repository.service';
-import { ServiceProduct } from '../../../modules/service-providers/schema/service-providers.schema';
-import { User } from '../../../modules/user/schemas/user.schema';
 import { ProductOrServiceStatus } from '../../../modules/service-providers/enums/service-providers.enum';
 
 @WebSocketGateway({ cors: true })
@@ -157,10 +154,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           message: message,
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       client.emit('error', {
         message: 'Failed to send message',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       });
     }
 
