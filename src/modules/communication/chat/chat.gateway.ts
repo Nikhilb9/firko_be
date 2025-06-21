@@ -138,7 +138,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ),
       ]);
     }
-    this.server.emit('message_send_successfully', {
+    client.emit('message_send_successfully', {
       roomId: roomId,
     });
 
