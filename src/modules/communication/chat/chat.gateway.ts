@@ -61,7 +61,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload: { id: string } | null = await this.jwtService.verify(
         client?.handshake?.query?.token as string,
       );
-      console.log('::::::::::::::::::::::::', client);
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
         await this.userRepoService.updateUserConnectionId(
@@ -139,6 +138,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ),
       ]);
     }
+
     if (isReceiverExist?.connectionId) {
       this.server.to(isReceiverExist.connectionId).emit('receive_message', {
         productServiceId: productServiceId,
@@ -147,6 +147,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: roomId,
         chatContext: chatContext,
         message: message,
+      });
+
+      this.server.emit('message_send_successfully', {
+        roomId: roomId,
       });
     }
   }
