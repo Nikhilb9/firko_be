@@ -15,6 +15,8 @@ export interface ICommunicationRoomResponse {
   latestMessage: string;
   senderName: string;
   receiverName: string;
+  senderId: string;
+  receiverId: string;
   updatedAt: Date;
 }
 

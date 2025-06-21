@@ -229,6 +229,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: roomIdToUse,
         messageId,
         timestamp: messageTimestamp,
+        receiverId: receiverId,
       });
 
       // Deliver message to receiver if online
@@ -237,6 +238,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           messageId,
           productServiceId: productServiceId,
           senderId: client.user.id,
+          receiverId: receiverId,
           senderSocketId: client.id,
           roomId: roomIdToUse,
           chatContext: chatContext,

@@ -35,5 +35,11 @@ export class CommunicationRoomResponseDto
   receiverName: string;
 
   @ApiProperty()
+  senderId: string;
+
+  @ApiProperty()
+  receiverId: string;
+
+  @ApiProperty()
   updatedAt: Date;
 }

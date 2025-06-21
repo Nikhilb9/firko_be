@@ -59,6 +59,8 @@ export class CommunicationRepositoryService {
         receiverName: receiver
           ? `${receiver.firstName} ${receiver.lastName}`
           : '',
+        senderId: room.senderId.toString(),
+        receiverId: room.receiverId.toString(),
         updatedAt: room.updatedAt,
       };
     }) as ICommunicationRoomResponse[];
