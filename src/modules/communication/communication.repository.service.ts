@@ -133,7 +133,7 @@ export class CommunicationRepositoryService {
       receiverId: new Types.ObjectId(data.receiverId),
       roomId: new Types.ObjectId(data.roomId),
       message: data.message,
-      contentType: data.chatContext,
+      contentType: 'TEXT',
     });
   }
 }
