@@ -70,7 +70,7 @@ export class CommunicationRepositoryService {
     const messages: CommunicationMessage[] = await this.communicationMessage
       .find({ roomId: new Types.ObjectId(roomId) })
       .select(
-        'contentType message createdAt updatedAt readAt _id senderId receiverId',
+        'contentType message createdAt updatedAt readAt _id senderId receiverId deliveryStatus attachments',
       )
       .sort({ createdAt: 1 })
       .lean();
@@ -84,6 +84,8 @@ export class CommunicationRepositoryService {
       readAt: msg.readAt,
       senderId: msg.senderId.toString(),
       receiverId: msg.receiverId.toString(),
+      deliveryStatus: msg.deliveryStatus,
+      attachments: msg.attachments || [],
     })) as ICommunicationRoomMessageResponse[];
   }
 
@@ -112,6 +114,10 @@ export class CommunicationRepositoryService {
     });
   }
 
+  async getRoomById(roomId: string): Promise<CommunicationRoom | null> {
+    return this.communicationRoom.findById(new Types.ObjectId(roomId));
+  }
+
   async updateCommunicationRoom(
     roomId: string,
     message: string,
@@ -127,13 +133,45 @@ export class CommunicationRepositoryService {
   async createCommunicationMessage(
     data: ICreateMessage,
     senderId: string,
-  ): Promise<void> {
-    await this.communicationMessage.create({
+    options: { deliveryStatus?: string } = {},
+  ): Promise<CommunicationMessage> {
+    return this.communicationMessage.create({
       senderId: new Types.ObjectId(senderId),
       receiverId: new Types.ObjectId(data.receiverId),
       roomId: new Types.ObjectId(data.roomId),
       message: data.message,
       contentType: 'TEXT',
+      deliveryStatus: options.deliveryStatus || 'SENT',
     });
+  }
+
+  async updateMessageStatus(messageId: string, status: string): Promise<void> {
+    await this.communicationMessage.updateOne(
+      { _id: new Types.ObjectId(messageId) },
+      { deliveryStatus: status },
+    );
+  }
+
+  async markMessagesAsRead(messageIds: string[]): Promise<void> {
+    const now = new Date();
+    await this.communicationMessage.updateMany(
+      { _id: { $in: messageIds.map((id) => new Types.ObjectId(id)) } },
+      {
+        readAt: now,
+        deliveryStatus: 'READ',
+      },
+    );
+  }
+
+  async getUserRoomIds(userId: string): Promise<string[]> {
+    const _userId = new Types.ObjectId(userId);
+    const rooms = await this.communicationRoom
+      .find({
+        $or: [{ receiverId: _userId }, { senderId: _userId }],
+      })
+      .select('_id')
+      .lean();
+
+    return rooms.map((room) => room._id.toString());
   }
 }

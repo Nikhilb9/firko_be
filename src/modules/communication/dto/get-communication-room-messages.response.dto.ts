@@ -8,7 +8,7 @@ export class CommunicationRoomMessageResponseDto
   id: string;
 
   @ApiProperty()
-  contentType: string;
+  contentType: 'TEXT' | 'LOCATION';
 
   @ApiProperty()
   message: string;
@@ -27,4 +27,10 @@ export class CommunicationRoomMessageResponseDto
 
   @ApiProperty()
   receiverId: string;
+
+  @ApiProperty()
+  deliveryStatus: string;
+
+  @ApiProperty()
+  attachments: string[];
 }

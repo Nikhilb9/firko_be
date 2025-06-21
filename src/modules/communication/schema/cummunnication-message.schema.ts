@@ -23,6 +23,15 @@ export class CommunicationMessage extends Document {
   @Prop({ type: Date })
   readAt?: Date;
 
+  @Prop({ enum: ['SENT', 'DELIVERED', 'READ'], default: 'SENT' })
+  deliveryStatus: string;
+
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
+
+  @Prop({ type: [String], default: [] })
+  attachments: string[];
+
   createdAt?: Date;
   updatedAt?: Date;
 }

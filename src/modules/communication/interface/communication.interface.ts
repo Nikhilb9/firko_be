@@ -7,7 +7,10 @@ export interface IServiceProductSummary {
 
 export interface ICommunicationRoomResponse {
   id: string;
-  serviceProductId: IServiceProductSummary;
+  serviceProductId: {
+    id: string;
+    images: string[];
+  };
   chatContext: ServiceProductType;
   latestMessage: string;
   senderName: string;
@@ -17,11 +20,13 @@ export interface ICommunicationRoomResponse {
 
 export interface ICommunicationRoomMessageResponse {
   id: string;
-  contentType: string;
+  contentType: 'TEXT' | 'LOCATION';
   message: string;
   createdAt: Date;
   updatedAt: Date;
-  readAt: Date;
+  readAt?: Date;
   senderId: string;
   receiverId: string;
+  deliveryStatus: string;
+  attachments: string[];
 }

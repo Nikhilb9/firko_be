@@ -23,6 +23,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  // Map to track connected users: userId -> socketId
+  private readonly connectedUsers = new Map<string, string>();
+
   constructor(
     private readonly userRepoService: UserRepositoryService,
     private readonly communicationRepoService: CommunicationRepositoryService,
@@ -38,7 +41,33 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+        // Remove from connected users map
+        this.connectedUsers.delete(payload.id);
+
         await this.userRepoService.updateUserConnectionId(null, payload.id);
+
+        // Notify relevant users about offline status
+        const userRooms = await this.communicationRepoService.getUserRoomIds(
+          payload.id,
+        );
+        for (const roomId of userRooms) {
+          const room = await this.communicationRepoService.getRoomById(roomId);
+          if (!room) continue;
+
+          const otherUserId =
+            room.senderId.toString() === payload.id
+              ? room.receiverId.toString()
+              : room.senderId.toString();
+
+          const otherUser = await this.userRepoService.getUserById(otherUserId);
+          if (otherUser?.connectionId) {
+            this.server.to(otherUser.connectionId).emit('user_status_changed', {
+              userId: payload.id,
+              status: 'OFFLINE',
+            });
+          }
+        }
+
         return client.emit('disconnected', {
           message: 'Disconnected successfully',
           userId: payload?.id,
@@ -60,10 +89,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+        // Store in connected users map
+        this.connectedUsers.set(payload.id, client.id);
+
         await this.userRepoService.updateUserConnectionId(
           client.id,
           payload.id,
         );
+
+        // Notify relevant users about online status
+        const userRooms = await this.communicationRepoService.getUserRoomIds(
+          payload.id,
+        );
+        for (const roomId of userRooms) {
+          const room = await this.communicationRepoService.getRoomById(roomId);
+          if (!room) continue;
+
+          const otherUserId =
+            room.senderId.toString() === payload.id
+              ? room.receiverId.toString()
+              : room.senderId.toString();
+
+          const otherUser = await this.userRepoService.getUserById(otherUserId);
+          if (otherUser?.connectionId) {
+            this.server.to(otherUser.connectionId).emit('user_status_changed', {
+              userId: payload.id,
+              status: 'ONLINE',
+            });
+          }
+        }
+
         return client.emit('connected', {
           message: 'Connected successfully',
           userId: payload.id,
@@ -114,6 +169,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       let roomIdToUse = roomId;
+      let messageId = '';
+      let messageTimestamp = new Date();
 
       if (!isRoomExist) {
         const newRoom =
@@ -122,37 +179,95 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             client.user.id,
           );
         roomIdToUse = String(newRoom._id);
-        await this.communicationRepoService.createCommunicationMessage(
-          { ...payload, roomId: roomIdToUse },
-          client.user.id,
-        );
+        const savedMessage =
+          await this.communicationRepoService.createCommunicationMessage(
+            { ...payload, roomId: roomIdToUse },
+            client.user.id,
+            { deliveryStatus: 'SENT' },
+          );
+
+        if (savedMessage && savedMessage._id) {
+          // Use String() to safely convert ObjectId to string
+          messageId =
+            savedMessage._id instanceof Types.ObjectId
+              ? savedMessage._id.toString()
+              : String(savedMessage._id);
+
+          if (savedMessage.createdAt) {
+            messageTimestamp = savedMessage.createdAt;
+          }
+        }
       } else {
         roomIdToUse = roomId || String(isRoomExist._id);
-        await Promise.all([
+        const [createdMessage] = await Promise.all([
           this.communicationRepoService.createCommunicationMessage(
             { ...payload, roomId: roomIdToUse },
             client.user.id,
+            { deliveryStatus: 'SENT' },
           ),
           this.communicationRepoService.updateCommunicationRoom(
             roomIdToUse,
             message,
           ),
         ]);
+
+        if (createdMessage && createdMessage._id) {
+          // Use String() to safely convert ObjectId to string
+          messageId =
+            createdMessage._id instanceof Types.ObjectId
+              ? createdMessage._id.toString()
+              : String(createdMessage._id);
+
+          if (createdMessage.createdAt) {
+            messageTimestamp = createdMessage.createdAt;
+          }
+        }
       }
 
-      this.server.emit('message_send_successfully', {
+      // Notify sender about successful message creation
+      client.emit('message_send_successfully', {
         roomId: roomIdToUse,
+        messageId,
+        timestamp: messageTimestamp,
       });
 
+      // Deliver message to receiver if online
       if (isReceiverExist?.connectionId) {
         this.server.to(isReceiverExist.connectionId).emit('receive_message', {
+          messageId,
           productServiceId: productServiceId,
           senderId: client.user.id,
           senderSocketId: client.id,
           roomId: roomIdToUse,
           chatContext: chatContext,
           message: message,
+          timestamp: messageTimestamp,
         });
+
+        // Set up acknowledgment with timeout
+        void this.server
+          .timeout(5000)
+          .to(isReceiverExist.connectionId)
+          .emit('message_delivered_ack', { messageId }, (err, responses) => {
+            if (
+              !err &&
+              responses &&
+              Array.isArray(responses) &&
+              responses.length > 0
+            ) {
+              // Update delivery status to DELIVERED
+              void this.communicationRepoService.updateMessageStatus(
+                messageId,
+                'DELIVERED',
+              );
+
+              // Notify sender about delivery
+              client.emit('message_status_update', {
+                messageId,
+                status: 'DELIVERED',
+              });
+            }
+          });
       }
     } catch (error: unknown) {
       client.emit('error', {
@@ -160,7 +275,88 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         details: error instanceof Error ? error.message : String(error),
       });
     }
+  }
 
-    return;
+  @SubscribeMessage('typing')
+  async handleTyping(
+    client: AuthenticatedSocket,
+    payload: { roomId: string; isTyping: boolean },
+  ) {
+    try {
+      const room = await this.communicationRepoService.getRoomById(
+        payload.roomId,
+      );
+      if (!room) {
+        client.emit('error', { message: 'Room not found' });
+        return;
+      }
+
+      const otherUserId =
+        room.senderId.toString() === client.user.id
+          ? room.receiverId.toString()
+          : room.senderId.toString();
+
+      const otherUser = await this.userRepoService.getUserById(otherUserId);
+      if (otherUser?.connectionId) {
+        this.server.to(otherUser.connectionId).emit('user_typing', {
+          roomId: payload.roomId,
+          userId: client.user.id,
+          isTyping: payload.isTyping,
+        });
+      }
+    } catch (error) {
+      client.emit('error', {
+        message: 'Failed to send typing indicator',
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  @SubscribeMessage('mark_as_read')
+  async markAsRead(
+    client: AuthenticatedSocket,
+    payload: { messageIds: string[]; roomId: string },
+  ) {
+    try {
+      await this.communicationRepoService.markMessagesAsRead(
+        payload.messageIds,
+      );
+
+      // Notify sender about read status
+      const room = await this.communicationRepoService.getRoomById(
+        payload.roomId,
+      );
+      if (!room) return;
+
+      const otherUserId =
+        room.senderId.toString() === client.user.id
+          ? room.receiverId.toString()
+          : room.senderId.toString();
+
+      const otherUser = await this.userRepoService.getUserById(otherUserId);
+      if (otherUser?.connectionId) {
+        this.server.to(otherUser.connectionId).emit('messages_read', {
+          messageIds: payload.messageIds,
+          roomId: payload.roomId,
+          readBy: client.user.id,
+          readAt: new Date(),
+        });
+      }
+    } catch (error) {
+      client.emit('error', {
+        message: 'Failed to mark messages as read',
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  @SubscribeMessage('message_delivered_ack')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  handleMessageDeliveredAck(
+    _client: AuthenticatedSocket,
+    _payload: { messageId: string },
+  ) {
+    // This is just an acknowledgment handler - the actual processing happens in the timeout callback
+    return { received: true };
   }
 }
