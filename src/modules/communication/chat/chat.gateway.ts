@@ -139,7 +139,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ]);
     }
     client.emit('message_send_successfully', {
-      roomId: roomId,
+      roomId: String(isRoomExist._id),
     });
 
     if (isReceiverExist?.connectionId) {
