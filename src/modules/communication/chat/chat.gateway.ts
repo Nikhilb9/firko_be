@@ -61,7 +61,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload: { id: string } | null = await this.jwtService.verify(
         client?.handshake?.query?.token as string,
       );
-      console.log('::::::::::::::::::::::::', payload);
+      console.log('::::::::::::::::::::::::', payload, client);
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
         console.log('================', payload);
