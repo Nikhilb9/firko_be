@@ -116,9 +116,12 @@ export class CommunicationRepositoryService {
     roomId: string,
     message: string,
   ): Promise<void> {
-    await this.communicationRoom.updateOne(new Types.ObjectId(roomId), {
-      latestMessage: message,
-    });
+    await this.communicationRoom.updateOne(
+      { _id: new Types.ObjectId(roomId) },
+      {
+        latestMessage: message,
+      },
+    );
   }
 
   async createCommunicationMessage(
