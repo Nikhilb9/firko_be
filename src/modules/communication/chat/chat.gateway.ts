@@ -42,14 +42,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
         await this.userRepoService.updateUserConnectionId(null, payload.id);
-        client.emit('disconnected', {
+        return client.emit('disconnected', {
           message: 'Disconnected successfully',
           userId: payload?.id,
           socketId: client.id,
         });
       }
     } catch {
-      client.emit('error', {
+      return client.emit('error', {
         message: 'Token expired',
       });
     }
@@ -67,14 +67,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           client.id,
           payload.id,
         );
-        client.emit('connected', {
+        return client.emit('connected', {
           message: 'Connected successfully',
           userId: payload.id,
           socketId: client.id,
         });
       }
     } catch {
-      client.emit('error', {
+      return client.emit('error', {
         message: 'Token expired',
       });
     }
@@ -106,13 +106,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       !isServiceProductExist ||
       isServiceProductExist.status !== ProductOrServiceStatus.ACTIVE
     ) {
-      client.emit('error', {
+      return client.emit('error', {
         message: 'Service product id not exist',
       });
     }
 
     if (!isReceiverExist) {
-      client.emit('error', {
+      return client.emit('error', {
         message: 'Receiver not exists',
       });
     }
@@ -152,5 +152,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message: message,
       });
     }
+
+    return;
   }
 }
