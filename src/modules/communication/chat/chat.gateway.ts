@@ -138,6 +138,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ),
       ]);
     }
+    this.server.emit('message_send_successfully', {
+      roomId: roomId,
+    });
 
     if (isReceiverExist?.connectionId) {
       this.server.to(isReceiverExist.connectionId).emit('receive_message', {
@@ -147,10 +150,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: roomId,
         chatContext: chatContext,
         message: message,
-      });
-
-      this.server.emit('message_send_successfully', {
-        roomId: roomId,
       });
     }
   }
