@@ -30,7 +30,7 @@ export class CommunicationRepositoryService {
       .sort({ updatedAt: 1 })
       .populate('senderId', 'firstName lastName _id')
       .populate('receiverId', 'firstName lastName _id')
-      .populate('serviceProductId', 'images')
+      .populate('serviceProductId', 'images title')
       .exec();
 
     return communicationRoomData.map((room) => {
