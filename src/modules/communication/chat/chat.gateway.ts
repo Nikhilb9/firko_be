@@ -126,6 +126,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
       }
     } catch {
+      console.log('-----------------------------------------------------');
       return client.emit('error', {
         message: 'Token expired',
       });
@@ -135,10 +136,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
     try {
-      const { productServiceId, roomId, chatContext, message, receiverId } =
-        payload;
+      const { productServiceId, chatContext, message, receiverId } = payload;
 
-      const [isRoomExist, isServiceProductExist, isReceiverExist] =
+      // eslint-disable-next-line prefer-const
+      let [isRoomExist, isServiceProductExist, isReceiverExist] =
         await Promise.all([
           this.communicationRepoService.getCommunicationRoom(
             client.user.id,
@@ -168,17 +169,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      let roomIdToUse = roomId;
       let messageId = '';
-      let messageTimestamp = new Date();
+      let messageTimestamp: Date | undefined = new Date();
+
+      console.log('==============================', isRoomExist);
 
       if (!isRoomExist) {
-        const newRoom =
+        isRoomExist =
           await this.communicationRepoService.createCommunicationRoom(
             payload,
             client.user.id,
           );
-        roomIdToUse = String(newRoom._id);
+
+        console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', isRoomExist);
+        const roomIdToUse = String(isRoomExist._id);
         const savedMessage =
           await this.communicationRepoService.createCommunicationMessage(
             { ...payload, roomId: roomIdToUse },
@@ -186,19 +190,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             { deliveryStatus: 'SENT' },
           );
 
-        if (savedMessage && savedMessage._id) {
-          // Use String() to safely convert ObjectId to string
-          messageId =
-            savedMessage._id instanceof Types.ObjectId
-              ? savedMessage._id.toString()
-              : String(savedMessage._id);
+        const _messageId = String(savedMessage._id);
+        messageId = _messageId;
 
-          if (savedMessage.createdAt) {
-            messageTimestamp = savedMessage.createdAt;
-          }
+        if (savedMessage.createdAt) {
+          messageTimestamp = savedMessage.createdAt;
         }
       } else {
-        roomIdToUse = roomId || String(isRoomExist._id);
+        const roomIdToUse: string = String(isRoomExist._id);
         const [createdMessage] = await Promise.all([
           this.communicationRepoService.createCommunicationMessage(
             { ...payload, roomId: roomIdToUse },
@@ -211,22 +210,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ),
         ]);
 
-        if (createdMessage && createdMessage._id) {
-          // Use String() to safely convert ObjectId to string
-          messageId =
-            createdMessage._id instanceof Types.ObjectId
-              ? createdMessage._id.toString()
-              : String(createdMessage._id);
-
-          if (createdMessage.createdAt) {
-            messageTimestamp = createdMessage.createdAt;
-          }
-        }
+        messageId = String(createdMessage._id);
+        messageTimestamp = createdMessage.createdAt;
       }
 
       // Notify sender about successful message creation
       client.emit('message_send_successfully', {
-        roomId: roomIdToUse,
+        roomId: String(isRoomExist._id),
         messageId,
         timestamp: messageTimestamp,
         receiverId: receiverId,
@@ -240,7 +230,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           senderId: client.user.id,
           receiverId: receiverId,
           senderSocketId: client.id,
-          roomId: roomIdToUse,
+          roomId: String(isRoomExist._id),
           chatContext: chatContext,
           message: message,
           timestamp: messageTimestamp,
