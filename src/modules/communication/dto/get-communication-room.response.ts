@@ -11,6 +11,9 @@ export class ServiceProductSummaryDto implements IServiceProductSummary {
 
   @ApiProperty({ type: String, isArray: true })
   images: string[];
+
+  @ApiProperty({ type: String })
+  title: string;
 }
 
 export class CommunicationRoomResponseDto

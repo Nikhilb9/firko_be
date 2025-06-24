@@ -10,6 +10,7 @@ export interface ICommunicationRoomResponse {
   serviceProductId: {
     id: string;
     images: string[];
+    title: string;
   };
   chatContext: ServiceProductType;
   latestMessage: string;

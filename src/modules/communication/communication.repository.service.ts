@@ -30,7 +30,7 @@ export class CommunicationRepositoryService {
       .sort({ updatedAt: 1 })
       .populate('senderId', 'firstName lastName _id')
       .populate('receiverId', 'firstName lastName _id')
-      .populate('serviceProductId', 'images')
+      .populate('serviceProductId', 'images', 'title')
       .exec();
 
     return communicationRoomData.map((room) => {
@@ -47,6 +47,7 @@ export class CommunicationRepositoryService {
       const serviceProduct = room.serviceProductId as unknown as {
         _id: Types.ObjectId;
         images: string[];
+        title: string;
       };
 
       return {
@@ -54,6 +55,7 @@ export class CommunicationRepositoryService {
         serviceProductId: {
           id: serviceProduct?._id?.toString() ?? '',
           images: serviceProduct?.images || [],
+          title: serviceProduct?.title ?? '',
         },
         chatContext: room.chatContext,
         latestMessage: room.latestMessage,
