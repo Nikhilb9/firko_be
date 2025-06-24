@@ -125,8 +125,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           socketId: client.id,
         });
       }
-    } catch {
-      console.log('-----------------------------------------------------');
+    } catch (err) {
+      console.log('-----------------------------------------------------', err);
       return client.emit('error', {
         message: 'Token expired',
       });
