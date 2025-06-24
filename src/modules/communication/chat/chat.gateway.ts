@@ -139,11 +139,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const { productServiceId, chatContext, message, receiverId } = payload;
 
       // eslint-disable-next-line prefer-const
-      let [isRoomExist, isServiceProductExist, isReceiverExist] =
+      let [room1, room2, isServiceProductExist, isReceiverExist] =
         await Promise.all([
           this.communicationRepoService.getCommunicationRoom(
             client.user.id,
             receiverId,
+            productServiceId,
+          ),
+          this.communicationRepoService.getCommunicationRoom(
+            receiverId,
+            client.user.id,
             productServiceId,
           ),
           this.serviceProvidersRepositoryService.getServiceProductById(
@@ -151,6 +156,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           ),
           this.userRepoService.getUserById(receiverId),
         ]);
+
+      let isRoomExist = room1 || room2;
 
       if (
         !isServiceProductExist ||
