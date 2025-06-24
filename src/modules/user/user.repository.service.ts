@@ -3,13 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { IRegister } from '../../modules/auth/interface/auth.interface';
 import { User } from './schemas/user.schema';
-import { IUserProfile } from './interfaces/user.interface';
 
 @Injectable()
 export class UserRepositoryService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
+
   findOneByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).exec();
   }
@@ -24,19 +24,23 @@ export class UserRepositoryService {
 
   getUserById(id: string): Promise<User | null> {
     const objectId = new Types.ObjectId(id);
-    return this.userModel.findById(objectId);
+    return this.userModel.findById(objectId).exec();
   }
 
-  async updateUser(id: string, updateData: IUserProfile): Promise<void> {
+  async updateUser(
+    id: string,
+    updateData: Record<string, any>,
+  ): Promise<User | null> {
     const objectId = new Types.ObjectId(id);
     await this.userModel.updateOne({ _id: objectId }, updateData);
+    return this.getUserById(id);
   }
 
-  async updatePassword(id: string, newPassword: string): Promise<void> {
+  async updateOtp(id: string, otp: string, expiresAt: Date): Promise<void> {
     const objectId = new Types.ObjectId(id);
     await this.userModel.updateOne(
       { _id: objectId },
-      { password: newPassword },
+      { otp, otpExpiresAt: expiresAt },
     );
   }
 

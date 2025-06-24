@@ -12,9 +12,7 @@ export interface IUserProfile {
   isPhoneVerified?: boolean;
   isEmailVerified?: boolean;
   deviceToken?: string;
-}
-
-export interface IUpdatePassword {
-  oldPassword: string;
-  newPassword: string;
+  gender?: string;
+  age?: number;
+  isOnboarded?: boolean;
 }

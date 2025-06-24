@@ -48,4 +48,27 @@ export class GetProfileResponseDto implements IUserProfile {
     type: Boolean,
   })
   isEmailVerified?: boolean;
+
+  @ApiPropertyOptional({
+    enum: ['male', 'female', 'other'],
+    description: 'User gender',
+  })
+  gender?: string;
+
+  @ApiPropertyOptional({
+    description: 'User age',
+    type: Number,
+    minimum: 0,
+    maximum: 120,
+  })
+  age?: number;
+
+  @ApiProperty({
+    description: 'Is user onboarded',
+    type: Boolean,
+  })
+  isOnboarded?: boolean;
+
+  @ApiPropertyOptional()
+  deviceToken?: string;
 }

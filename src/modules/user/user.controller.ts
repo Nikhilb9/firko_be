@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Post,
   Put,
   Request,
   UseGuards,
@@ -19,10 +20,10 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ApiResponseDto } from 'src/common/dto/api-response.dto';
 import { IUserProfile } from './interfaces/user.interface';
 import { GetProfileResponseDto } from './dto/get-profile.dto';
-import { UpdatePasswordDto } from './dto/change-password.dto';
 import { UserService } from './user.service';
 import { IAuthData } from '../auth/interface/auth.interface';
 import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { OnboardUserDto } from './dto/onboard-user.dto';
 
 @Controller('user')
 @UseGuards(AuthGuard)
@@ -70,22 +71,27 @@ export class UserController {
     );
   }
 
-  @Put('/password')
-  @ApiOperation({ summary: 'Update user password' })
-  @ApiBody({ type: UpdatePasswordDto })
+  @Post('/onboard')
+  @ApiOperation({ summary: 'Onboard user with additional information' })
+  @ApiBody({ type: OnboardUserDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: ResponseMessage.updated('Password'),
+    description: 'User onboarded successfully',
+    type: ApiResponseDto<GetProfileResponseDto>,
   })
-  async updatePassword(
-    @Body() updatePasswordData: UpdatePasswordDto,
+  async onboardUser(
+    @Body() onboardData: OnboardUserDto,
     @Request() req: Request & { user: IAuthData },
-  ): Promise<ApiResponseDto<''>> {
-    await this.userService.updatePassword(req.user.id, updatePasswordData);
-    return new ApiResponseDto(
+  ): Promise<ApiResponseDto<GetProfileResponseDto>> {
+    const profile: IUserProfile = await this.userService.onboardUser(
+      req.user.id,
+      onboardData,
+    );
+    return new ApiResponseDto<GetProfileResponseDto>(
       HttpStatus.OK,
       'SUCCESS',
-      ResponseMessage.updated('Password'),
+      'User onboarded successfully',
+      profile,
     );
   }
 }

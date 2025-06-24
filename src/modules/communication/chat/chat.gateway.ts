@@ -357,7 +357,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('message_delivered_ack')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleMessageDeliveredAck(
     _client: AuthenticatedSocket,
     _payload: { messageId: string },
