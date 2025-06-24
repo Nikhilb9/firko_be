@@ -172,8 +172,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let messageId = '';
       let messageTimestamp: Date | undefined = new Date();
 
-      console.log('==============================', isRoomExist);
-
       if (!isRoomExist) {
         isRoomExist =
           await this.communicationRepoService.createCommunicationRoom(
@@ -181,7 +179,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             client.user.id,
           );
 
-        console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%', isRoomExist);
         const roomIdToUse = String(isRoomExist._id);
         const savedMessage =
           await this.communicationRepoService.createCommunicationMessage(
