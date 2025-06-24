@@ -83,10 +83,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: AuthenticatedSocket) {
     try {
+      console.log(
+        '---------*********************',
+        client?.handshake?.query?.token as string,
+      );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const payload: { id: string } | null = await this.jwtService.verify(
         client?.handshake?.query?.token as string,
       );
+
+      console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
         // Store in connected users map
@@ -97,10 +103,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           payload.id,
         );
 
+        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+
         // Notify relevant users about online status
         const userRooms = await this.communicationRepoService.getUserRoomIds(
           payload.id,
         );
+        console.log(')))))))))))))))))))', userRooms);
         for (const roomId of userRooms) {
           const room = await this.communicationRepoService.getRoomById(roomId);
           if (!room) continue;
@@ -125,6 +134,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           socketId: client.id,
         });
       }
+      return;
     } catch (err) {
       console.log('-----------------------------------------------------', err);
       return client.emit('error', {
