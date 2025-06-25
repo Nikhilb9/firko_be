@@ -26,7 +26,7 @@ export class AuthController {
       HttpStatus.OK,
       'SUCCESS',
       'OTP sent successfully',
-      result,
+      { message: result },
     );
   }
 

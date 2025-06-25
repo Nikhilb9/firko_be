@@ -15,7 +15,10 @@ import { CommunicationRepositoryService } from '../communication.repository.serv
 import { JwtService } from '../../../common/services/jwt.service';
 import { Types } from 'mongoose';
 import { ServiceProvidersRepositoryService } from '../../../modules/service-providers/service-providers.repository.service';
-import { ProductOrServiceStatus } from '../../../modules/service-providers/enums/service-providers.enum';
+import {
+  ProductOrServiceStatus,
+  ServiceProductType,
+} from '../../../modules/service-providers/enums/service-providers.enum';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsJwtGuard)
@@ -83,16 +86,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: AuthenticatedSocket) {
     try {
-      console.log(
-        '---------*********************',
-        client?.handshake?.query?.token as string,
-      );
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const payload: { id: string } | null = await this.jwtService.verify(
         client?.handshake?.query?.token as string,
       );
-
-      console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
       if (payload?.id && Types.ObjectId.isValid(payload.id)) {
         // Store in connected users map
@@ -103,13 +100,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           payload.id,
         );
 
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-
         // Notify relevant users about online status
         const userRooms = await this.communicationRepoService.getUserRoomIds(
           payload.id,
         );
-        console.log(')))))))))))))))))))', userRooms);
         for (const roomId of userRooms) {
           const room = await this.communicationRepoService.getRoomById(roomId);
           if (!room) continue;
@@ -136,7 +130,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
       return;
     } catch (err) {
-      console.log('-----------------------------------------------------', err);
+      console.log(err);
       return client.emit('error', {
         message: 'Token expired',
       });
@@ -147,6 +141,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
     try {
       const { productServiceId, chatContext, message, receiverId } = payload;
+
+      const validationError = this.validatePayload(payload);
+
+      if (validationError) {
+        return client.emit('error', { message: validationError });
+      }
 
       // eslint-disable-next-line prefer-const
       let [room1, room2, isServiceProductExist, isReceiverExist] =
@@ -289,12 +289,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload: { roomId: string; isTyping: boolean },
   ) {
     try {
+      if (!payload.roomId || !Types.ObjectId.isValid(payload.roomId)) {
+        return client.emit('error', {
+          message: 'Invalid room ID',
+        });
+      }
       const room = await this.communicationRepoService.getRoomById(
         payload.roomId,
       );
       if (!room) {
-        client.emit('error', { message: 'Room not found' });
-        return;
+        return client.emit('error', { message: 'Room not found' });
       }
 
       const otherUserId =
@@ -363,5 +367,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     // This is just an acknowledgment handler - the actual processing happens in the timeout callback
     return { received: true };
+  }
+
+  private validatePayload(payload: CreateMessageDto): string | null {
+    const { productServiceId, receiverId, message, chatContext } = payload;
+
+    if (
+      !productServiceId ||
+      !receiverId ||
+      !message ||
+      !chatContext ||
+      !Types.ObjectId.isValid(productServiceId) ||
+      !Types.ObjectId.isValid(receiverId) ||
+      !Object.values(ServiceProductType).includes(chatContext)
+    ) {
+      return 'Invalid payload. productServiceId, receiverId, message, and chatContext are required.';
+    }
+
+    return null;
   }
 }
