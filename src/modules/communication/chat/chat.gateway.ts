@@ -37,104 +37,39 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   async handleDisconnect(client: AuthenticatedSocket) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const payload: { id: string } | null = await this.jwtService.verify(
-        client?.handshake?.query?.token as string,
-      );
+    const userId: string | null = await this.verifyToken(client);
 
-      if (payload?.id && Types.ObjectId.isValid(payload.id)) {
-        // Remove from connected users map
-        this.connectedUsers.delete(payload.id);
-
-        await this.userRepoService.updateUserConnectionId(null, payload.id);
-
-        // Notify relevant users about offline status
-        const userRooms = await this.communicationRepoService.getUserRoomIds(
-          payload.id,
-        );
-        for (const roomId of userRooms) {
-          const room = await this.communicationRepoService.getRoomById(roomId);
-          if (!room) continue;
-
-          const otherUserId =
-            room.senderId.toString() === payload.id
-              ? room.receiverId.toString()
-              : room.senderId.toString();
-
-          const otherUser = await this.userRepoService.getUserById(otherUserId);
-          if (otherUser?.connectionId) {
-            this.server.to(otherUser.connectionId).emit('user_status_changed', {
-              userId: payload.id,
-              status: 'OFFLINE',
-            });
-          }
-        }
-
-        return client.emit('disconnected', {
-          message: 'Disconnected successfully',
-          userId: payload?.id,
-          socketId: client.id,
-        });
-      }
-    } catch {
-      return client.emit('error', {
-        message: 'Token expired',
-      });
+    if (!userId) {
+      return client.emit('error', { message: 'Token expired' });
     }
+
+    this.connectedUsers.delete(userId);
+    await this.userRepoService.updateUserConnectionId(null, userId);
+    await this.notifyUsersAboutStatus(userId, 'OFFLINE');
+
+    return client.emit('disconnected', {
+      message: 'Disconnected successfully',
+      userId: userId,
+      socketId: client.id,
+    });
   }
 
   async handleConnection(client: AuthenticatedSocket) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const payload: { id: string } | null = await this.jwtService.verify(
-        client?.handshake?.query?.token as string,
-      );
+    const userId: string | null = await this.verifyToken(client);
 
-      if (payload?.id && Types.ObjectId.isValid(payload.id)) {
-        // Store in connected users map
-        this.connectedUsers.set(payload.id, client.id);
-
-        await this.userRepoService.updateUserConnectionId(
-          client.id,
-          payload.id,
-        );
-
-        // Notify relevant users about online status
-        const userRooms = await this.communicationRepoService.getUserRoomIds(
-          payload.id,
-        );
-        for (const roomId of userRooms) {
-          const room = await this.communicationRepoService.getRoomById(roomId);
-          if (!room) continue;
-
-          const otherUserId =
-            room.senderId.toString() === payload.id
-              ? room.receiverId.toString()
-              : room.senderId.toString();
-
-          const otherUser = await this.userRepoService.getUserById(otherUserId);
-          if (otherUser?.connectionId) {
-            this.server.to(otherUser.connectionId).emit('user_status_changed', {
-              userId: payload.id,
-              status: 'ONLINE',
-            });
-          }
-        }
-
-        return client.emit('connected', {
-          message: 'Connected successfully',
-          userId: payload.id,
-          socketId: client.id,
-        });
-      }
-      return;
-    } catch (err) {
-      console.log(err);
-      return client.emit('error', {
-        message: 'Token expired',
-      });
+    if (!userId) {
+      return client.emit('error', { message: 'Token expired' });
     }
+
+    this.connectedUsers.set(userId, client.id);
+    await this.userRepoService.updateUserConnectionId(client.id, userId);
+    await this.notifyUsersAboutStatus(userId, 'ONLINE');
+
+    return client.emit('connected', {
+      message: 'Connected successfully',
+      userId: userId,
+      socketId: client.id,
+    });
   }
 
   @SubscribeMessage('send_message')
@@ -382,5 +317,46 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     return null;
+  }
+
+  async verifyToken(client: AuthenticatedSocket): Promise<string | null> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const payload: { id: string; phone: string } =
+        await this.jwtService.verify(client?.handshake?.query?.token as string);
+
+      if (payload?.id && Types.ObjectId.isValid(payload.id)) {
+        return payload.id;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  async notifyUsersAboutStatus(userId: string, status: 'ONLINE' | 'OFFLINE') {
+    const userRooms =
+      await this.communicationRepoService.getUserRoomIds(userId);
+
+    const notifyPromises = userRooms.map(async (roomId) => {
+      const room = await this.communicationRepoService.getRoomById(roomId);
+      if (!room) return;
+
+      const otherUserId =
+        room.senderId.toString() === userId
+          ? room.receiverId.toString()
+          : room.senderId.toString();
+
+      const otherUser = await this.userRepoService.getUserById(otherUserId);
+      if (otherUser?.connectionId) {
+        this.server.to(otherUser.connectionId).emit('user_status_changed', {
+          userId,
+          status,
+        });
+      }
+    });
+
+    // Wait for all notifications to complete in parallel
+    await Promise.all(notifyPromises);
   }
 }
