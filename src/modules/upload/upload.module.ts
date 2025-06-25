@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { UploadController } from './upload.controller';
 import { S3Service } from '../../common/services/s3.service';
 import { S3Client } from '@aws-sdk/client-s3';
-import { JwtService } from 'src/common/services/jwt.service';
-import { SharedJwtModule } from 'src/common/modules/jwt.module';
+import { JwtService } from '../../common/services/jwt.service';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [SharedJwtModule],

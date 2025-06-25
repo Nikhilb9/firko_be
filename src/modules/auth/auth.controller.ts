@@ -1,9 +1,9 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { IAuthData } from './interface/auth.interface';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
 
 @Controller('auth')

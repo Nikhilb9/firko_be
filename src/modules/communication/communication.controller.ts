@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { CommunicationService } from './communication.service';
 import { IAuthData } from '../auth/interface/auth.interface';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import {
   ApiBearerAuth,
   ApiExtraModels,
@@ -18,7 +18,7 @@ import {
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CommunicationRoomResponseDto } from './dto/get-communication-room.response';
 import { CommunicationRoomMessageResponseDto } from './dto/get-communication-room-messages.response.dto';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 
 @Controller('communication')
 @UseGuards(AuthGuard)

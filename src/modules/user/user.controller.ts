@@ -17,12 +17,12 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { IUserProfile } from './interfaces/user.interface';
 import { GetProfileResponseDto } from './dto/get-profile.dto';
 import { UserService } from './user.service';
 import { IAuthData } from '../auth/interface/auth.interface';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 import { OnboardUserDto } from './dto/onboard-user.dto';
 
 @Controller('user')

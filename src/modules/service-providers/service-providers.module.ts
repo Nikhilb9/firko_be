@@ -10,7 +10,7 @@ import {
 import { JwtService as NestJwtService } from '../../common/services/jwt.service';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { User, UserSchema } from '../user/schemas/user.schema';
-import { SharedJwtModule } from 'src/common/modules/jwt.module';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [

@@ -9,8 +9,8 @@ import {
   ServiceProduct,
   ServiceProductSchema,
 } from '../service-providers/schema/service-providers.schema';
-import { JwtService } from 'src/common/services/jwt.service';
-import { SharedJwtModule } from 'src/common/modules/jwt.module';
+import { JwtService } from '../../common/services/jwt.service';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [

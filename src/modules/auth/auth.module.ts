@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../user/schemas/user.schema';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { JwtService as NestJwtService } from '../../common/services/jwt.service';
-import { SharedJwtModule } from 'src/common/modules/jwt.module';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [

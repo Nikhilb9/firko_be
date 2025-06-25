@@ -18,10 +18,10 @@ import {
 } from '@nestjs/swagger';
 import { NotificationResponseDto } from './dto/get-notification-list-response.dto';
 import { NotificationService } from './notification.service';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { IAuthData } from '../auth/interface/auth.interface';
 import { GetNotificationListQueryDto } from './dto/get-notification-list-query.dto';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 
 @Controller('notification')
 @UseGuards(AuthGuard)

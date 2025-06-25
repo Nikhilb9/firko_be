@@ -4,8 +4,8 @@ import { NotificationService } from './notification.service';
 import { NotificationRepositoryService } from './notification.repository.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Notification, NotificationSchema } from './schema/notification.schema';
-import { JwtService } from 'src/common/services/jwt.service';
-import { SharedJwtModule } from 'src/common/modules/jwt.module';
+import { JwtService } from '../../common/services/jwt.service';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [

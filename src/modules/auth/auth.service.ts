@@ -8,7 +8,7 @@ import { UserRepositoryService } from '../user/user.repository.service';
 import { IAuthData } from './interface/auth.interface';
 import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
 import { User } from '../user/schemas/user.schema';
-import { DEVELOPMENT_HARD_CODED_OTP } from 'src/config/config';
+import { DEVELOPMENT_HARD_CODED_OTP } from '../../config/config';
 
 @Injectable()
 export class AuthService {

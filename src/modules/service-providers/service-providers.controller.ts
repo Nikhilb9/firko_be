@@ -20,7 +20,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { ServiceProductResponseDto } from './dto/get-service-product.dto';
 import { IAuthData } from '../auth/interface/auth.interface';
 import { UpdateServiceProductDto } from './dto/update-service-product.dto';
@@ -33,7 +33,7 @@ import {
 import { ServiceProductListResponseDto } from './dto/get-service-product-list-response.dto';
 import { ServiceProductListQueryDto } from './dto/list-query-service-product.dto';
 import { ServiceProductCategoryDto } from './dto/get-service-product-category.dto';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 
 @ApiExtraModels(ServiceProductResponseDto, ServiceProductListResponseDto)
 @Controller('service-providers')

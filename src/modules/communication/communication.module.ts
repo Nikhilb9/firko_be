@@ -20,7 +20,7 @@ import {
   ServiceProduct,
   ServiceProductSchema,
 } from '../service-providers/schema/service-providers.schema';
-import { SharedJwtModule } from 'src/common/modules/jwt.module';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [

@@ -19,7 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { IAuthData } from '../auth/interface/auth.interface';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { FeedbackResponseDto } from './dto/feedback.response.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 
