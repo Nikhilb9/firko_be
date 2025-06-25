@@ -12,6 +12,7 @@ import {
   ServiceProductSchema,
 } from '../service-providers/schema/service-providers.schema';
 import { JwtService } from 'src/common/services/jwt.service';
+import { SharedJwtModule } from 'src/common/modules/jwt.module';
 
 @Module({
   imports: [
@@ -19,10 +20,7 @@ import { JwtService } from 'src/common/services/jwt.service';
       { name: Rating.name, schema: RatingSchema },
       { name: ServiceProduct.name, schema: ServiceProductSchema },
     ]),
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.expiresIn },
-    }),
+    SharedJwtModule,
   ],
   controllers: [RatingController],
   providers: [

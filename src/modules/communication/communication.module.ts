@@ -11,8 +11,6 @@ import {
   CommunicationRoom,
   CommunicationRoomSchema,
 } from './schema/communication-room.schema';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../../config/config';
 import { ChatGateway } from './chat/chat.gateway';
 import { User, UserSchema } from '../user/schemas/user.schema';
 import { UserRepositoryService } from '../user/user.repository.service';
@@ -22,6 +20,7 @@ import {
   ServiceProduct,
   ServiceProductSchema,
 } from '../service-providers/schema/service-providers.schema';
+import { SharedJwtModule } from 'src/common/modules/jwt.module';
 
 @Module({
   imports: [
@@ -31,10 +30,7 @@ import {
       { name: User.name, schema: UserSchema },
       { name: ServiceProduct.name, schema: ServiceProductSchema },
     ]),
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.expiresIn },
-    }),
+    SharedJwtModule,
   ],
   controllers: [CommunicationController],
   providers: [

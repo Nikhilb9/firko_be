@@ -3,18 +3,14 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../user/schemas/user.schema';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../../config/config';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { JwtService as NestJwtService } from '../../common/services/jwt.service';
+import { SharedJwtModule } from 'src/common/modules/jwt.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.expiresIn },
-    }),
+    SharedJwtModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, NestJwtService, UserRepositoryService],
