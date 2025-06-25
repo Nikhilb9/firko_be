@@ -16,7 +16,7 @@ export class FAQRepositoryService {
   }
 
   async getAllFAQs(filter?: FAQFilterDto): Promise<FAQ[]> {
-    const query: any = {};
+    const query: Record<string, any> = {};
 
     if (filter?.category) {
       query.category = filter.category;

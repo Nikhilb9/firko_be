@@ -98,8 +98,11 @@ export class AuthService {
 
     // Create JWT token
     const updatedUserId = String(updatedUser._id);
-    const payload = { id: updatedUserId, phone: updatedUser.phone };
-    const accessToken = this.jwtService.sign(payload);
+    const payload = {
+      id: updatedUserId,
+      phone: phone,
+    };
+    const accessToken: string = this.jwtService.sign(payload);
 
     return {
       token: accessToken,

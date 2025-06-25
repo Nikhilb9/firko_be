@@ -361,10 +361,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('message_delivered_ack')
-  handleMessageDeliveredAck(
-    _client: AuthenticatedSocket,
-    _payload: { messageId: string },
-  ) {
+  handleMessageDeliveredAck() {
     // This is just an acknowledgment handler - the actual processing happens in the timeout callback
     return { received: true };
   }

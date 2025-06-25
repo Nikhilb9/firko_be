@@ -4,8 +4,6 @@ import { RatingService } from './rating.service';
 import { RatingRepositoryService } from './rating.repository.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Rating, RatingSchema } from './schema/rating.schema';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../../config/config';
 import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
 import {
   ServiceProduct,

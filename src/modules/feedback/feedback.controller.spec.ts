@@ -24,7 +24,6 @@ describe('FeedbackController', () => {
     }).compile();
 
     controller = module.get<FeedbackController>(FeedbackController);
-    service = module.get<FeedbackService>(FeedbackService);
   });
 
   afterEach(() => {

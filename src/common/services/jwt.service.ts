@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
+interface ISignPayload {
+  id: string;
+  phone: string;
+}
 @Injectable()
 export class JwtService {
   constructor(
@@ -9,9 +13,9 @@ export class JwtService {
     private readonly configService: ConfigService,
   ) {}
 
-  sign(payload: any): string {
+  sign(payload: ISignPayload): string {
     const secret = this.configService.get<string>('JWT_SECRET');
-    const expiresIn = this.configService.get<string | number>('JWT_EXPIRES_IN');
+    const expiresIn = this.configService.get<string>('JWT_EXPIRES_IN');
 
     return this.jwt.sign(payload, {
       secret,
