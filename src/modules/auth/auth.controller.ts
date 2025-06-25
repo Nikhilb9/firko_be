@@ -15,7 +15,7 @@ export class AuthController {
   @ApiBody({ type: RequestOtpDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'OTP sent successfully',
+    description: ResponseMessage.sentSuccessfully('OTP'),
     type: ApiResponseDto<{ message: string }>,
   })
   async requestOtp(
@@ -25,7 +25,7 @@ export class AuthController {
     return new ApiResponseDto<{ message: string }>(
       HttpStatus.OK,
       'SUCCESS',
-      'OTP sent successfully',
+      ResponseMessage.sentSuccessfully('OTP'),
       { message: result },
     );
   }
