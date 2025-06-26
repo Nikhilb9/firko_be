@@ -11,9 +11,9 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 enum Gender {
-  MALE = 'male',
-  FEMALE = 'female',
-  OTHER = 'other',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
 }
 
 export class OnboardUserDto {
