@@ -9,7 +9,7 @@ async function bootstrap(): Promise<void> {
     app.useGlobalPipes(new ValidationPipe());
 
     const options = new DocumentBuilder()
-      .setTitle('PUSLY API')
+      .setTitle('FIRKO API')
       .setVersion('1.0')
       .addServer('http://localhost:3000/', 'Local environment')
       .addBearerAuth(
