@@ -1,50 +1,55 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { IAuthData } from './interface/auth.interface';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
+import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('login')
-  @ApiOperation({ summary: 'Login user with email or phone' })
-  @ApiBody({ type: LoginDto })
+  @Post('request-otp')
+  @ApiOperation({ summary: 'Request OTP for phone number' })
+  @ApiBody({ type: RequestOtpDto })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: ResponseMessage.loggedInSuccessfully(),
-    type: ApiResponseDto<IAuthData>,
+    description: ResponseMessage.sentSuccessfully('OTP'),
+    type: ApiResponseDto<{ message: string }>,
   })
-  async login(@Body() loginDto: LoginDto): Promise<ApiResponseDto<IAuthData>> {
-    const user = await this.authService.login(loginDto);
-    return new ApiResponseDto<IAuthData>(
+  async requestOtp(
+    @Body() requestOtpDto: RequestOtpDto,
+  ): Promise<ApiResponseDto<{ message: string }>> {
+    const result = await this.authService.requestOtp(requestOtpDto);
+    return new ApiResponseDto<{ message: string }>(
       HttpStatus.OK,
       'SUCCESS',
-      ResponseMessage.loggedInSuccessfully(),
-      user,
+      ResponseMessage.sentSuccessfully('OTP'),
+      { message: result },
     );
   }
 
-  @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiBody({ type: RegisterDto })
+  @Post('verify-otp')
+  @ApiOperation({ summary: 'Verify OTP and login/register user' })
+  @ApiBody({ type: VerifyOtpDto })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: ResponseMessage.registeredSuccessfully(),
+    status: HttpStatus.OK,
+    description: 'OTP verified successfully',
     type: ApiResponseDto<IAuthData>,
   })
-  async register(
-    @Body() registerDto: RegisterDto,
+  async verifyOtp(
+    @Body() verifyOtpDto: VerifyOtpDto,
   ): Promise<ApiResponseDto<IAuthData>> {
-    const user = await this.authService.register(registerDto);
+    const user = await this.authService.verifyOtp(verifyOtpDto);
+    const message = user.isNewUser
+      ? ResponseMessage.registeredSuccessfully()
+      : ResponseMessage.loggedInSuccessfully();
+
     return new ApiResponseDto<IAuthData>(
       HttpStatus.OK,
       'SUCCESS',
-      ResponseMessage.registeredSuccessfully(),
+      message,
       user,
     );
   }

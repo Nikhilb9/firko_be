@@ -12,7 +12,7 @@ import { imageFileFilter } from './filters/image-file.filter';
 import { ApiBearerAuth, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 
 @Controller('upload')
 @UseGuards(AuthGuard)

@@ -1,15 +1,14 @@
 import {
-  ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '../../common/services/jwt.service';
-import { UserRepositoryService } from '../user/user.repository.service'; // UserService to interact with DB
-import * as bcrypt from 'bcryptjs';
-import { LoginDto } from './dto/login.dto'; // DTO for login data
-import { User } from '../user/schemas/user.schema';
+import { UserRepositoryService } from '../user/user.repository.service';
 import { IAuthData } from './interface/auth.interface';
-import { RegisterDto } from './dto/register.dto';
+import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
+import { User } from '../user/schemas/user.schema';
+import { DEVELOPMENT_HARD_CODED_OTP } from '../../config/config';
 
 @Injectable()
 export class AuthService {
@@ -18,82 +17,102 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginDto: LoginDto): Promise<IAuthData> {
-    const { email, password, phone } = loginDto;
+  /**
+   * Request OTP for a phone number
+   * In production, this would send an SMS
+   */
+  async requestOtp(requestOtpDto: RequestOtpDto): Promise<string> {
+    const { phone } = requestOtpDto;
 
-    let user: User | null = null;
-    // Check if the user exists
-    if (email) {
-      user = await this.usersRepoService.findOneByEmail(email);
-    } else if (phone) {
-      user = await this.usersRepoService.findOneByPhone(phone);
-    }
+    // Set OTP expiration time (5 minutes from now)
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 5);
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    // Find user by phone or create a new user record
+    let user: User | null = await this.usersRepoService.findOneByPhone(phone);
 
-    // Compare the password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Create JWT token if the password is valid
-    const payload = { id: user?._id?.toString(), email: user.email };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      token: accessToken,
-      phone: user.phone ?? '',
-      firstName: user.firstName,
-      lastName: user.lastName,
-      address: user.address ?? '',
-      email: user.email ?? '',
-      id: String(user._id),
-    };
-  }
-
-  async register(registerDto: RegisterDto): Promise<IAuthData> {
-    const { phone, password, firstName, lastName, email } = registerDto;
-
-    let existingUser: User | null = null;
-    const userUniqueValue: { phone?: string; email?: string } = {};
-
-    if (email) {
-      existingUser = await this.usersRepoService.findOneByEmail(email);
-      userUniqueValue['email'] = email;
-    } else if (phone) {
-      existingUser = await this.usersRepoService.findOneByPhone(phone);
-      userUniqueValue['phone'] = phone;
-    }
-
-    if (existingUser) {
-      throw new ConflictException(`${phone ?? email} already exists`);
-    }
-
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Call the repository method to create and save the user
-    const user = await this.usersRepoService.createUser({
-      ...userUniqueValue,
-      password: hashedPassword,
-      firstName,
-      lastName,
+    // Create a minimal user record with just the phone number
+    user ??= await this.usersRepoService.createUser({
+      phone,
+      firstName: 'User', // Temporary name until user completes registration
+      lastName: '',
     });
 
-    // Create JWT token if the password is valid
-    const payload = { id: user?._id?.toString(), email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    // Update user with OTP
+    await this.usersRepoService.updateOtp(
+      String(user._id),
+      DEVELOPMENT_HARD_CODED_OTP,
+      expiresAt,
+    );
+
+    // In production, we would send the OTP via SMS here
+    // For development, we return the OTP in the response
+
+    return `OTP sent to ${phone}. For development, use: ${DEVELOPMENT_HARD_CODED_OTP}`;
+  }
+
+  /**
+   * Verify OTP and authenticate/register the user
+   */
+  async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<IAuthData> {
+    const { phone, otp, firstName, lastName, email } = verifyOtpDto;
+
+    // Find user by phone
+    const user: User | null = await this.usersRepoService.findOneByPhone(phone);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if OTP exists and is valid
+    if (
+      !user.otp ||
+      user.otp !== otp ||
+      !user.otpExpiresAt ||
+      user.otpExpiresAt < new Date()
+    ) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    // Update user profile
+    const updateData: Record<string, any> = {
+      isPhoneVerified: true,
+      otp: null,
+      otpExpiresAt: null,
+    };
+
+    // Add optional fields if provided
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (email) updateData.email = email;
+
+    // Update user
+    const updatedUser: User | null = await this.usersRepoService.updateUser(
+      String(user._id),
+      updateData,
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundException('Failed to update user');
+    }
+
+    // Create JWT token
+    const updatedUserId = String(updatedUser._id);
+    const payload = {
+      id: updatedUserId,
+      phone: phone,
+    };
+    const accessToken: string = this.jwtService.sign(payload);
 
     return {
       token: accessToken,
-      ...userUniqueValue,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      address: user.address,
-      id: String(user._id),
+      phone: updatedUser.phone ?? '',
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName ?? '',
+      address: updatedUser.address ?? '',
+      email: updatedUser.email ?? '',
+      id: updatedUserId,
+      isNewUser: !user.isPhoneVerified,
     };
   }
 }

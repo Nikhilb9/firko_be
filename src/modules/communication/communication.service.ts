@@ -5,7 +5,6 @@ import {
   ICommunicationRoomResponse,
 } from './interface/communication.interface';
 import { Types } from 'mongoose';
-
 @Injectable()
 export class CommunicationService {
   constructor(

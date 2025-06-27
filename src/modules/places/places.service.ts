@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
-import { GOOGLE_API_BASE_URL } from 'src/config/config';
+import { GOOGLE_API_BASE_URL } from '../../config/config';
 import {
   IGetPlaceCoordinates,
   IPlaceDetailsApiResponse,

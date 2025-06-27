@@ -1,11 +1,4 @@
-export interface ILogin {
-  password: string;
-  email?: string;
-  phone?: string;
-}
-
 export interface IRegister {
-  password: string;
   firstName: string;
   lastName: string;
   email?: string;
@@ -20,4 +13,5 @@ export interface IAuthData {
   email?: string;
   address?: string;
   id: string;
+  isNewUser?: boolean;
 }

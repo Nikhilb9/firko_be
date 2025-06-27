@@ -4,14 +4,13 @@ import { RatingService } from './rating.service';
 import { RatingRepositoryService } from './rating.repository.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Rating, RatingSchema } from './schema/rating.schema';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from '../../config/config';
 import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
 import {
   ServiceProduct,
   ServiceProductSchema,
 } from '../service-providers/schema/service-providers.schema';
-import { JwtService } from 'src/common/services/jwt.service';
+import { JwtService } from '../../common/services/jwt.service';
+import { SharedJwtModule } from '../../common/modules/jwt.module';
 
 @Module({
   imports: [
@@ -19,10 +18,7 @@ import { JwtService } from 'src/common/services/jwt.service';
       { name: Rating.name, schema: RatingSchema },
       { name: ServiceProduct.name, schema: ServiceProductSchema },
     ]),
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: jwtConstants.expiresIn },
-    }),
+    SharedJwtModule,
   ],
   controllers: [RatingController],
   providers: [

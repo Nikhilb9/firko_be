@@ -20,11 +20,6 @@ export class CreateMessageDto implements ICreateMessage {
   @IsNotEmpty()
   receiverId: string;
 
-  @ApiProperty({ description: 'Room id', required: false })
-  @IsMongoId()
-  @IsOptional()
-  roomId?: string;
-
   @ApiProperty({
     enum: [ServiceProductType.PRODUCT, ServiceProductType.SERVICE],
     type: String,
@@ -44,4 +39,9 @@ export class CreateMessageDto implements ICreateMessage {
   @IsString()
   @IsOptional()
   receiverSocketId?: string;
+
+  @ApiProperty({ description: 'Room id', required: false })
+  @IsMongoId()
+  @IsOptional()
+  roomId?: string;
 }

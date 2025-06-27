@@ -1,9 +1,9 @@
 import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
 import { PlacesService } from './places.service';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { IGetPlaceCoordinates } from './places.interface';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 
 @Controller('places')
 export class PlacesController {

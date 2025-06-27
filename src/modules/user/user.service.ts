@@ -1,14 +1,13 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { UserRepositoryService } from './user.repository.service'; // Assuming you have a repo
-import { IUpdatePassword, IUserProfile } from './interfaces/user.interface';
+import { IUserProfile } from './interfaces/user.interface';
 import { User } from './schemas/user.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import * as bcrypt from 'bcryptjs';
+import { OnboardUserDto } from './dto/onboard-user.dto';
 
 @Injectable()
 export class UserService {
@@ -32,6 +31,9 @@ export class UserService {
       experience: user.experience,
       isEmailVerified: user.isEmailVerified,
       isPhoneVerified: user.isPhoneVerified,
+      gender: user.gender,
+      age: user.age,
+      isOnboarded: user.isOnboarded,
     };
   }
 
@@ -71,27 +73,41 @@ export class UserService {
     await this.userRepositorySer.updateUser(userId, { ...dataToUpdate });
   }
 
-  async updatePassword(
+  async onboardUser(
     userId: string,
-    changePasswordDto: IUpdatePassword,
-  ): Promise<void> {
+    onboardData: OnboardUserDto,
+  ): Promise<IUserProfile> {
     const user = await this.userRepositorySer.getUserById(userId);
+
     if (!user) {
       throw new NotFoundException(`User with id ${userId} not found`);
     }
 
-    // Compare the password
-    const isPasswordValid = await bcrypt.compare(
-      changePasswordDto.oldPassword,
-      user.password,
-    );
-    if (!isPasswordValid) {
-      throw new BadRequestException('Old password is incorrect');
+    const dataToUpdate = {
+      ...onboardData,
+      isOnboarded: true,
+    };
+
+    // Check if email is provided and different from current email
+    if (onboardData.email && user.email !== onboardData.email) {
+      const isEmailExist = await this.userRepositorySer.findOneByEmail(
+        onboardData.email,
+      );
+      if (isEmailExist) {
+        throw new ConflictException(`${onboardData.email} already exists`);
+      }
+      dataToUpdate['isEmailVerified'] = false;
     }
 
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
-    // Change to new password
-    await this.userRepositorySer.updatePassword(userId, hashedPassword);
+    const updatedUser = await this.userRepositorySer.updateUser(
+      userId,
+      dataToUpdate,
+    );
+
+    if (!updatedUser) {
+      throw new NotFoundException('Failed to update user');
+    }
+
+    return this.getProfile(userId);
   }
 }

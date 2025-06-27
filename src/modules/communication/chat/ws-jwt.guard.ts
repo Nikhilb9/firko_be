@@ -1,7 +1,7 @@
 // ws-jwt.guard.ts
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { JwtService } from 'src/common/services/jwt.service';
+import { JwtService } from '../../../common/services/jwt.service';
 
 @Injectable()
 export class WsJwtGuard implements CanActivate {

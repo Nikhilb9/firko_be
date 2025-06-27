@@ -55,7 +55,7 @@ export class CommunicationRepositoryService {
         serviceProductId: {
           id: serviceProduct?._id?.toString() ?? '',
           images: serviceProduct?.images || [],
-          title: serviceProduct?.title,
+          title: serviceProduct?.title ?? '',
         },
         chatContext: room.chatContext,
         latestMessage: room.latestMessage,

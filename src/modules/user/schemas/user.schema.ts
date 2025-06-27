@@ -12,9 +12,6 @@ export class User extends Document {
   })
   email?: string;
 
-  @Prop({ required: true, type: String })
-  password: string;
-
   @Prop({ maxlength: 13, unique: true, sparse: true })
   phone?: string;
 
@@ -33,8 +30,17 @@ export class User extends Document {
   @Prop({ required: true, trim: true, type: String })
   firstName: string;
 
-  @Prop({ required: true, trim: true, type: String })
+  @Prop({ required: false, trim: true, type: String })
   lastName: string;
+
+  @Prop({ type: String, enum: ['male', 'female', 'other'] })
+  gender?: string;
+
+  @Prop({ type: Number, min: 0, max: 120 })
+  age?: number;
+
+  @Prop({ type: Boolean, default: false })
+  isOnboarded: boolean;
 
   @Prop({ type: String, trim: true })
   location: string;
@@ -56,6 +62,22 @@ export class User extends Document {
 
   @Prop({ type: String })
   deviceToken: string;
+
+  // OTP related fields
+  @Prop({ type: String })
+  otp: string;
+
+  @Prop({ type: Date })
+  otpExpiresAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// Create TTL index for OTP expiration
+UserSchema.index(
+  { otpExpiresAt: 1 },
+  {
+    expireAfterSeconds: 0,
+    partialFilterExpression: { otpExpiresAt: { $exists: true } },
+  },
+);

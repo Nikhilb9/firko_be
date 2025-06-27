@@ -19,10 +19,10 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { IAuthData } from '../auth/interface/auth.interface';
-import { ApiResponseDto } from 'src/common/dto/api-response.dto';
+import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { RatingResponseDto } from './dto/get-rating.response.dto';
 import { IRatingResponse } from './interface/rating.interface';
-import { ResponseMessage } from 'src/common/utils/api-response-message.util';
+import { ResponseMessage } from '../../common/utils/api-response-message.util';
 
 @Controller('rating')
 @ApiExtraModels(RatingResponseDto)
