@@ -9,12 +9,14 @@ import { IAuthData } from './interface/auth.interface';
 import { RequestOtpDto, VerifyOtpDto } from './dto/otp.dto';
 import { User } from '../user/schemas/user.schema';
 import { DEVELOPMENT_HARD_CODED_OTP } from '../../config/config';
+import { SmsService } from '../../common/services/sms.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepoService: UserRepositoryService,
     private readonly jwtService: JwtService,
+    private readonly smsService: SmsService,
   ) {}
 
   /**
@@ -45,8 +47,15 @@ export class AuthService {
       expiresAt,
     );
 
-    // In production, we would send the OTP via SMS here
-    // For development, we return the OTP in the response
+    // In production, send the OTP via SMS
+    try {
+      // For development, we'll use a hardcoded OTP
+      const otpMessage = `Your verification code is: ${DEVELOPMENT_HARD_CODED_OTP}`;
+      await this.smsService.sendSMS(phone, otpMessage);
+    } catch (error) {
+      console.error('Failed to send SMS:', error);
+      // Continue even if SMS sending fails in development
+    }
 
     return `OTP sent to ${phone}. For development, use: ${DEVELOPMENT_HARD_CODED_OTP}`;
   }

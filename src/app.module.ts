@@ -16,7 +16,6 @@ import { PlacesModule } from './modules/places/places.module';
 import { FeedbackModule } from './modules/feedback';
 import { SharedJwtModule } from './common/modules/jwt.module';
 import { FAQModule } from './modules/faq/faq.module';
-import { SmsService } from './common/services/sms.service';
 
 @Module({
   imports: [
@@ -33,7 +32,6 @@ import { SmsService } from './common/services/sms.service';
     SharedJwtModule,
     FeedbackModule,
     FAQModule,
-    SmsService,
   ],
   controllers: [AppController],
   providers: [
