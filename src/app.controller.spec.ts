@@ -15,8 +15,10 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Server hearbeat works!"', () => {
-      expect(appController.getServerHeatbeat()).toBe('Server hearbeat works!');
+    it('should return "Server heartbeat works!"', () => {
+      expect(appController.getServerHeartbeat()).toBe(
+        'Server heartbeat works!',
+      );
     });
   });
 });
