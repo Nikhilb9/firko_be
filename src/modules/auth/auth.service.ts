@@ -64,7 +64,7 @@ export class AuthService {
    * Verify OTP and authenticate/register the user
    */
   async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<IAuthData> {
-    const { phone, otp, firstName, lastName, email } = verifyOtpDto;
+    const { phone, otp } = verifyOtpDto;
 
     // Find user by phone
     const user: User | null = await this.usersRepoService.findOneByPhone(phone);
@@ -89,11 +89,6 @@ export class AuthService {
       otp: null,
       otpExpiresAt: null,
     };
-
-    // Add optional fields if provided
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
-    if (email) updateData.email = email;
 
     // Update user
     const updatedUser: User | null = await this.usersRepoService.updateUser(
