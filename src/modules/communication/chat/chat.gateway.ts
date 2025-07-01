@@ -121,6 +121,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
+      if (
+        isServiceProductExist.userId.toString() === client.user.id.toString()
+      ) {
+        client.emit('error', {
+          message: 'Receiver id and sender id should not be exist',
+        });
+        return;
+      }
       let messageId = '';
       let messageTimestamp: Date | undefined = new Date();
 
