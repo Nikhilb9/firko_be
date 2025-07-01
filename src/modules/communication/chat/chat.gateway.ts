@@ -168,6 +168,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: String(isRoomExist._id),
         messageId,
         timestamp: messageTimestamp,
+        senderId: client.user.id,
         receiverId: receiverId,
       });
 
