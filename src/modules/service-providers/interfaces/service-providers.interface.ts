@@ -38,6 +38,7 @@ export interface IServiceProductResponse {
   workingHours?: string;
   serviceAreaKM?: number;
   isVerified: boolean;
+  status: ProductOrServiceStatus;
   createdAt: Date;
   user: IServiceProvidersProfile;
 }

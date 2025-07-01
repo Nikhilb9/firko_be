@@ -23,4 +23,6 @@ export enum ProductOrServiceStatus {
 export enum AllowedUserStatuses {
   DEACTIVATED = 'DEACTIVATED',
   SOLD = 'SOLD',
+  ACTIVE = 'ACTIVE', // Initial state of the product or service
+
 }

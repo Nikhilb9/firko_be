@@ -117,6 +117,7 @@ export class ServiceProvidersService {
       workingHours: isExist.workingHours,
       serviceAreaKM: isExist.serviceAreaKM,
       isVerified: isExist.isVerified,
+      status: isExist.status,
       createdAt: isExist?.createdAt ?? new Date(),
       user: {
         id: userHwoUploadServiceOrProduct?._id?.toString() ?? '',
