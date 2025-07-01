@@ -108,9 +108,10 @@ export class ServiceProvidersController {
   }
 
   @Put('/:id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Update service or product by ID',
-    description: 'Update service or product details. Can also reactivate deactivated or sold services/products by setting status to ACTIVE.'
+    description:
+      'Update service or product details. Can also reactivate deactivated or sold services/products by setting status to ACTIVE.',
   })
   @ApiParam({
     name: 'id',

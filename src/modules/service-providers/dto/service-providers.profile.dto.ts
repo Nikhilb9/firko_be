@@ -38,24 +38,27 @@ export class ServiceProvidersProfileDto implements IServiceProvidersProfile {
   profileImage: string;
 
   @ApiProperty({
-    description: 'Is user email verified',
-  })
-  @Expose()
-  isEmailVerified: boolean;
-
-  @ApiProperty({
-    description: 'Is user phone verified',
-  })
-  @Expose()
-  isPhoneVerified: boolean;
-
-  @ApiProperty({
-    description: 'User experience',
-  })
-  experience: number;
-
-  @ApiProperty({
     description: 'User languages',
   })
   languages?: string[];
+
+  @ApiProperty({
+    description: 'User age',
+  })
+  age?: number;
+
+  @ApiProperty({
+    description: 'User gender',
+  })
+  gender?: string;
+
+  @ApiProperty({
+    description: 'User email',
+  })
+  email?: string;
+
+  @ApiProperty({
+    description: 'User phone',
+  })
+  phone: string;
 }

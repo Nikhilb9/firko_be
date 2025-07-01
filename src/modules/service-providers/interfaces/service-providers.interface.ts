@@ -48,10 +48,11 @@ export interface IServiceProvidersProfile {
   firstName: string;
   lastName: string;
   profileImage: string;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  experience: number;
   languages?: string[];
+  email?: string;
+  phone: string;
+  gender?: string;
+  age?: number;
 }
 
 export interface IServiceProductListResponse {

@@ -124,12 +124,11 @@ export class ServiceProvidersService {
         firstName: userHwoUploadServiceOrProduct?.firstName ?? '',
         lastName: userHwoUploadServiceOrProduct?.lastName ?? '',
         profileImage: userHwoUploadServiceOrProduct?.profileImage ?? '',
-        isEmailVerified:
-          userHwoUploadServiceOrProduct?.isEmailVerified ?? false,
-        isPhoneVerified:
-          userHwoUploadServiceOrProduct?.isPhoneVerified ?? false,
-        experience: userHwoUploadServiceOrProduct?.experience ?? 0,
         languages: userHwoUploadServiceOrProduct?.languages,
+        phone: userHwoUploadServiceOrProduct?.phone ?? '',
+        email: userHwoUploadServiceOrProduct?.email ?? '',
+        gender: userHwoUploadServiceOrProduct?.gender ?? '',
+        age: userHwoUploadServiceOrProduct?.age ?? 0,
       },
     };
   }

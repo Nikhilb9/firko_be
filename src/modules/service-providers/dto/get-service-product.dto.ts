@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ServiceProductType, Weekday, ProductOrServiceStatus } from '../enums/service-providers.enum';
+import {
+  ServiceProductType,
+  Weekday,
+  ProductOrServiceStatus,
+} from '../enums/service-providers.enum';
 import { IServiceProductResponse } from '../interfaces/service-providers.interface';
 import { ServiceProvidersProfileDto } from './service-providers.profile.dto';
 import { Type } from 'class-transformer';
