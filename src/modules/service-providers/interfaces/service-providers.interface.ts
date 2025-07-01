@@ -19,7 +19,7 @@ export interface ICreateServiceProduct {
   availableDays?: Weekday[];
   workingHours?: string;
   serviceAreaKM?: number;
-  status?: AllowedUserStatuses;
+  status?: AllowedUserStatuses | ProductOrServiceStatus.ACTIVE;
 }
 
 export interface IServiceProductResponse {

@@ -44,6 +44,11 @@ export class ServiceProvidersService {
     await this.serviceProductRepoSer.createServiceProduct(createData, userId);
   }
 
+  /**
+   * Update service or product details
+   * Allows reactivation of deactivated or sold services/products by setting status to ACTIVE
+   * Expired services/products cannot be reactivated
+   */
   async updateServiceOrProduct(
     id: string,
     updateData: ICreateServiceProduct,
@@ -54,18 +59,32 @@ export class ServiceProvidersService {
     }
 
     const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
-    if (
-      !isExist ||
-      userId !== isExist.userId.toString() ||
-      [
-        ProductOrServiceStatus.DEACTIVATED,
-        ProductOrServiceStatus.SOLD,
-        ProductOrServiceStatus.EXPIRED,
-      ].includes(isExist.status)
-    ) {
+    if (!isExist || userId !== isExist.userId.toString()) {
+      throw new BadRequestException('Service or product not found');
+    }
+
+    // Check if the service/product is expired (cannot be reactivated)
+    if (isExist.status === ProductOrServiceStatus.EXPIRED) {
       throw new BadRequestException(
-        'Service or product not found or sold or expired or deactivated',
+        'Cannot update expired service or product. Please create a new one.',
       );
+    }
+
+    // If user is trying to reactivate a deactivated or sold service/product
+    if (
+      (isExist.status === ProductOrServiceStatus.DEACTIVATED ||
+        isExist.status === ProductOrServiceStatus.SOLD) &&
+      updateData.status === ProductOrServiceStatus.ACTIVE
+    ) {
+      // Allow reactivation by setting status to ACTIVE
+      updateData.status = ProductOrServiceStatus.ACTIVE;
+    } else if (
+      (isExist.status === ProductOrServiceStatus.DEACTIVATED ||
+        isExist.status === ProductOrServiceStatus.SOLD) &&
+      !updateData.status
+    ) {
+      // If no status is provided but service/product is deactivated/sold, keep current status
+      delete updateData.status;
     }
 
     await this.serviceProductRepoSer.updateServiceProduct(id, updateData);
