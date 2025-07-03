@@ -19,7 +19,7 @@ export interface ICreateServiceProduct {
   availableDays?: Weekday[];
   workingHours?: string;
   serviceAreaKM?: number;
-  status?: AllowedUserStatuses;
+  status?: AllowedUserStatuses | ProductOrServiceStatus.ACTIVE;
 }
 
 export interface IServiceProductResponse {
@@ -38,6 +38,7 @@ export interface IServiceProductResponse {
   workingHours?: string;
   serviceAreaKM?: number;
   isVerified: boolean;
+  status: ProductOrServiceStatus;
   createdAt: Date;
   user: IServiceProvidersProfile;
 }
@@ -47,10 +48,11 @@ export interface IServiceProvidersProfile {
   firstName: string;
   lastName: string;
   profileImage: string;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  experience: number;
   languages?: string[];
+  email?: string;
+  phone: string;
+  gender?: string;
+  age?: number;
 }
 
 export interface IServiceProductListResponse {

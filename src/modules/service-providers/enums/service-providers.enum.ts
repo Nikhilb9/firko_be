@@ -4,13 +4,13 @@ export enum ServiceProductType {
 }
 
 export enum Weekday {
-  MONDAY = 'MONDAY',
-  TUESDAY = 'TUESDAY',
-  WEDNESDAY = 'WEDNESDAY',
-  THURSDAY = 'THURSDAY',
-  FRIDAY = 'FRIDAY',
-  SATURDAY = 'SATURDAY',
-  SUNDAY = 'SUNDAY',
+  MONDAY = 'MON',
+  TUESDAY = 'TUES',
+  WEDNESDAY = 'WED',
+  THURSDAY = 'THU',
+  FRIDAY = 'FRI',
+  SATURDAY = 'SAT',
+  SUNDAY = 'SUN',
 }
 
 export enum ProductOrServiceStatus {
@@ -23,4 +23,5 @@ export enum ProductOrServiceStatus {
 export enum AllowedUserStatuses {
   DEACTIVATED = 'DEACTIVATED',
   SOLD = 'SOLD',
+  ACTIVE = 'ACTIVE', // Initial state of the product or service
 }

@@ -9,6 +9,7 @@ export interface ICreateMessage {
   chatContext: ServiceProductType;
   message: string;
   receiverSocketId?: string;
+  clientTempId?: string;
 }
 
 export interface AuthenticatedSocket extends Socket {

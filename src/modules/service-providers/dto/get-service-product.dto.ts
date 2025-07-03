@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ServiceProductType, Weekday } from '../enums/service-providers.enum';
+import {
+  ServiceProductType,
+  Weekday,
+  ProductOrServiceStatus,
+} from '../enums/service-providers.enum';
 import { IServiceProductResponse } from '../interfaces/service-providers.interface';
 import { ServiceProvidersProfileDto } from './service-providers.profile.dto';
 import { Type } from 'class-transformer';
@@ -95,6 +99,13 @@ export class ServiceProductResponseDto implements IServiceProductResponse {
     default: false,
   })
   isVerified: boolean;
+
+  @ApiProperty({
+    description: 'Status of the service or product',
+    enum: ProductOrServiceStatus,
+    example: ProductOrServiceStatus.ACTIVE,
+  })
+  status: ProductOrServiceStatus;
 
   @ApiProperty({
     description: 'Created date of the service or product (ISO format)',

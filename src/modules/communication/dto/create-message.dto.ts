@@ -44,4 +44,9 @@ export class CreateMessageDto implements ICreateMessage {
   @IsMongoId()
   @IsOptional()
   roomId?: string;
+
+  @ApiProperty({ description: 'Client temporary ID for deduplication', required: false })
+  @IsString()
+  @IsOptional()
+  clientTempId?: string;
 }

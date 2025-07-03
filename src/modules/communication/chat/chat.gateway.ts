@@ -75,12 +75,48 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
     try {
-      const { productServiceId, chatContext, message, receiverId } = payload;
+      const {
+        productServiceId,
+        chatContext,
+        message,
+        receiverId,
+        clientTempId,
+      } = payload;
 
       const validationError = this.validatePayload(payload);
 
       if (validationError) {
         return client.emit('error', { message: validationError });
+      }
+
+      // CRITICAL FIX: Check if sender and receiver are the same user
+      if (client.user.id.toString() === receiverId.toString()) {
+        client.emit('error', {
+          message: 'Sender and receiver cannot be the same user',
+        });
+        return;
+      }
+
+      // CRITICAL: Add deduplication check using clientTempId
+      if (clientTempId) {
+        const existingMessage =
+          await this.communicationRepoService.findMessageByClientTempId(
+            clientTempId,
+            client.user.id,
+          );
+
+        if (existingMessage) {
+          // Message already processed, just send confirmation
+          client.emit('message_send_successfully', {
+            roomId: String(existingMessage.roomId),
+            messageId: String(existingMessage._id),
+            timestamp: existingMessage.createdAt,
+            senderId: client.user.id,
+            receiverId: receiverId,
+            clientTempId: clientTempId,
+          });
+          return;
+        }
       }
 
       // Check if service product and receiver exist
@@ -135,7 +171,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Create the message
       const savedMessage =
         await this.communicationRepoService.createCommunicationMessage(
-          { ...payload, roomId: roomIdToUse },
+          { ...payload, roomId: roomIdToUse, clientTempId },
           client.user.id,
           { deliveryStatus: 'SENT' },
         );
@@ -154,7 +190,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: roomIdToUse,
         messageId,
         timestamp: messageTimestamp,
+        senderId: client.user.id,
         receiverId: receiverId,
+        clientTempId: clientTempId,
       });
 
       // Deliver message to receiver if online

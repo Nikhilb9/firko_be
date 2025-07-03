@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import {
   AllowedUserStatuses,
+  ProductOrServiceStatus,
   ServiceProductType,
   Weekday,
 } from '../enums/service-providers.enum';
@@ -153,11 +154,11 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
 
   @ApiPropertyOptional({
     description: 'Status of the service or product',
-    enum: AllowedUserStatuses,
+    enum: { ...AllowedUserStatuses, ACTIVE: ProductOrServiceStatus.ACTIVE },
     required: false,
   })
-  @IsEnum(AllowedUserStatuses)
+  @IsEnum({ ...AllowedUserStatuses, ACTIVE: ProductOrServiceStatus.ACTIVE })
   @IsString()
   @IsOptional()
-  status?: AllowedUserStatuses;
+  status?: AllowedUserStatuses | ProductOrServiceStatus.ACTIVE;
 }

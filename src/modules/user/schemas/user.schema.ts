@@ -72,12 +72,3 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-// Create TTL index for OTP expiration
-UserSchema.index(
-  { otpExpiresAt: 1 },
-  {
-    expireAfterSeconds: 0,
-    partialFilterExpression: { otpExpiresAt: { $exists: true } },
-  },
-);
