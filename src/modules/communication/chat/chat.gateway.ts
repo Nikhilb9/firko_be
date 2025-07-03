@@ -83,26 +83,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return client.emit('error', { message: validationError });
       }
 
-      // eslint-disable-next-line prefer-const
-      let [room1, room2, isServiceProductExist, isReceiverExist] =
-        await Promise.all([
-          this.communicationRepoService.getCommunicationRoom(
-            client.user.id,
-            receiverId,
-            productServiceId,
-          ),
-          this.communicationRepoService.getCommunicationRoom(
-            receiverId,
-            client.user.id,
-            productServiceId,
-          ),
-          this.serviceProvidersRepositoryService.getServiceProductById(
-            productServiceId,
-          ),
-          this.userRepoService.getUserById(receiverId),
-        ]);
-
-      let isRoomExist = room1 || room2;
+      // Check if service product and receiver exist
+      const [isServiceProductExist, isReceiverExist] = await Promise.all([
+        this.serviceProvidersRepositoryService.getServiceProductById(
+          productServiceId,
+        ),
+        this.userRepoService.getUserById(receiverId),
+      ]);
 
       if (
         !isServiceProductExist ||
@@ -121,51 +108,50 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      let messageId = '';
-      let messageTimestamp: Date | undefined = new Date();
+      // Find existing room between the two users for this service product
+      const existingRoom =
+        await this.communicationRepoService.findCommunicationRoomByUsers(
+          client.user.id,
+          receiverId,
+          productServiceId,
+        );
 
-      if (!isRoomExist) {
-        isRoomExist =
+      // Use the existing room or create a new one
+      let roomIdToUse: string;
+
+      if (!existingRoom) {
+        // Create new room
+        const newRoom =
           await this.communicationRepoService.createCommunicationRoom(
             payload,
             client.user.id,
           );
-
-        const roomIdToUse = String(isRoomExist._id);
-        const savedMessage =
-          await this.communicationRepoService.createCommunicationMessage(
-            { ...payload, roomId: roomIdToUse },
-            client.user.id,
-            { deliveryStatus: 'SENT' },
-          );
-
-        const _messageId = String(savedMessage._id);
-        messageId = _messageId;
-
-        if (savedMessage.createdAt) {
-          messageTimestamp = savedMessage.createdAt;
-        }
+        roomIdToUse = String(newRoom._id as Types.ObjectId);
       } else {
-        const roomIdToUse: string = String(isRoomExist._id);
-        const [createdMessage] = await Promise.all([
-          this.communicationRepoService.createCommunicationMessage(
-            { ...payload, roomId: roomIdToUse },
-            client.user.id,
-            { deliveryStatus: 'SENT' },
-          ),
-          this.communicationRepoService.updateCommunicationRoom(
-            roomIdToUse,
-            message,
-          ),
-        ]);
-
-        messageId = String(createdMessage._id);
-        messageTimestamp = createdMessage.createdAt;
+        // Use existing room
+        roomIdToUse = String(existingRoom._id as Types.ObjectId);
       }
+
+      // Create the message
+      const savedMessage =
+        await this.communicationRepoService.createCommunicationMessage(
+          { ...payload, roomId: roomIdToUse },
+          client.user.id,
+          { deliveryStatus: 'SENT' },
+        );
+
+      const messageId = String(savedMessage._id as Types.ObjectId);
+      const messageTimestamp = savedMessage.createdAt || new Date();
+
+      // Update room with latest message
+      await this.communicationRepoService.updateCommunicationRoom(
+        roomIdToUse,
+        message,
+      );
 
       // Notify sender about successful message creation
       client.emit('message_send_successfully', {
-        roomId: String(isRoomExist._id),
+        roomId: roomIdToUse,
         messageId,
         timestamp: messageTimestamp,
         receiverId: receiverId,
@@ -179,7 +165,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           senderId: client.user.id,
           receiverId: receiverId,
           senderSocketId: client.id,
-          roomId: String(isRoomExist._id),
+          roomId: roomIdToUse,
           chatContext: chatContext,
           message: message,
           timestamp: messageTimestamp,
@@ -211,9 +197,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           });
       }
     } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       client.emit('error', {
         message: 'Failed to send message',
-        details: error instanceof Error ? error.message : String(error),
+        details: errorMessage,
       });
     }
   }

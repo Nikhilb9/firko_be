@@ -120,6 +120,26 @@ export class CommunicationRepositoryService {
     });
   }
 
+  async findCommunicationRoomByUsers(
+    userId1: string,
+    userId2: string,
+    productServiceId: string,
+  ): Promise<CommunicationRoom | null> {
+    return this.communicationRoom.findOne({
+      serviceProductId: new Types.ObjectId(productServiceId),
+      $or: [
+        {
+          senderId: new Types.ObjectId(userId1),
+          receiverId: new Types.ObjectId(userId2),
+        },
+        {
+          senderId: new Types.ObjectId(userId2),
+          receiverId: new Types.ObjectId(userId1),
+        },
+      ],
+    });
+  }
+
   async getRoomById(roomId: string): Promise<CommunicationRoom | null> {
     return this.communicationRoom.findById(new Types.ObjectId(roomId));
   }
