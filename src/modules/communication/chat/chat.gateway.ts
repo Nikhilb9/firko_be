@@ -165,9 +165,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let roomIdToUse: string;
 
       if (!existingRoom) {
-        // Create new room
+        // Create new room with retry logic for duplicate key handling
         const newRoom =
-          await this.communicationRepoService.createCommunicationRoom(
+          await this.communicationRepoService.createCommunicationRoomWithRetry(
             payload,
             client.user.id,
           );

@@ -120,6 +120,34 @@ export class CommunicationRepositoryService {
     });
   }
 
+  async createCommunicationRoomWithRetry(
+    data: ICreateMessage,
+    senderId: string,
+  ): Promise<CommunicationRoom> {
+    try {
+      return await this.communicationRoom.create({
+        serviceProductId: new Types.ObjectId(data.productServiceId),
+        chatContext: data.chatContext,
+        latestMessage: data.message,
+        senderId: new Types.ObjectId(senderId),
+        receiverId: new Types.ObjectId(data.receiverId),
+      });
+    } catch (error: any) {
+      // If it's a duplicate key error (code 11000), try to find the existing room
+      if (error.code === 11000) {
+        const existingRoom = await this.findCommunicationRoomByUsers(
+          senderId,
+          data.receiverId,
+          data.productServiceId,
+        );
+        if (existingRoom) {
+          return existingRoom;
+        }
+      }
+      throw error;
+    }
+  }
+
   async getCommunicationRoom(
     senderId: string,
     receiverId: string,
