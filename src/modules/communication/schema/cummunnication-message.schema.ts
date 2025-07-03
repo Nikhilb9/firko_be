@@ -32,6 +32,9 @@ export class CommunicationMessage extends Document {
   @Prop({ type: [String], default: [] })
   attachments: string[];
 
+  @Prop({ type: String, required: false, index: true })
+  clientTempId?: string;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -160,6 +160,7 @@ export class CommunicationRepositoryService {
       message: data.message,
       contentType: 'TEXT',
       deliveryStatus: options.deliveryStatus || 'SENT',
+      clientTempId: data.clientTempId,
     });
   }
 
@@ -191,5 +192,15 @@ export class CommunicationRepositoryService {
       .lean();
 
     return rooms.map((room) => room._id.toString());
+  }
+
+  async findMessageByClientTempId(
+    clientTempId: string,
+    senderId: string,
+  ): Promise<CommunicationMessage | null> {
+    return this.communicationMessage.findOne({
+      clientTempId: clientTempId,
+      senderId: new Types.ObjectId(senderId),
+    });
   }
 }

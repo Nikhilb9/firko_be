@@ -75,7 +75,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
     try {
-      const { productServiceId, chatContext, message, receiverId } = payload;
+      const { productServiceId, chatContext, message, receiverId, clientTempId } = payload;
 
       const validationError = this.validatePayload(payload);
 
@@ -128,6 +128,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
         return;
       }
+
+      // CRITICAL: Add deduplication check using clientTempId
+      if (clientTempId) {
+        const existingMessage = await this.communicationRepoService.findMessageByClientTempId(
+          clientTempId,
+          client.user.id
+        );
+        
+        if (existingMessage) {
+          // Message already processed, just send confirmation
+          client.emit('message_send_successfully', {
+            roomId: String(existingMessage.roomId),
+            messageId: String(existingMessage._id),
+            timestamp: existingMessage.createdAt,
+            senderId: client.user.id,
+            receiverId: receiverId,
+            clientTempId: clientTempId,
+          });
+          return;
+        }
+      }
       let messageId = '';
       let messageTimestamp: Date | undefined = new Date();
 
@@ -141,7 +162,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const roomIdToUse = String(isRoomExist._id);
         const savedMessage =
           await this.communicationRepoService.createCommunicationMessage(
-            { ...payload, roomId: roomIdToUse },
+            { ...payload, roomId: roomIdToUse, clientTempId },
             client.user.id,
             { deliveryStatus: 'SENT' },
           );
@@ -156,7 +177,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const roomIdToUse: string = String(isRoomExist._id);
         const [createdMessage] = await Promise.all([
           this.communicationRepoService.createCommunicationMessage(
-            { ...payload, roomId: roomIdToUse },
+            { ...payload, roomId: roomIdToUse, clientTempId },
             client.user.id,
             { deliveryStatus: 'SENT' },
           ),
@@ -177,6 +198,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         timestamp: messageTimestamp,
         senderId: client.user.id,
         receiverId: receiverId,
+        clientTempId: clientTempId,
       });
 
       // Deliver message to receiver if online
