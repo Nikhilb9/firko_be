@@ -15,3 +15,10 @@ export interface ICreateMessage {
 export interface AuthenticatedSocket extends Socket {
   user: IAuthData;
 }
+
+export interface TypingPayload {
+  roomId?: string;
+  isTyping: boolean;
+  receiverId?: string;
+  productServiceId?: string;
+}

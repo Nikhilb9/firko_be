@@ -10,7 +10,7 @@ import { CreateMessageDto } from '../dto/create-message.dto';
 import { UseGuards } from '@nestjs/common';
 import { UserRepositoryService } from '../../user/user.repository.service';
 import { WsJwtGuard } from './ws-jwt.guard';
-import { AuthenticatedSocket } from '../interface/chat.interface';
+import { AuthenticatedSocket, TypingPayload } from '../interface/chat.interface';
 import { CommunicationRepositoryService } from '../communication.repository.service';
 import { JwtService } from '../../../common/services/jwt.service';
 import { Types } from 'mongoose';
@@ -266,32 +266,58 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('typing')
   async handleTyping(
     client: AuthenticatedSocket,
-    payload: { roomId: string; isTyping: boolean },
+    payload: TypingPayload,
   ) {
     try {
-      if (!payload.roomId || !Types.ObjectId.isValid(payload.roomId)) {
-        return client.emit('error', {
-          message: 'Invalid room ID',
-        });
-      }
-      const room = await this.communicationRepoService.getRoomById(
-        payload.roomId,
-      );
-      if (!room) {
-        return client.emit('error', { message: 'Room not found' });
+      let room: any = null;
+      let otherUserId: string | null = null;
+
+      // If roomId is provided, try to find the room
+      if (payload.roomId && Types.ObjectId.isValid(payload.roomId)) {
+        room = await this.communicationRepoService.getRoomById(payload.roomId);
+        
+        if (room) {
+          otherUserId =
+            room.senderId.toString() === client.user.id
+              ? room.receiverId.toString()
+              : room.senderId.toString();
+        }
       }
 
-      const otherUserId =
-        room.senderId.toString() === client.user.id
-          ? room.receiverId.toString()
-          : room.senderId.toString();
+      // If no room found but we have receiverId and productServiceId, try to find existing room
+      if (!room && payload.receiverId && payload.productServiceId) {
+        room = await this.communicationRepoService.findCommunicationRoomByUsers(
+          client.user.id,
+          payload.receiverId,
+          payload.productServiceId,
+        );
+        
+        if (room) {
+          otherUserId =
+            room.senderId.toString() === client.user.id
+              ? room.receiverId.toString()
+              : room.senderId.toString();
+        } else {
+          // No room exists yet, but we can still send typing indicator to the receiver
+          otherUserId = payload.receiverId;
+        }
+      }
+
+      // If we still don't have otherUserId, we can't send typing indicator
+      if (!otherUserId) {
+        return client.emit('error', {
+          message: 'Unable to determine recipient for typing indicator',
+        });
+      }
 
       const otherUser = await this.userRepoService.getUserById(otherUserId);
       if (otherUser?.connectionId) {
         this.server.to(otherUser.connectionId).emit('user_typing', {
-          roomId: payload.roomId,
+          roomId: room?._id?.toString() || null,
           userId: client.user.id,
           isTyping: payload.isTyping,
+          receiverId: otherUserId,
+          productServiceId: payload.productServiceId,
         });
       }
     } catch (error) {
