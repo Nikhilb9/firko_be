@@ -105,12 +105,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             client.user.id,
           );
 
-        if (existingMessage) {
+        if (
+          existingMessage &&
+          existingMessage.roomId &&
+          existingMessage._id &&
+          existingMessage.createdAt
+        ) {
           // Message already processed, just send confirmation
+          const roomId = String(existingMessage.roomId);
+          const messageId = String(existingMessage._id);
+          const timestamp = existingMessage.createdAt;
+
           client.emit('message_send_successfully', {
-            roomId: String(existingMessage.roomId),
-            messageId: String(existingMessage._id),
-            timestamp: existingMessage.createdAt,
+            roomId,
+            messageId,
+            timestamp,
             senderId: client.user.id,
             receiverId: receiverId,
             clientTempId: clientTempId,
@@ -162,10 +171,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             payload,
             client.user.id,
           );
-        roomIdToUse = String(newRoom._id as Types.ObjectId);
+        if (!newRoom || !newRoom._id) {
+          throw new Error('Failed to create communication room');
+        }
+        roomIdToUse = String(newRoom._id);
       } else {
         // Use existing room
-        roomIdToUse = String(existingRoom._id as Types.ObjectId);
+        if (!existingRoom._id) {
+          throw new Error('Existing room has no valid ID');
+        }
+        roomIdToUse = String(existingRoom._id);
       }
 
       // Create the message
@@ -176,7 +191,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           { deliveryStatus: 'SENT' },
         );
 
-      const messageId = String(savedMessage._id as Types.ObjectId);
+      if (!savedMessage || !savedMessage._id) {
+        throw new Error('Failed to create communication message');
+      }
+
+      const messageId = String(savedMessage._id);
       const messageTimestamp = savedMessage.createdAt || new Date();
 
       // Update room with latest message
