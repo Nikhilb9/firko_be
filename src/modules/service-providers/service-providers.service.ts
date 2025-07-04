@@ -154,6 +154,7 @@ export class ServiceProvidersService {
         isVerified: data.isVerified,
         type: data.type,
         status: data.status,
+        createdAt: data.createdAt,
       };
     });
   }

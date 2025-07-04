@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsNumber, IsBoolean, IsArray, IsDate } from 'class-validator';
 import { IServiceProductListResponse } from '../interfaces/service-providers.interface';
 import {
   ProductOrServiceStatus,
@@ -60,4 +60,11 @@ export class ServiceProductListResponseDto
     enum: ProductOrServiceStatus,
   })
   status: ProductOrServiceStatus;
+
+  @ApiProperty({
+    description: 'Date when the service or product was created',
+    type: Date,
+  })
+  @IsDate()
+  createdAt: Date;
 }

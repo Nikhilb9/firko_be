@@ -58,7 +58,7 @@ export class ServiceProvidersRepositoryService {
   ): Promise<IServiceProductListResponse[]> {
     const docs: ServiceProduct[] = await this.serviceProductSchema
       .find<ServiceProduct>({ userId: new Types.ObjectId(userId) })
-      .select('_id location price title images isVerified type status')
+      .select('_id location price title images isVerified type status createdAt')
       .lean();
 
     return docs.map((doc) => ({
@@ -70,6 +70,7 @@ export class ServiceProvidersRepositoryService {
       isVerified: doc.isVerified,
       type: doc.type,
       status: doc.status,
+      createdAt: doc.createdAt ?? new Date(),
     }));
   }
 
@@ -120,6 +121,7 @@ export class ServiceProvidersRepositoryService {
         images: 1,
         isVerified: 1,
         distance: 1,
+        createdAt: 1,
       },
     });
 

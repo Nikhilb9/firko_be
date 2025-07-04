@@ -64,6 +64,7 @@ export interface IServiceProductListResponse {
   isVerified: boolean;
   type: ServiceProductType;
   status: ProductOrServiceStatus;
+  createdAt: Date;
 }
 
 export interface IServiceProductListQuery {
