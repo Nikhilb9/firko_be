@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -19,7 +20,7 @@ import {
   ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
-import { AuthGuard } from '../../common/guards/auth.guard';
+import { AuthGuard, OptionalAuthGuard } from '../../common/guards/auth.guard';
 import { ApiResponseDto } from '../../common/dto/api-response.dto';
 import { ServiceProductResponseDto } from './dto/get-service-product.dto';
 import { IAuthData } from '../auth/interface/auth.interface';
@@ -34,14 +35,47 @@ import { ServiceProductListResponseDto } from './dto/get-service-product-list-re
 import { ServiceProductListQueryDto } from './dto/list-query-service-product.dto';
 import { ServiceProductCategoryDto } from './dto/get-service-product-category.dto';
 import { ResponseMessage } from '../../common/utils/api-response-message.util';
+import { ProductOrServiceStatus } from './enums/service-providers.enum';
 
-@ApiExtraModels(ServiceProductResponseDto, ServiceProductListResponseDto)
+@ApiExtraModels(
+  ServiceProductResponseDto,
+  ServiceProductListResponseDto,
+  ServiceProductCategoryDto,
+)
 @Controller('service-providers')
 export class ServiceProvidersController {
   constructor(
     private readonly serviceProvidersService: ServiceProvidersService,
   ) {}
+
+  @Post()
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ description: 'Create service or product' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: ResponseMessage.created('Service or product'),
+    type: ApiResponseDto,
+  })
+  async createServiceOrProduct(
+    @Body() createServiceProductDto: CreateServiceProductDto,
+    @Request() req: Request & { user: IAuthData },
+  ) {
+    await this.serviceProvidersService.createServiceOrProduct(
+      createServiceProductDto,
+      req.user.id,
+    );
+
+    return new ApiResponseDto(
+      HttpStatus.CREATED,
+      'SUCCESS',
+      ResponseMessage.created('Service or product'),
+      null,
+    );
+  }
+
   @Get('/all-list')
+  @UseGuards(OptionalAuthGuard)
   @ApiOperation({ description: 'Get product and service list' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -49,9 +83,14 @@ export class ServiceProvidersController {
     type: ApiResponseDto<ServiceProductListResponseDto>,
   })
   @ApiQuery({ type: ServiceProductListQueryDto })
-  async getProductAndServiceList(@Query() query: ServiceProductListQueryDto) {
-    const productAndService: IServiceProductListResponse[] =
-      await this.serviceProvidersService.getAllProductAndServiceList(query);
+  async getProductAndServiceList(
+    @Query() query: ServiceProductListQueryDto,
+    @Request() req: Request & { user?: IAuthData },
+  ) {
+    const productAndService = await this.serviceProvidersService.getAllProductAndServiceList(
+      query,
+      req.user?.id,
+    );
 
     return new ApiResponseDto(
       HttpStatus.OK,
@@ -62,133 +101,111 @@ export class ServiceProvidersController {
   }
 
   @Get('/category')
-  @ApiOperation({ summary: 'Service or product category list' })
+  @ApiOperation({ description: 'Get service product category' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: ResponseMessage.fetchedSuccessfully(
-      'Service or product category list',
-    ),
+    description: ResponseMessage.fetchedSuccessfully('Service product category'),
     type: ApiResponseDto<ServiceProductCategoryDto>,
   })
-  getServiceProductCategory(): ApiResponseDto<ServiceProductCategoryDto[]> {
+  async getServiceProductCategory() {
+    const category = this.serviceProvidersService.getServiceProductCategory();
+
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      ResponseMessage.fetchedSuccessfully('Service or product category list'),
-      this.serviceProvidersService.getServiceProductCategory(),
+      ResponseMessage.fetchedSuccessfully('Service product category'),
+      category,
+    );
+  }
+
+  @Get('/my-list')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ description: 'Get user service and product list' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: ResponseMessage.fetchedSuccessfully('User service and product list'),
+    type: ApiResponseDto<ServiceProductListResponseDto>,
+  })
+  async getUserProductAndServiceList(@Request() req: Request & { user: IAuthData }) {
+    const productAndService = await this.serviceProvidersService.getUserProductAndServiceList(
+      req.user.id,
+    );
+
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      ResponseMessage.fetchedSuccessfully('User service and product list'),
+      productAndService,
     );
   }
 
   @Get('/:id')
-  @ApiOperation({ summary: 'Get service or product by ID' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the service or product',
-    type: String,
-  })
+  @ApiOperation({ description: 'Get service or product by id' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: ResponseMessage.fetchedSuccessfully(
-      'Service or product detail',
-    ),
+    description: ResponseMessage.fetchedSuccessfully('Service or product'),
     type: ApiResponseDto<ServiceProductResponseDto>,
   })
-  async getProductOrService(
-    @Param('id') id: string,
-  ): Promise<ApiResponseDto<ServiceProductResponseDto>> {
-    const serviceOrProduct: IServiceProductResponse =
-      await this.serviceProvidersService.getServiceOrProduct(id);
+  async getServiceOrProduct(@Param('id') id: string) {
+    const serviceOrProduct = await this.serviceProvidersService.getServiceOrProduct(id);
 
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      ResponseMessage.fetchedSuccessfully('Service or product detail'),
+      ResponseMessage.fetchedSuccessfully('Service or product'),
       serviceOrProduct,
     );
   }
 
   @Put('/:id')
-  @ApiOperation({
-    summary: 'Update service or product by ID',
-    description:
-      'Update service or product details. Can also reactivate deactivated or sold services/products by setting status to ACTIVE.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: 'ID of the service or product to update',
-    type: String,
-  })
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ description: 'Update service or product' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: ResponseMessage.updated('Service or product'),
     type: ApiResponseDto,
   })
-  @ApiBody({ type: UpdateServiceProductDto })
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('jwt')
-  async updateProductOrService(
+  async updateServiceOrProduct(
     @Param('id') id: string,
-    @Body() updateServiceProductData: UpdateServiceProductDto,
+    @Body() updateServiceProductDto: UpdateServiceProductDto,
     @Request() req: Request & { user: IAuthData },
-  ): Promise<ApiResponseDto<null>> {
+  ) {
     await this.serviceProvidersService.updateServiceOrProduct(
       id,
-      updateServiceProductData,
+      updateServiceProductDto,
       req.user.id,
     );
+
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
       ResponseMessage.updated('Service or product'),
+      null,
     );
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new service or product' })
+  @Delete('/:id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ description: 'Delete service or product' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: ResponseMessage.created('Service or product'),
+    status: HttpStatus.OK,
+    description: ResponseMessage.deleted('Service or product'),
     type: ApiResponseDto,
   })
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('jwt')
-  async createProductOrService(
-    @Body() createServiceProductData: CreateServiceProductDto,
-    @Request() req: Request & { user: IAuthData },
-  ): Promise<ApiResponseDto<null>> {
-    await this.serviceProvidersService.createServiceOrProduct(
-      createServiceProductData,
-      req.user.id,
-    );
-    return new ApiResponseDto(
-      HttpStatus.OK,
-      'SUCCESS',
-      ResponseMessage.created('Service or product'),
-    );
-  }
-
-  @Get()
-  @ApiOperation({ description: 'Get user product and service list' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: ResponseMessage.fetchedSuccessfully('Services or products'),
-    type: ApiResponseDto<ServiceProductListResponseDto>,
-  })
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('jwt')
-  async getUserProductAndService(
+  async deleteServiceOrProduct(
+    @Param('id') id: string,
     @Request() req: Request & { user: IAuthData },
   ) {
-    const serviceAndProductList: IServiceProductListResponse[] =
-      await this.serviceProvidersService.getUserProductAndServiceList(
-        req.user.id,
-      );
+    await this.serviceProvidersService.deleteServiceOrProduct(id, req.user.id);
 
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
-      ResponseMessage.fetchedSuccessfully('Services or products'),
-      serviceAndProductList,
+      ResponseMessage.deleted('Service or product'),
+      null,
     );
   }
 }

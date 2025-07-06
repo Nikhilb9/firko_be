@@ -76,6 +76,7 @@ export class ServiceProvidersRepositoryService {
 
   async getAllServiceAndProductList(
     filterData: IServiceProductListQuery,
+    currentUserId?: string,
   ): Promise<IServiceProductListResponse[]> {
     const page = filterData.page ?? 1;
     const limit = filterData.limit ?? 10;
@@ -93,6 +94,7 @@ export class ServiceProvidersRepositoryService {
           { category: { $regex: filterData.search, $options: 'i' } },
         ],
       }),
+      ...(currentUserId && { userId: { $ne: new Types.ObjectId(currentUserId) } }),
     };
 
     const pipeline: PipelineStage[] = [];

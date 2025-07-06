@@ -141,9 +141,10 @@ export class ServiceProvidersService {
 
   async getAllProductAndServiceList(
     filterData: IServiceProductListQuery,
+    currentUserId?: string,
   ): Promise<IServiceProductListResponse[]> {
     return (
-      await this.serviceProductRepoSer.getAllServiceAndProductList(filterData)
+      await this.serviceProductRepoSer.getAllServiceAndProductList(filterData, currentUserId)
     ).map((data) => {
       return {
         id: data.id,
@@ -157,6 +158,22 @@ export class ServiceProvidersService {
         createdAt: data.createdAt,
       };
     });
+  }
+
+  async deleteServiceOrProduct(id: string, userId: string): Promise<void> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid service or product id');
+    }
+
+    const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
+    if (!isExist || userId !== isExist.userId.toString()) {
+      throw new BadRequestException('Service or product not found');
+    }
+
+    // Mark as deactivated instead of actually deleting
+    await this.serviceProductRepoSer.updateServiceProduct(id, {
+      status: ProductOrServiceStatus.DEACTIVATED,
+    } as any);
   }
 
   getServiceProductCategory(): ServiceProductCategoryDto[] {
