@@ -31,8 +31,8 @@ export class UpdateProfileDto implements IUserProfile {
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
-  lastName: string;
+  @IsOptional()
+  lastName?: string;
 
   @ApiPropertyOptional({ description: 'User location address' })
   @IsOptional()
