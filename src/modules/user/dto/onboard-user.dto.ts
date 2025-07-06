@@ -23,11 +23,11 @@ export class OnboardUserDto {
   @MaxLength(40)
   firstName: string;
 
-  @ApiProperty({ required: true })
-  @IsNotEmpty({ message: 'Last name is required' })
+  @ApiProperty({ required: false })
+  @IsOptional({ message: 'Last name is not required' })
   @IsString()
   @MaxLength(40)
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty({ enum: Gender, required: true })
   @IsNotEmpty({ message: 'Gender is required' })
