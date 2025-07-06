@@ -33,4 +33,7 @@ export class CommunicationRoomMessageResponseDto
 
   @ApiProperty()
   attachments: string[];
+
+  @ApiProperty()
+  isUnread: boolean;
 }

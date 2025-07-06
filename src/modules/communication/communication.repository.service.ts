@@ -6,6 +6,7 @@ import { CommunicationMessage } from './schema/cummunnication-message.schema';
 import {
   ICommunicationRoomMessageResponse,
   ICommunicationRoomResponse,
+  IUnreadMessageResponse,
 } from './interface/communication.interface';
 import { ICreateMessage } from './interface/chat.interface';
 
@@ -31,53 +32,78 @@ export class CommunicationRepositoryService {
       .find({
         $or: [{ receiverId: _userId }, { senderId: _userId }],
       })
-      .sort({ updatedAt: 1 })
+      .sort({ updatedAt: -1 })
       .populate('senderId', 'firstName lastName _id')
       .populate('receiverId', 'firstName lastName _id')
       .populate('serviceProductId', 'images title')
       .exec();
 
-    return communicationRoomData
-      .filter((room) => room && room._id) // Filter out any null rooms
-      .map((room) => {
-        const sender = room.senderId as unknown as {
-          firstName: string;
-          lastName: string;
-          _id: Types.ObjectId;
-        } | null;
-        const receiver = room.receiverId as unknown as {
-          firstName: string;
-          lastName: string;
-          _id: Types.ObjectId;
-        } | null;
-        const serviceProduct = room.serviceProductId as unknown as {
-          _id: Types.ObjectId;
-          images: string[];
-          title: string;
-        } | null;
+    const roomsWithUnreadCounts = await Promise.all(
+      communicationRoomData
+        .filter((room) => room && room._id)
+        .map(async (room) => {
+          const sender = room.senderId as unknown as {
+            firstName: string;
+            lastName: string;
+            _id: Types.ObjectId;
+          } | null;
+          const receiver = room.receiverId as unknown as {
+            firstName: string;
+            lastName: string;
+            _id: Types.ObjectId;
+          } | null;
+          const serviceProduct = room.serviceProductId as unknown as {
+            _id: Types.ObjectId;
+            images: string[];
+            title: string;
+          } | null;
 
-        return {
-          id: String(room?._id),
-          serviceProductId: {
-            id: serviceProduct?._id?.toString() ?? '',
-            images: serviceProduct?.images || [],
-            title: serviceProduct?.title ?? '',
-          },
-          chatContext: room.chatContext,
-          latestMessage: room.latestMessage,
-          senderName: sender ? `${sender.firstName} ${sender.lastName}` : '',
-          receiverName: receiver
-            ? `${receiver.firstName} ${receiver.lastName}`
-            : '',
-          senderId: sender?._id?.toString() ?? '',
-          receiverId: receiver?._id?.toString() ?? '',
-          updatedAt: room.updatedAt,
-        };
-      }) as ICommunicationRoomResponse[];
+          // Get unread count for this room
+          const unreadCount = await this.getUnreadMessageCount(
+            (room._id as Types.ObjectId).toString(),
+            userId,
+          );
+
+          // Get last message details
+          const lastMessage = await this.getLastMessage((room._id as Types.ObjectId).toString());
+
+          return {
+            id: String(room?._id),
+            serviceProductId: {
+              id: serviceProduct?._id?.toString() ?? '',
+              images: serviceProduct?.images || [],
+              title: serviceProduct?.title ?? '',
+            },
+            chatContext: room.chatContext,
+            latestMessage: room.latestMessage,
+            senderName: sender ? `${sender.firstName} ${sender.lastName}` : '',
+            receiverName: receiver
+              ? `${receiver.firstName} ${receiver.lastName}`
+              : '',
+            senderId: sender?._id?.toString() ?? '',
+            receiverId: receiver?._id?.toString() ?? '',
+            updatedAt: room.updatedAt,
+            unreadCount,
+            lastMessageDetails: lastMessage
+              ? {
+                  id: (lastMessage._id as Types.ObjectId).toString(),
+                  senderId: (lastMessage.senderId as Types.ObjectId).toString(),
+                  message: lastMessage.message,
+                  createdAt: lastMessage.createdAt,
+                  readAt: lastMessage.readAt,
+                  deliveryStatus: lastMessage.deliveryStatus,
+                }
+              : undefined,
+          };
+        }),
+    );
+
+    return roomsWithUnreadCounts as ICommunicationRoomResponse[];
   }
 
   async getCommunicationRoomMessages(
     roomId: string,
+    userId?: string,
   ): Promise<ICommunicationRoomMessageResponse[]> {
     if (!roomId || !Types.ObjectId.isValid(roomId)) {
       return [];
@@ -92,7 +118,7 @@ export class CommunicationRepositoryService {
       .lean();
 
     return messages
-      .filter((msg) => msg && msg._id) // Filter out any null messages
+      .filter((msg) => msg && msg._id)
       .map((msg) => ({
         id: msg._id,
         contentType: msg.contentType,
@@ -104,7 +130,105 @@ export class CommunicationRepositoryService {
         receiverId: msg.receiverId?.toString() ?? '',
         deliveryStatus: msg.deliveryStatus,
         attachments: msg.attachments || [],
+        isUnread: !msg.readAt && msg.receiverId?.toString() === userId,
       })) as ICommunicationRoomMessageResponse[];
+  }
+
+  async getUnreadMessageCount(roomId: string, userId: string): Promise<number> {
+    if (!roomId || !Types.ObjectId.isValid(roomId) || !userId || !Types.ObjectId.isValid(userId)) {
+      return 0;
+    }
+
+    const count = await this.communicationMessage.countDocuments({
+      roomId: new Types.ObjectId(roomId),
+      receiverId: new Types.ObjectId(userId),
+      readAt: { $exists: false },
+    });
+
+    return count;
+  }
+
+  async getUnreadMessagesForUser(userId: string): Promise<IUnreadMessageResponse[]> {
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      return [];
+    }
+
+    const _userId = new Types.ObjectId(userId);
+
+    // Get all rooms where user is a participant
+    const userRooms = await this.communicationRoom
+      .find({
+        $or: [{ receiverId: _userId }, { senderId: _userId }],
+      })
+      .select('_id')
+      .lean();
+
+    const unreadMessagesData = await Promise.all(
+      userRooms.map(async (room) => {
+        const unreadCount = await this.getUnreadMessageCount(room._id.toString(), userId);
+        
+        if (unreadCount === 0) {
+          return null;
+        }
+
+        // Get the last unread message
+        const lastUnreadMessage = await this.communicationMessage
+          .findOne({
+            roomId: room._id,
+            receiverId: _userId,
+            readAt: { $exists: false },
+          })
+          .sort({ createdAt: -1 })
+          .select('_id message senderId createdAt')
+          .lean();
+
+        return {
+          roomId: room._id.toString(),
+          unreadCount,
+          lastUnreadMessage: lastUnreadMessage
+            ? {
+                id: lastUnreadMessage._id.toString(),
+                message: lastUnreadMessage.message,
+                senderId: lastUnreadMessage.senderId.toString(),
+                createdAt: lastUnreadMessage.createdAt,
+              }
+            : undefined,
+        };
+      }),
+    );
+
+    return unreadMessagesData.filter((data) => data !== null) as IUnreadMessageResponse[];
+  }
+
+  async getLastMessage(roomId: string): Promise<CommunicationMessage | null> {
+    if (!roomId || !Types.ObjectId.isValid(roomId)) {
+      return null;
+    }
+
+    return this.communicationMessage
+      .findOne({ roomId: new Types.ObjectId(roomId) })
+      .sort({ createdAt: -1 })
+      .select('_id message senderId createdAt readAt deliveryStatus')
+      .lean();
+  }
+
+  async markRoomMessagesAsRead(roomId: string, userId: string): Promise<void> {
+    if (!roomId || !Types.ObjectId.isValid(roomId) || !userId || !Types.ObjectId.isValid(userId)) {
+      return;
+    }
+
+    const now = new Date();
+    await this.communicationMessage.updateMany(
+      {
+        roomId: new Types.ObjectId(roomId),
+        receiverId: new Types.ObjectId(userId),
+        readAt: { $exists: false },
+      },
+      {
+        readAt: now,
+        deliveryStatus: 'READ',
+      },
+    );
   }
 
   async createCommunicationRoom(

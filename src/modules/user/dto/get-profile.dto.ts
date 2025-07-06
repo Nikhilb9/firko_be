@@ -7,7 +7,7 @@ export class GetProfileResponseDto implements IUserProfile {
   firstName: string;
 
   @ApiProperty()
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty()
   location?: string;

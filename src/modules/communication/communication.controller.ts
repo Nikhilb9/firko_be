@@ -3,6 +3,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -49,6 +50,25 @@ export class CommunicationController {
     );
   }
 
+  @Get('/unread')
+  @ApiOperation({ summary: 'Get unread messages for user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: ResponseMessage.fetchedSuccessfully('Unread messages'),
+    type: ApiResponseDto,
+  })
+  async getUnreadMessages(@Request() req: Request & { user: IAuthData }) {
+    const res = await this.communicateService.getUnreadMessagesForUser(
+      req.user.id,
+    );
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      ResponseMessage.fetchedSuccessfully('Unread messages'),
+      res,
+    );
+  }
+
   @Get('/:roomId')
   @ApiOperation({ summary: 'Get communication room messages' })
   @ApiResponse({
@@ -58,14 +78,62 @@ export class CommunicationController {
     ),
     type: ApiResponseDto<CommunicationRoomMessageResponseDto>,
   })
-  async getCommunicationRoomMessages(@Param('roomId') roomId: string) {
-    const res =
-      await this.communicateService.getCommunicationRoomMessages(roomId);
+  async getCommunicationRoomMessages(
+    @Param('roomId') roomId: string,
+    @Request() req: Request & { user: IAuthData },
+  ) {
+    const res = await this.communicateService.getCommunicationRoomMessages(
+      roomId,
+      req.user.id,
+    );
     return new ApiResponseDto(
       HttpStatus.OK,
       'SUCCESS',
       ResponseMessage.fetchedSuccessfully('Communication rooms message'),
       res,
+    );
+  }
+
+  @Get('/:roomId/unread-count')
+  @ApiOperation({ summary: 'Get unread message count for a room' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: ResponseMessage.fetchedSuccessfully('Unread message count'),
+    type: ApiResponseDto,
+  })
+  async getUnreadMessageCount(
+    @Param('roomId') roomId: string,
+    @Request() req: Request & { user: IAuthData },
+  ) {
+    const res = await this.communicateService.getUnreadMessageCount(
+      roomId,
+      req.user.id,
+    );
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      ResponseMessage.fetchedSuccessfully('Unread message count'),
+      { count: res },
+    );
+  }
+
+  @Post('/:roomId/mark-read')
+  @ApiOperation({ summary: 'Mark all messages in a room as read' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: ResponseMessage.updated('Messages marked as read'),
+    type: ApiResponseDto,
+  })
+  async markRoomMessagesAsRead(
+    @Param('roomId') roomId: string,
+    @Request() req: Request & { user: IAuthData },
+  ) {
+    await this.communicateService.markRoomMessagesAsRead(roomId, req.user.id);
+    return new ApiResponseDto(
+      HttpStatus.OK,
+      'SUCCESS',
+      ResponseMessage.updated('Messages marked as read'),
+      null,
     );
   }
 }

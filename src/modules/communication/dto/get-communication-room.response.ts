@@ -32,6 +32,9 @@ export class CommunicationRoomResponseDto
   latestMessage: string;
 
   @ApiProperty()
+  unreadCount: number;
+
+  @ApiProperty()
   senderName: string;
 
   @ApiProperty()
