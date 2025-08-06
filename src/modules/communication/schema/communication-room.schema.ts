@@ -25,7 +25,7 @@ export const CommunicationRoomSchema =
   SchemaFactory.createForClass(CommunicationRoom);
 
 // Add compound unique index to prevent duplicate rooms
-// This ensures only one room exists per unique combination of users and service product
+// This ensures only one room exists per unique combination of users and service
 CommunicationRoomSchema.index(
   {
     serviceId: 1,

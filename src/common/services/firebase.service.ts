@@ -31,10 +31,10 @@ export class FirebaseService {
   //       roomId: 'abc123',
 
   //       // service details
-  //       'productService.title': 'Sample Product',
-  //       'productService.description': 'This is a test product description.',
-  //       'productService.images': 'https://example.com/image.jpg',
-  //       'productService.serviceId': 'ps123',
+  //       'service.title': 'Sample',
+  //       'service.description': 'This is a test description.',
+  //       'service.images': 'https://example.com/image.jpg',
+  //       'service.serviceId': 'ps123',
 
   //       // sender details
   //       'sender.senderId': 'u456',

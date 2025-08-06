@@ -57,7 +57,7 @@ export class ServiceListResponseDto implements IServiceListResponse {
   status: ServiceStatus;
 
   @ApiProperty({
-    description: 'Date when the service or product was created',
+    description: 'Date when the service was created',
     type: Date,
   })
   @IsDate()
