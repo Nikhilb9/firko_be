@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CommunicationRoom } from './schema/communication-room.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CommunicationMessage } from './schema/cummunnication-message.schema';
+import { CommunicationMessage } from './schema/cummunication-message.schema';
 import {
   ICommunicationRoomMessageResponse,
   ICommunicationRoomResponse,
@@ -35,7 +35,7 @@ export class CommunicationRepositoryService {
       .sort({ updatedAt: -1 })
       .populate('senderId', 'firstName lastName _id')
       .populate('receiverId', 'firstName lastName _id')
-      .populate('serviceProductId', 'images title')
+      .populate('serviceId', 'images title')
       .exec();
 
     const roomsWithUnreadCounts = await Promise.all(
@@ -52,7 +52,7 @@ export class CommunicationRepositoryService {
             lastName: string;
             _id: Types.ObjectId;
           } | null;
-          const serviceProduct = room.serviceProductId as unknown as {
+          const service = room.serviceId as unknown as {
             _id: Types.ObjectId;
             images: string[];
             title: string;
@@ -65,16 +65,17 @@ export class CommunicationRepositoryService {
           );
 
           // Get last message details
-          const lastMessage = await this.getLastMessage((room._id as Types.ObjectId).toString());
+          const lastMessage = await this.getLastMessage(
+            (room._id as Types.ObjectId).toString(),
+          );
 
           return {
             id: String(room?._id),
-            serviceProductId: {
-              id: serviceProduct?._id?.toString() ?? '',
-              images: serviceProduct?.images || [],
-              title: serviceProduct?.title ?? '',
+            serviceId: {
+              id: service?._id?.toString() ?? '',
+              images: service?.images || [],
+              title: service?.title ?? '',
             },
-            chatContext: room.chatContext,
             latestMessage: room.latestMessage,
             senderName: sender ? `${sender.firstName} ${sender.lastName}` : '',
             receiverName: receiver
@@ -87,7 +88,7 @@ export class CommunicationRepositoryService {
             lastMessageDetails: lastMessage
               ? {
                   id: (lastMessage._id as Types.ObjectId).toString(),
-                  senderId: (lastMessage.senderId as Types.ObjectId).toString(),
+                  senderId: lastMessage.senderId.toString(),
                   message: lastMessage.message,
                   createdAt: lastMessage.createdAt,
                   readAt: lastMessage.readAt,
@@ -135,7 +136,12 @@ export class CommunicationRepositoryService {
   }
 
   async getUnreadMessageCount(roomId: string, userId: string): Promise<number> {
-    if (!roomId || !Types.ObjectId.isValid(roomId) || !userId || !Types.ObjectId.isValid(userId)) {
+    if (
+      !roomId ||
+      !Types.ObjectId.isValid(roomId) ||
+      !userId ||
+      !Types.ObjectId.isValid(userId)
+    ) {
       return 0;
     }
 
@@ -148,7 +154,9 @@ export class CommunicationRepositoryService {
     return count;
   }
 
-  async getUnreadMessagesForUser(userId: string): Promise<IUnreadMessageResponse[]> {
+  async getUnreadMessagesForUser(
+    userId: string,
+  ): Promise<IUnreadMessageResponse[]> {
     if (!userId || !Types.ObjectId.isValid(userId)) {
       return [];
     }
@@ -165,8 +173,12 @@ export class CommunicationRepositoryService {
 
     const unreadMessagesData = await Promise.all(
       userRooms.map(async (room) => {
-        const unreadCount = await this.getUnreadMessageCount(room._id.toString(), userId);
-        
+        const unreadCount = await this.getUnreadMessageCount(
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          room._id.toString(),
+          userId,
+        );
+
         if (unreadCount === 0) {
           return null;
         }
@@ -183,10 +195,12 @@ export class CommunicationRepositoryService {
           .lean();
 
         return {
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           roomId: room._id.toString(),
           unreadCount,
           lastUnreadMessage: lastUnreadMessage
             ? {
+                // eslint-disable-next-line @typescript-eslint/no-base-to-string
                 id: lastUnreadMessage._id.toString(),
                 message: lastUnreadMessage.message,
                 senderId: lastUnreadMessage.senderId.toString(),
@@ -197,7 +211,9 @@ export class CommunicationRepositoryService {
       }),
     );
 
-    return unreadMessagesData.filter((data) => data !== null) as IUnreadMessageResponse[];
+    return unreadMessagesData.filter(
+      (data) => data !== null,
+    ) as IUnreadMessageResponse[];
   }
 
   async getLastMessage(roomId: string): Promise<CommunicationMessage | null> {
@@ -213,7 +229,12 @@ export class CommunicationRepositoryService {
   }
 
   async markRoomMessagesAsRead(roomId: string, userId: string): Promise<void> {
-    if (!roomId || !Types.ObjectId.isValid(roomId) || !userId || !Types.ObjectId.isValid(userId)) {
+    if (
+      !roomId ||
+      !Types.ObjectId.isValid(roomId) ||
+      !userId ||
+      !Types.ObjectId.isValid(userId)
+    ) {
       return;
     }
 
@@ -236,8 +257,7 @@ export class CommunicationRepositoryService {
     senderId: string,
   ): Promise<CommunicationRoom> {
     return this.communicationRoom.create({
-      serviceProductId: new Types.ObjectId(data.productServiceId),
-      chatContext: data.chatContext,
+      serviceId: new Types.ObjectId(data.serviceId),
       latestMessage: data.message,
       senderId: new Types.ObjectId(senderId),
       receiverId: new Types.ObjectId(data.receiverId),
@@ -250,19 +270,19 @@ export class CommunicationRepositoryService {
   ): Promise<CommunicationRoom> {
     try {
       return await this.communicationRoom.create({
-        serviceProductId: new Types.ObjectId(data.productServiceId),
-        chatContext: data.chatContext,
+        serviceId: new Types.ObjectId(data.serviceId),
         latestMessage: data.message,
         senderId: new Types.ObjectId(senderId),
         receiverId: new Types.ObjectId(data.receiverId),
       });
     } catch (error: any) {
       // If it's a duplicate key error (code 11000), try to find the existing room
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000) {
         const existingRoom = await this.findCommunicationRoomByUsers(
           senderId,
           data.receiverId,
-          data.productServiceId,
+          data.serviceId,
         );
         if (existingRoom) {
           return existingRoom;
@@ -275,22 +295,22 @@ export class CommunicationRepositoryService {
   async getCommunicationRoom(
     senderId: string,
     receiverId: string,
-    productServiceId: string,
+    serviceId: string,
   ): Promise<CommunicationRoom | null> {
     return this.communicationRoom.findOne({
       senderId: new Types.ObjectId(senderId),
       receiverId: new Types.ObjectId(receiverId),
-      serviceProductId: new Types.ObjectId(productServiceId),
+      serviceId: new Types.ObjectId(serviceId),
     });
   }
 
   async findCommunicationRoomByUsers(
     userId1: string,
     userId2: string,
-    productServiceId: string,
+    serviceId: string,
   ): Promise<CommunicationRoom | null> {
     return this.communicationRoom.findOne({
-      serviceProductId: new Types.ObjectId(productServiceId),
+      serviceId: new Types.ObjectId(serviceId),
       $or: [
         {
           senderId: new Types.ObjectId(userId1),
@@ -363,6 +383,7 @@ export class CommunicationRepositoryService {
       .select('_id')
       .lean();
 
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return rooms.map((room) => room._id.toString());
   }
 

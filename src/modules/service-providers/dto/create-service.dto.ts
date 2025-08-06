@@ -3,7 +3,6 @@ import {
   IsNumber,
   IsArray,
   IsEnum,
-  ValidateIf,
   ArrayNotEmpty,
   IsNotEmpty,
   IsPositive,
@@ -15,16 +14,15 @@ import {
 } from 'class-validator';
 import {
   AllowedUserStatuses,
-  ProductOrServiceStatus,
-  ServiceProductType,
+  ServiceStatus,
   Weekday,
 } from '../enums/service-providers.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ICreateServiceProduct } from '../interfaces/service-providers.interface';
+import { ICreateService } from '../interfaces/service-providers.interface';
 
-export class CreateServiceProductDto implements ICreateServiceProduct {
+export class CreateServiceDto implements ICreateService {
   @ApiProperty({
-    description: 'Location of the service and product',
+    description: 'Location of the service',
     maxLength: 400,
   })
   @IsString()
@@ -33,28 +31,28 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   location: string;
 
   @ApiProperty({
-    description: 'Longitude for service or product',
+    description: 'Longitude for service',
   })
   @IsNotEmpty()
   @IsLongitude()
   longitude: number;
 
   @ApiProperty({
-    description: 'Latitude for service or product',
+    description: 'Latitude for service',
   })
   @IsNotEmpty()
   @IsLatitude()
   latitude: number;
 
   @ApiProperty({
-    description: 'Price of the product or starting price of the service',
+    description: 'Starting price of the service',
   })
   @IsPositive()
   @IsNotEmpty()
   price: number;
 
   @ApiProperty({
-    description: 'Title of the service or product',
+    description: 'Title of the service',
     maxLength: 200,
   })
   @IsString()
@@ -63,7 +61,7 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   title: string;
 
   @ApiProperty({
-    description: 'Description of the service or product',
+    description: 'Description of the service',
     maxLength: 1000,
   })
   @IsString()
@@ -72,7 +70,7 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   description: string;
 
   @ApiProperty({
-    description: 'Images of the service or product',
+    description: 'Images of the service',
     type: String,
     isArray: true,
     example: [
@@ -87,23 +85,13 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   images: string[];
 
   @ApiProperty({
-    description: 'Category of the service or product',
+    description: 'Category of the service',
   })
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
   category: string;
 
-  @ApiProperty({
-    description: 'Type of the service or product',
-    enum: ServiceProductType,
-  })
-  @IsEnum(ServiceProductType)
-  @IsNotEmpty()
-  type: ServiceProductType;
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.type === ServiceProductType.SERVICE)
   @ApiProperty({
     description: 'Skills required for the service (only for services)',
     type: String,
@@ -115,10 +103,8 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   @IsString({ each: true })
   @ArrayNotEmpty()
   @IsOptional()
-  skills?: string[];
+  skills: string[];
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.type === ServiceProductType.SERVICE)
   @ApiProperty({
     description: 'Available days of the service (only for services)',
     enum: Weekday,
@@ -130,35 +116,31 @@ export class CreateServiceProductDto implements ICreateServiceProduct {
   @IsEnum(Weekday, { each: true })
   @ArrayNotEmpty()
   @IsOptional()
-  availableDays?: Weekday[];
+  availableDays: Weekday[];
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.type === ServiceProductType.SERVICE)
   @ApiProperty({
     description: 'Working hours of the service (only for services)',
     required: false,
   })
   @IsString()
   @IsOptional()
-  workingHours?: string;
+  workingHours: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-  @ValidateIf((o) => o.type === ServiceProductType.SERVICE)
   @ApiProperty({
     description: 'Service area km of the service (only for services)',
     required: false,
   })
   @IsNumber()
   @IsPositive()
-  serviceAreaKM?: number;
+  serviceAreaKM: number;
 
   @ApiPropertyOptional({
-    description: 'Status of the service or product',
-    enum: { ...AllowedUserStatuses, ACTIVE: ProductOrServiceStatus.ACTIVE },
+    description: 'Status of the service',
+    enum: { ...AllowedUserStatuses, ACTIVE: ServiceStatus.ACTIVE },
     required: false,
   })
-  @IsEnum({ ...AllowedUserStatuses, ACTIVE: ProductOrServiceStatus.ACTIVE })
+  @IsEnum({ ...AllowedUserStatuses, ACTIVE: ServiceStatus.ACTIVE })
   @IsString()
   @IsOptional()
-  status?: AllowedUserStatuses | ProductOrServiceStatus.ACTIVE;
+  status: AllowedUserStatuses | ServiceStatus.ACTIVE;
 }

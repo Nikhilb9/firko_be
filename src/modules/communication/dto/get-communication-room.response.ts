@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   ICommunicationRoomResponse,
-  IServiceProductSummary,
+  IServiceSummary,
 } from '../interface/communication.interface';
-import { ServiceProductType } from '../../../modules/service-providers/enums/service-providers.enum';
 
-export class ServiceProductSummaryDto implements IServiceProductSummary {
+export class ServiceSummaryDto implements IServiceSummary {
   @ApiProperty()
   id: string;
 
@@ -22,11 +21,8 @@ export class CommunicationRoomResponseDto
   @ApiProperty()
   id: string;
 
-  @ApiProperty({ type: ServiceProductSummaryDto })
-  serviceProductId: ServiceProductSummaryDto;
-
-  @ApiProperty({ enum: ServiceProductType })
-  chatContext: ServiceProductType;
+  @ApiProperty({ type: ServiceSummaryDto })
+  serviceId: ServiceSummaryDto;
 
   @ApiProperty()
   latestMessage: string;

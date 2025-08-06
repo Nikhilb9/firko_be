@@ -1,69 +1,59 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ServiceProductType,
-  Weekday,
-  ProductOrServiceStatus,
-} from '../enums/service-providers.enum';
-import { IServiceProductResponse } from '../interfaces/service-providers.interface';
+import { Weekday, ServiceStatus } from '../enums/service-providers.enum';
+import { IServiceResponse } from '../interfaces/service-providers.interface';
 import { ServiceProvidersProfileDto } from './service-providers.profile.dto';
 import { Type } from 'class-transformer';
 
-export class ServiceProductResponseDto implements IServiceProductResponse {
+export class ServiceResponseDto implements IServiceResponse {
   @ApiProperty({
-    description: 'ID of the service/product',
+    description: 'ID of the service',
   })
   id: string;
 
   @ApiProperty({
-    description: 'Location of the service and product',
+    description: 'Location of the service',
     maxLength: 400,
   })
   location: string;
 
   @ApiProperty({
-    description: 'Longitude for service or product',
+    description: 'Longitude for service',
   })
   longitude: number;
 
   @ApiProperty({
-    description: 'Latitude for service or product',
+    description: 'Latitude for service',
   })
   latitude: number;
 
   @ApiProperty({
-    description: 'Price of the product or starting price of the service',
+    description: 'Starting price of the service',
   })
   price: number;
 
   @ApiProperty({
-    description: 'Title of the service or product',
+    description: 'Title of the service',
     maxLength: 200,
   })
   title: string;
 
   @ApiProperty({
-    description: 'Description of the service or product',
+    description: 'Description of the service',
     maxLength: 1000,
   })
   description: string;
 
   @ApiProperty({
-    description: 'Images of the service or product',
+    description: 'Images of the service',
     type: String,
     isArray: true,
   })
   images: string[];
 
   @ApiProperty({
-    description: 'Category of the service or product',
+    description: 'Category of the service',
   })
   category: string;
-
-  @ApiProperty({
-    description: 'Type of the service or product',
-    enum: ServiceProductType,
-  })
-  type: ServiceProductType;
 
   @ApiProperty({
     description: 'Skills required for the service (only for services)',
@@ -95,24 +85,24 @@ export class ServiceProductResponseDto implements IServiceProductResponse {
   serviceAreaKM?: number;
 
   @ApiProperty({
-    description: 'Indicates whether the service or product is verified',
+    description: 'Indicates whether the service is verified',
     default: false,
   })
   isVerified: boolean;
 
   @ApiProperty({
-    description: 'Status of the service or product',
-    enum: ProductOrServiceStatus,
-    example: ProductOrServiceStatus.ACTIVE,
+    description: 'Status of the service',
+    enum: ServiceStatus,
+    example: ServiceStatus.ACTIVE,
   })
-  status: ProductOrServiceStatus;
+  status: ServiceStatus;
 
   @ApiProperty({
-    description: 'Created date of the service or product (ISO format)',
+    description: 'Created date of the service (ISO format)',
   })
   createdAt: Date;
 
-  @ApiProperty({ description: 'User detail hwo upload service or product' })
+  @ApiProperty({ description: 'User detail hwo upload service' })
   @Type(() => ServiceProvidersProfileDto)
   user: ServiceProvidersProfileDto;
 }

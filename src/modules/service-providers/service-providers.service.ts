@@ -1,104 +1,99 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
-  ICreateServiceProduct,
-  IServiceProductListQuery,
-  IServiceProductListResponse,
-  IServiceProductResponse,
+  ICreateService,
+  IServiceListQuery,
+  IServiceListResponse,
+  IServiceResponse,
 } from './interfaces/service-providers.interface';
-import { ServiceProvidersRepositoryService } from './service-providers.repository.service';
+import { ServiceRepositoryService } from './service-providers.repository.service';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { User } from '../user/schemas/user.schema';
-import {
-  ProductOrServiceStatus,
-  ServiceProductType,
-} from './enums/service-providers.enum';
-import { ServiceProduct } from './schema/service-providers.schema';
+import { ServiceStatus } from './enums/service-providers.enum';
+import { Service } from './schema/service-providers.schema';
 import { Types } from 'mongoose';
-import { serviceProductCategoryType } from '../../common/constant/service-product-category';
-import { ServiceProductCategoryDto } from './dto/get-service-product-category.dto';
+import { serviceCategoryType } from '../../common/constant/service-category';
+import { ServiceCategoryDto } from './dto/get-service-category.dto';
 
 @Injectable()
 export class ServiceProvidersService {
   constructor(
-    private readonly serviceProductRepoSer: ServiceProvidersRepositoryService,
+    private readonly serviceRepoSer: ServiceRepositoryService,
     private readonly userRepoService: UserRepositoryService,
   ) {}
 
-  async createServiceOrProduct(
-    createData: ICreateServiceProduct,
+  async createService(
+    createData: ICreateService,
     userId: string,
   ): Promise<void> {
-    if (createData.type === ServiceProductType.SERVICE) {
-      const isServiceExist: ServiceProduct | null =
-        await this.serviceProductRepoSer.getServiceByUserId(userId);
+    const isServiceExist: Service | null =
+      await this.serviceRepoSer.getServiceByUserId(userId);
 
-      if (isServiceExist) {
-        throw new BadRequestException(
-          'Service already exist - at a time only one service can activated or you can update current service',
-        );
-      }
+    if (isServiceExist) {
+      throw new BadRequestException(
+        'Service already exist - at a time only one service can activated or you can update current service',
+      );
     }
 
     delete createData.status;
 
-    await this.serviceProductRepoSer.createServiceProduct(createData, userId);
+    await this.serviceRepoSer.createService(createData, userId);
   }
 
   /**
-   * Update service or product details
-   * Allows reactivation of deactivated or sold services/products by setting status to ACTIVE
-   * Expired services/products cannot be reactivated
+   * Update service details
+   * Allows reactivation of deactivated or sold services by setting status to ACTIVE
+   * Expired services cannot be reactivated
    */
-  async updateServiceOrProduct(
+  async updateService(
     id: string,
-    updateData: ICreateServiceProduct,
+    updateData: ICreateService,
     userId: string,
   ): Promise<void> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid service or product id');
+      throw new BadRequestException('Invalid service id');
     }
 
-    const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
+    const isExist = await this.serviceRepoSer.getServiceById(id);
     if (!isExist || userId !== isExist.userId.toString()) {
-      throw new BadRequestException('Service or product not found');
+      throw new BadRequestException('Service not found');
     }
 
-    // Check if the service/product is expired (cannot be reactivated)
-    if (isExist.status === ProductOrServiceStatus.EXPIRED) {
+    // Check if the service is expired (cannot be reactivated)
+    if (isExist.status === ServiceStatus.EXPIRED) {
       throw new BadRequestException(
-        'Cannot update expired service or product. Please create a new one.',
+        'Cannot update expired service. Please create a new one.',
       );
     }
 
-    // If user is trying to reactivate a deactivated or sold service/product
+    // If user is trying to reactivate a deactivated or sold service
     if (
-      (isExist.status === ProductOrServiceStatus.DEACTIVATED ||
-        isExist.status === ProductOrServiceStatus.SOLD) &&
-      updateData.status === ProductOrServiceStatus.ACTIVE
+      (isExist.status === ServiceStatus.DEACTIVATED ||
+        isExist.status === ServiceStatus.SOLD) &&
+      updateData.status === ServiceStatus.ACTIVE
     ) {
       // Allow reactivation by setting status to ACTIVE
-      updateData.status = ProductOrServiceStatus.ACTIVE;
+      updateData.status = ServiceStatus.ACTIVE;
     } else if (
-      (isExist.status === ProductOrServiceStatus.DEACTIVATED ||
-        isExist.status === ProductOrServiceStatus.SOLD) &&
+      (isExist.status === ServiceStatus.DEACTIVATED ||
+        isExist.status === ServiceStatus.SOLD) &&
       !updateData.status
     ) {
-      // If no status is provided but service/product is deactivated/sold, keep current status
+      // If no status is provided but service is deactivated/sold, keep current status
       delete updateData.status;
     }
 
-    await this.serviceProductRepoSer.updateServiceProduct(id, updateData);
+    await this.serviceRepoSer.updateService(id, updateData);
   }
 
-  async getServiceOrProduct(id: string): Promise<IServiceProductResponse> {
+  async getService(id: string): Promise<IServiceResponse> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid service or product id');
+      throw new BadRequestException('Invalid service id');
     }
-    const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
+    const isExist = await this.serviceRepoSer.getServiceById(id);
     if (!isExist) {
-      throw new BadRequestException('Service or product not found');
+      throw new BadRequestException('Service not found');
     }
-    const userHwoUploadServiceOrProduct: User | null =
+    const userHwoUploadService: User | null =
       await this.userRepoService.getUserById(isExist.userId.toString());
 
     return {
@@ -111,7 +106,6 @@ export class ServiceProvidersService {
       description: isExist.description,
       images: isExist.images,
       category: isExist.category,
-      type: isExist.type,
       skills: isExist.skills,
       availableDays: isExist.availableDays,
       workingHours: isExist.workingHours,
@@ -120,31 +114,29 @@ export class ServiceProvidersService {
       status: isExist.status,
       createdAt: isExist?.createdAt ?? new Date(),
       user: {
-        id: userHwoUploadServiceOrProduct?._id?.toString() ?? '',
-        firstName: userHwoUploadServiceOrProduct?.firstName ?? '',
-        lastName: userHwoUploadServiceOrProduct?.lastName ?? '',
-        profileImage: userHwoUploadServiceOrProduct?.profileImage ?? '',
-        languages: userHwoUploadServiceOrProduct?.languages,
-        phone: userHwoUploadServiceOrProduct?.phone ?? '',
-        email: userHwoUploadServiceOrProduct?.email ?? '',
-        gender: userHwoUploadServiceOrProduct?.gender ?? '',
-        age: userHwoUploadServiceOrProduct?.age ?? 0,
+        id: userHwoUploadService?._id?.toString() ?? '',
+        firstName: userHwoUploadService?.firstName ?? '',
+        lastName: userHwoUploadService?.lastName ?? '',
+        profileImage: userHwoUploadService?.profileImage ?? '',
+        languages: userHwoUploadService?.languages,
+        phone: userHwoUploadService?.phone ?? '',
+        email: userHwoUploadService?.email ?? '',
+        gender: userHwoUploadService?.gender ?? '',
+        age: userHwoUploadService?.age ?? 0,
       },
     };
   }
 
-  async getUserProductAndServiceList(
-    userId: string,
-  ): Promise<IServiceProductListResponse[]> {
-    return this.serviceProductRepoSer.getUserServiceAndProductList(userId);
+  async getUserServiceList(userId: string): Promise<IServiceListResponse[]> {
+    return this.serviceRepoSer.getUserServiceList(userId);
   }
 
-  async getAllProductAndServiceList(
-    filterData: IServiceProductListQuery,
+  async getAllServiceList(
+    filterData: IServiceListQuery,
     currentUserId?: string,
-  ): Promise<IServiceProductListResponse[]> {
+  ): Promise<IServiceListResponse[]> {
     return (
-      await this.serviceProductRepoSer.getAllServiceAndProductList(filterData, currentUserId)
+      await this.serviceRepoSer.getAllServiceList(filterData, currentUserId)
     ).map((data) => {
       return {
         id: data.id,
@@ -153,30 +145,29 @@ export class ServiceProvidersService {
         title: data.title,
         images: data.images,
         isVerified: data.isVerified,
-        type: data.type,
         status: data.status,
         createdAt: data.createdAt,
       };
     });
   }
 
-  async deleteServiceOrProduct(id: string, userId: string): Promise<void> {
+  async deleteService(id: string, userId: string): Promise<void> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid service or product id');
+      throw new BadRequestException('Invalid service id');
     }
 
-    const isExist = await this.serviceProductRepoSer.getServiceProductById(id);
+    const isExist = await this.serviceRepoSer.getServiceById(id);
     if (!isExist || userId !== isExist.userId.toString()) {
-      throw new BadRequestException('Service or product not found');
+      throw new BadRequestException('Service not found');
     }
 
     // Mark as deactivated instead of actually deleting
-    await this.serviceProductRepoSer.updateServiceProduct(id, {
-      status: ProductOrServiceStatus.DEACTIVATED,
+    await this.serviceRepoSer.updateService(id, {
+      status: ServiceStatus.DEACTIVATED,
     } as any);
   }
 
-  getServiceProductCategory(): ServiceProductCategoryDto[] {
-    return serviceProductCategoryType as ServiceProductCategoryDto[];
+  getServiceCategory(): ServiceCategoryDto[] {
+    return serviceCategoryType as ServiceCategoryDto[];
   }
 }

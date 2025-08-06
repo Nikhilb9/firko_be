@@ -1,18 +1,15 @@
-import { ServiceProductType } from '../../service-providers/enums/service-providers.enum';
-
-export interface IServiceProductSummary {
+export interface IServiceSummary {
   id: string;
   images: string[];
 }
 
 export interface ICommunicationRoomResponse {
   id: string;
-  serviceProductId: {
+  serviceId: {
     id: string;
     images: string[];
     title: string;
   };
-  chatContext: ServiceProductType;
   latestMessage: string;
   senderName: string;
   receiverName: string;

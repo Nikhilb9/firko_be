@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { FeedbackRepositoryService } from './feedback.repository.service';
 import { ICreateFeedback } from './interface/feedback.interface';
-import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
+import { ServiceRepositoryService } from '../service-providers/service-providers.repository.service';
 import { Types } from 'mongoose';
 import { Feedback } from './schema/feedback.schema';
 import { FeedbackResponseDto } from './dto/feedback.response.dto';
@@ -14,15 +14,14 @@ import { FeedbackResponseDto } from './dto/feedback.response.dto';
 export class FeedbackService {
   constructor(
     private readonly feedbackRepo: FeedbackRepositoryService,
-    private readonly serviceProviderRepo: ServiceProvidersRepositoryService,
+    private readonly serviceProviderRepo: ServiceRepositoryService,
   ) {}
 
   async createFeedback(userId: string, data: ICreateFeedback): Promise<void> {
     if (data.serviceId) {
-      const isServiceExist =
-        await this.serviceProviderRepo.getServiceProductById(
-          data.serviceId.toString(),
-        );
+      const isServiceExist = await this.serviceProviderRepo.getServiceById(
+        data.serviceId.toString(),
+      );
 
       if (!isServiceExist) {
         throw new NotFoundException('Service not found');

@@ -1,30 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { ServiceProduct } from './schema/service-providers.schema';
+import { Service } from './schema/service-providers.schema';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import {
-  ICreateServiceProduct,
-  IServiceProductListQuery,
-  IServiceProductListResponse,
+  ICreateService,
+  IServiceListQuery,
+  IServiceListResponse,
 } from './interfaces/service-providers.interface';
-import {
-  ProductOrServiceStatus,
-  ServiceProductType,
-} from './enums/service-providers.enum';
+import { ServiceStatus } from './enums/service-providers.enum';
 import type { PipelineStage } from 'mongoose';
 
 @Injectable()
-export class ServiceProvidersRepositoryService {
+export class ServiceRepositoryService {
   constructor(
-    @InjectModel(ServiceProduct.name)
-    private readonly serviceProductSchema: Model<ServiceProduct>,
+    @InjectModel(Service.name)
+    private readonly serviceSchema: Model<Service>,
   ) {}
 
-  async createServiceProduct(
-    createData: ICreateServiceProduct,
+  async createService(
+    createData: ICreateService,
     userId: string,
   ): Promise<void> {
-    await this.serviceProductSchema.create({
+    await this.serviceSchema.create({
       ...createData,
       userId: new Types.ObjectId(userId),
       geoLocation: {
@@ -34,31 +31,25 @@ export class ServiceProvidersRepositoryService {
     });
   }
 
-  async updateServiceProduct(
-    id: string,
-    updateData: ICreateServiceProduct,
-  ): Promise<void> {
-    await this.serviceProductSchema.updateOne(
+  async updateService(id: string, updateData: ICreateService): Promise<void> {
+    await this.serviceSchema.updateOne(
       { _id: new Types.ObjectId(id) },
       updateData,
     );
   }
-  async getServiceProductById(id: string): Promise<ServiceProduct | null> {
-    return this.serviceProductSchema.findById(id);
+  async getServiceById(id: string): Promise<Service | null> {
+    return this.serviceSchema.findById(id);
   }
-  async getServiceByUserId(userId: string): Promise<ServiceProduct | null> {
-    return this.serviceProductSchema.findOne({
+  async getServiceByUserId(userId: string): Promise<Service | null> {
+    return this.serviceSchema.findOne({
       userId: new Types.ObjectId(userId),
-      type: ServiceProductType.SERVICE,
     });
   }
 
-  async getUserServiceAndProductList(
-    userId: string,
-  ): Promise<IServiceProductListResponse[]> {
-    const docs: ServiceProduct[] = await this.serviceProductSchema
-      .find<ServiceProduct>({ userId: new Types.ObjectId(userId) })
-      .select('_id location price title images isVerified type status createdAt')
+  async getUserServiceList(userId: string): Promise<IServiceListResponse[]> {
+    const docs: Service[] = await this.serviceSchema
+      .find<Service>({ userId: new Types.ObjectId(userId) })
+      .select('_id location price title images isVerified type status')
       .lean();
 
     return docs.map((doc) => ({
@@ -68,23 +59,21 @@ export class ServiceProvidersRepositoryService {
       title: doc.title,
       images: doc.images,
       isVerified: doc.isVerified,
-      type: doc.type,
       status: doc.status,
       createdAt: doc.createdAt ?? new Date(),
     }));
   }
 
-  async getAllServiceAndProductList(
-    filterData: IServiceProductListQuery,
+  async getAllServiceList(
+    filterData: IServiceListQuery,
     currentUserId?: string,
-  ): Promise<IServiceProductListResponse[]> {
+  ): Promise<IServiceListResponse[]> {
     const page = filterData.page ?? 1;
     const limit = filterData.limit ?? 10;
     const skip = (page - 1) * limit;
 
     const matchFilter: Record<string, any> = {
-      ...(filterData.type && { type: filterData.type }),
-      ...{ status: ProductOrServiceStatus.ACTIVE },
+      ...{ status: ServiceStatus.ACTIVE },
       ...(filterData.category && { category: filterData.category }),
       ...(filterData.search && {
         $or: [
@@ -94,7 +83,9 @@ export class ServiceProvidersRepositoryService {
           { category: { $regex: filterData.search, $options: 'i' } },
         ],
       }),
-      ...(currentUserId && { userId: { $ne: new Types.ObjectId(currentUserId) } }),
+      ...(currentUserId && {
+        userId: { $ne: new Types.ObjectId(currentUserId) },
+      }),
     };
 
     const pipeline: PipelineStage[] = [];
@@ -130,6 +121,6 @@ export class ServiceProvidersRepositoryService {
     pipeline.push({ $skip: Number(skip) });
     pipeline.push({ $limit: Number(limit) });
 
-    return this.serviceProductSchema.aggregate(pipeline);
+    return this.serviceSchema.aggregate(pipeline);
   }
 }

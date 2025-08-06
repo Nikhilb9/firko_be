@@ -23,7 +23,7 @@ export class CreateRatingDto implements ICreateRating {
   rating: number;
 
   @ApiProperty({
-    description: 'Comment about the service or product',
+    description: 'Comment about the service',
     maxLength: 500,
     example: 'Excellent service!',
   })

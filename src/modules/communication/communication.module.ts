@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   CommunicationMessage,
   CommunicationMessageSchema,
-} from './schema/cummunnication-message.schema';
+} from './schema/cummunication-message.schema';
 import {
   CommunicationRoom,
   CommunicationRoomSchema,
@@ -15,10 +15,10 @@ import { ChatGateway } from './chat/chat.gateway';
 import { User, UserSchema } from '../user/schemas/user.schema';
 import { UserRepositoryService } from '../user/user.repository.service';
 import { JwtService } from '../../common/services/jwt.service';
-import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
+import { ServiceRepositoryService } from '../service-providers/service-providers.repository.service';
 import {
-  ServiceProduct,
-  ServiceProductSchema,
+  Service,
+  ServiceSchema,
 } from '../service-providers/schema/service-providers.schema';
 import { SharedJwtModule } from '../../common/modules/jwt.module';
 
@@ -28,7 +28,7 @@ import { SharedJwtModule } from '../../common/modules/jwt.module';
       { name: CommunicationMessage.name, schema: CommunicationMessageSchema },
       { name: CommunicationRoom.name, schema: CommunicationRoomSchema },
       { name: User.name, schema: UserSchema },
-      { name: ServiceProduct.name, schema: ServiceProductSchema },
+      { name: Service.name, schema: ServiceSchema },
     ]),
     SharedJwtModule,
   ],
@@ -39,7 +39,7 @@ import { SharedJwtModule } from '../../common/modules/jwt.module';
     UserRepositoryService,
     ChatGateway,
     JwtService,
-    ServiceProvidersRepositoryService,
+    ServiceRepositoryService,
   ],
 })
 export class CommunicationModule {}

@@ -1,18 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import {
-  ProductOrServiceStatus,
-  ServiceProductType,
-  Weekday,
-} from '../enums/service-providers.enum';
+import { ServiceStatus, Weekday } from '../enums/service-providers.enum';
 import { User } from '../../user/schemas/user.schema';
 
 @Schema({ timestamps: true })
-export class ServiceProduct extends Document {
+export class Service extends Document {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   userId: Types.ObjectId;
 
-  @Prop({ required: true, maxlength: 400, type: String })
+  @Prop({ required: true, type: String })
   location: string;
 
   @Prop({ required: true, type: Number })
@@ -24,10 +20,10 @@ export class ServiceProduct extends Document {
   @Prop({ required: true, min: 0, type: Number })
   price: number;
 
-  @Prop({ required: true, maxlength: 200, type: String })
+  @Prop({ required: true, type: String })
   title: string;
 
-  @Prop({ required: true, maxlength: 1000, type: String })
+  @Prop({ required: true, type: String })
   description: string;
 
   @Prop({
@@ -39,9 +35,6 @@ export class ServiceProduct extends Document {
 
   @Prop({ required: true, type: String })
   category: string;
-
-  @Prop({ required: true, enum: ServiceProductType })
-  type: ServiceProductType;
 
   @Prop({
     type: [String],
@@ -88,16 +81,15 @@ export class ServiceProduct extends Document {
   };
 
   @Prop({
-    enum: ProductOrServiceStatus,
-    default: ProductOrServiceStatus.ACTIVE,
+    enum: ServiceStatus,
+    default: ServiceStatus.ACTIVE,
   })
-  status: ProductOrServiceStatus;
+  status: ServiceStatus;
 
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export const ServiceProductSchema =
-  SchemaFactory.createForClass(ServiceProduct);
+export const ServiceSchema = SchemaFactory.createForClass(Service);
 
-ServiceProductSchema.index({ geoLocation: '2dsphere' });
+ServiceSchema.index({ geoLocation: '2dsphere' });

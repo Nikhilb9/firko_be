@@ -1,11 +1,10 @@
 import {
   AllowedUserStatuses,
-  ProductOrServiceStatus,
-  ServiceProductType,
+  ServiceStatus,
   Weekday,
 } from '../enums/service-providers.enum';
 
-export interface ICreateServiceProduct {
+export interface ICreateService {
   location: string;
   longitude: number;
   latitude: number;
@@ -14,15 +13,14 @@ export interface ICreateServiceProduct {
   description: string;
   images: string[];
   category: string;
-  type: ServiceProductType;
   skills?: string[];
   availableDays?: Weekday[];
   workingHours?: string;
   serviceAreaKM?: number;
-  status?: AllowedUserStatuses | ProductOrServiceStatus.ACTIVE;
+  status?: AllowedUserStatuses | ServiceStatus.ACTIVE;
 }
 
-export interface IServiceProductResponse {
+export interface IServiceResponse {
   id: string;
   location: string;
   longitude: number;
@@ -32,13 +30,12 @@ export interface IServiceProductResponse {
   description: string;
   images: string[];
   category: string;
-  type: ServiceProductType;
   skills?: string[];
   availableDays?: Weekday[];
   workingHours?: string;
   serviceAreaKM?: number;
   isVerified: boolean;
-  status: ProductOrServiceStatus;
+  status: ServiceStatus;
   createdAt: Date;
   user: IServiceProvidersProfile;
 }
@@ -55,30 +52,27 @@ export interface IServiceProvidersProfile {
   age?: number;
 }
 
-export interface IServiceProductListResponse {
+export interface IServiceListResponse {
   id: string;
   location: string;
   price: number;
   title: string;
   images: string[];
   isVerified: boolean;
-  type: ServiceProductType;
-  status: ProductOrServiceStatus;
+  status: ServiceStatus;
   createdAt: Date;
 }
 
-export interface IServiceProductListQuery {
+export interface IServiceListQuery {
   latitude?: string;
   longitude?: string;
   search?: string;
-  type?: ServiceProductType;
   page?: number;
   limit?: number;
   category?: string;
 }
 
-export interface IServiceProductCategory {
+export interface IServiceCategory {
   name: string;
-  type: string;
   icon: string;
 }

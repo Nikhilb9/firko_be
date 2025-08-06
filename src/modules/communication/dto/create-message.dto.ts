@@ -1,34 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { ServiceProductType } from '../../../modules/service-providers/enums/service-providers.enum';
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ICreateMessage } from '../interface/chat.interface';
 
 export class CreateMessageDto implements ICreateMessage {
-  @ApiProperty({ description: 'Product service id', required: true })
+  @ApiProperty({ description: 'Service id', required: true })
   @IsMongoId()
   @IsNotEmpty()
-  productServiceId: string;
+  serviceId: string;
 
   @ApiProperty({ description: 'Receiver id', required: true })
   @IsMongoId()
   @IsNotEmpty()
   receiverId: string;
-
-  @ApiProperty({
-    enum: [ServiceProductType.PRODUCT, ServiceProductType.SERVICE],
-    type: String,
-    description: 'Chat context',
-    required: true,
-  })
-  @IsString()
-  @IsEnum(ServiceProductType)
-  chatContext: ServiceProductType;
 
   @ApiProperty({ description: 'Message', required: true })
   @IsString()

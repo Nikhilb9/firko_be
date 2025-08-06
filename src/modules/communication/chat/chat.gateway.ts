@@ -10,15 +10,17 @@ import { CreateMessageDto } from '../dto/create-message.dto';
 import { UseGuards } from '@nestjs/common';
 import { UserRepositoryService } from '../../user/user.repository.service';
 import { WsJwtGuard } from './ws-jwt.guard';
-import { AuthenticatedSocket, TypingPayload } from '../interface/chat.interface';
+import {
+  AuthenticatedSocket,
+  TypingPayload,
+} from '../interface/chat.interface';
 import { CommunicationRepositoryService } from '../communication.repository.service';
 import { JwtService } from '../../../common/services/jwt.service';
 import { Types } from 'mongoose';
-import { ServiceProvidersRepositoryService } from '../../../modules/service-providers/service-providers.repository.service';
-import {
-  ProductOrServiceStatus,
-  ServiceProductType,
-} from '../../../modules/service-providers/enums/service-providers.enum';
+import { ServiceRepositoryService } from '../../../modules/service-providers/service-providers.repository.service';
+import { ServiceStatus } from '../../../modules/service-providers/enums/service-providers.enum';
+import { CommunicationRoom } from '../schema/communication-room.schema';
+import { CommunicationMessage } from '../schema/cummunication-message.schema';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsJwtGuard)
@@ -33,7 +35,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly userRepoService: UserRepositoryService,
     private readonly communicationRepoService: CommunicationRepositoryService,
     private readonly jwtService: JwtService,
-    private readonly serviceProvidersRepositoryService: ServiceProvidersRepositoryService,
+    private readonly serviceProvidersRepositoryService: ServiceRepositoryService,
   ) {}
 
   async handleDisconnect(client: AuthenticatedSocket) {
@@ -75,13 +77,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send_message')
   async handleMessage(client: AuthenticatedSocket, payload: CreateMessageDto) {
     try {
-      const {
-        productServiceId,
-        chatContext,
-        message,
-        receiverId,
-        clientTempId,
-      } = payload;
+      const { serviceId, message, receiverId, clientTempId } = payload;
 
       const validationError = this.validatePayload(payload);
 
@@ -113,6 +109,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         ) {
           // Message already processed, just send confirmation
           const roomId = String(existingMessage.roomId);
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           const messageId = String(existingMessage._id);
           const timestamp = existingMessage.createdAt;
 
@@ -128,20 +125,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
 
-      // Check if service product and receiver exist
-      const [isServiceProductExist, isReceiverExist] = await Promise.all([
-        this.serviceProvidersRepositoryService.getServiceProductById(
-          productServiceId,
-        ),
+      // Check if service receiver exist
+      const [isServiceExist, isReceiverExist] = await Promise.all([
+        this.serviceProvidersRepositoryService.getServiceById(serviceId),
         this.userRepoService.getUserById(receiverId),
       ]);
 
-      if (
-        !isServiceProductExist ||
-        isServiceProductExist.status !== ProductOrServiceStatus.ACTIVE
-      ) {
+      if (!isServiceExist || isServiceExist.status !== ServiceStatus.ACTIVE) {
         client.emit('error', {
-          message: 'Service product does not exist or is not active',
+          message: 'Service does not exist or is not active',
         });
         return;
       }
@@ -153,12 +145,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // Find existing room between the two users for this service product
+      // Find existing room between the two users for this service
       const existingRoom =
         await this.communicationRepoService.findCommunicationRoomByUsers(
           client.user.id,
           receiverId,
-          productServiceId,
+          serviceId,
         );
 
       // Use the existing room or create a new one
@@ -174,17 +166,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (!newRoom || !newRoom._id) {
           throw new Error('Failed to create communication room');
         }
-        roomIdToUse = String(newRoom._id);
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        roomIdToUse = newRoom._id.toString();
       } else {
         // Use existing room
         if (!existingRoom._id) {
           throw new Error('Existing room has no valid ID');
         }
-        roomIdToUse = String(existingRoom._id);
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        roomIdToUse = existingRoom._id.toString();
       }
 
       // Create the message
-      const savedMessage =
+      const savedMessage: CommunicationMessage =
         await this.communicationRepoService.createCommunicationMessage(
           { ...payload, roomId: roomIdToUse, clientTempId },
           client.user.id,
@@ -195,7 +189,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         throw new Error('Failed to create communication message');
       }
 
-      const messageId = String(savedMessage._id);
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      const messageId = savedMessage._id.toString();
       const messageTimestamp = savedMessage.createdAt || new Date();
 
       // Update room with latest message
@@ -218,12 +213,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (isReceiverExist?.connectionId) {
         this.server.to(isReceiverExist.connectionId).emit('receive_message', {
           messageId,
-          productServiceId: productServiceId,
+          serviceId: serviceId,
           senderId: client.user.id,
           receiverId: receiverId,
           senderSocketId: client.id,
           roomId: roomIdToUse,
-          chatContext: chatContext,
           message: message,
           timestamp: messageTimestamp,
         });
@@ -264,18 +258,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('typing')
-  async handleTyping(
-    client: AuthenticatedSocket,
-    payload: TypingPayload,
-  ) {
+  async handleTyping(client: AuthenticatedSocket, payload: TypingPayload) {
     try {
-      let room: any = null;
+      let room: CommunicationRoom | null = null;
       let otherUserId: string | null = null;
 
       // If roomId is provided, try to find the room
       if (payload.roomId && Types.ObjectId.isValid(payload.roomId)) {
         room = await this.communicationRepoService.getRoomById(payload.roomId);
-        
+
         if (room) {
           otherUserId =
             room.senderId.toString() === client.user.id
@@ -284,14 +275,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
 
-      // If no room found but we have receiverId and productServiceId, try to find existing room
-      if (!room && payload.receiverId && payload.productServiceId) {
+      // If no room found but we have receiverId and serviceId, try to find existing room
+      if (!room && payload.receiverId && payload.serviceId) {
         room = await this.communicationRepoService.findCommunicationRoomByUsers(
           client.user.id,
           payload.receiverId,
-          payload.productServiceId,
+          payload.serviceId,
         );
-        
+
         if (room) {
           otherUserId =
             room.senderId.toString() === client.user.id
@@ -317,7 +308,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           userId: client.user.id,
           isTyping: payload.isTyping,
           receiverId: otherUserId,
-          productServiceId: payload.productServiceId,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          serviceId: payload.serviceId,
         });
       }
     } catch (error) {
@@ -373,18 +365,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private validatePayload(payload: CreateMessageDto): string | null {
-    const { productServiceId, receiverId, message, chatContext } = payload;
+    const { serviceId, receiverId, message } = payload;
 
     if (
-      !productServiceId ||
+      !serviceId ||
       !receiverId ||
       !message ||
-      !chatContext ||
-      !Types.ObjectId.isValid(productServiceId) ||
-      !Types.ObjectId.isValid(receiverId) ||
-      !Object.values(ServiceProductType).includes(chatContext)
+      !Types.ObjectId.isValid(serviceId) ||
+      !Types.ObjectId.isValid(receiverId)
     ) {
-      return 'Invalid payload. productServiceId, receiverId, message, and chatContext are required.';
+      return 'Invalid payload. serviceId, receiverId, message, and chatContext are required.';
     }
 
     return null;

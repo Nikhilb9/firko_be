@@ -6,17 +6,17 @@ import {
 } from '@nestjs/common';
 import { RatingRepositoryService } from './rating.repository.service';
 import { ICreateRating, IRatingResponse } from './interface/rating.interface';
-import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
+import { ServiceRepositoryService } from '../service-providers/service-providers.repository.service';
 import { Types } from 'mongoose';
 
 @Injectable()
 export class RatingService {
   constructor(
     private readonly ratingRepo: RatingRepositoryService,
-    private readonly serviceProviderRepo: ServiceProvidersRepositoryService,
+    private readonly serviceProviderRepo: ServiceRepositoryService,
   ) {}
   async giveRating(userId: string, data: ICreateRating): Promise<void> {
-    const isServiceExist = await this.serviceProviderRepo.getServiceProductById(
+    const isServiceExist = await this.serviceProviderRepo.getServiceById(
       data.serviceId.toString(),
     );
 

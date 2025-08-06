@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { User } from '../../user/schemas/user.schema';
-import { ServiceProduct } from '../../service-providers/schema/service-providers.schema';
+import { Service } from '../../service-providers/schema/service-providers.schema';
 import { FeedbackType } from '../enum';
 
 @Schema({ timestamps: true })
 export class Feedback extends Document {
-  @Prop({ type: Types.ObjectId, ref: ServiceProduct.name, required: false })
+  @Prop({ type: Types.ObjectId, ref: Service.name, required: false })
   serviceId?: string;
 
   @Prop({ required: true, min: 1, max: 5, type: Number })

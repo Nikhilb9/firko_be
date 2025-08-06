@@ -58,7 +58,7 @@ export class RatingController {
     description: ResponseMessage.fetchedSuccessfully('Ratings'),
     type: ApiResponseDto<RatingResponseDto[]>,
   })
-  async getServiceProductRatings(@Param('serviceId') serviceId: string) {
+  async getServiceRatings(@Param('serviceId') serviceId: string) {
     const res: IRatingResponse[] =
       await this.ratingService.getRatings(serviceId);
     return new ApiResponseDto(

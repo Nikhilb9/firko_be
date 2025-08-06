@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FeedbackService } from './feedback.service';
 import { FeedbackRepositoryService } from './feedback.repository.service';
-import { ServiceProvidersRepositoryService } from '../service-providers/service-providers.repository.service';
+import { ServiceRepositoryService } from '../service-providers/service-providers.repository.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { FeedbackType } from './enum';
@@ -16,7 +16,7 @@ describe('FeedbackService', () => {
   };
 
   const mockServiceProviderRepo = {
-    getServiceProductById: jest.fn(),
+    getServiceById: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -28,7 +28,7 @@ describe('FeedbackService', () => {
           useValue: mockFeedbackRepo,
         },
         {
-          provide: ServiceProvidersRepositoryService,
+          provide: ServiceRepositoryService,
           useValue: mockServiceProviderRepo,
         },
       ],
@@ -51,7 +51,7 @@ describe('FeedbackService', () => {
     };
 
     it('should create feedback successfully', async () => {
-      mockServiceProviderRepo.getServiceProductById.mockResolvedValue({
+      mockServiceProviderRepo.getServiceById.mockResolvedValue({
         id: 'service123',
       });
       mockFeedbackRepo.findUserFeedbackForService.mockResolvedValue(null);
@@ -59,9 +59,9 @@ describe('FeedbackService', () => {
 
       await service.createFeedback(userId, mockFeedbackData);
 
-      expect(
-        mockServiceProviderRepo.getServiceProductById,
-      ).toHaveBeenCalledWith(mockFeedbackData.serviceId.toString());
+      expect(mockServiceProviderRepo.getServiceById).toHaveBeenCalledWith(
+        mockFeedbackData.serviceId.toString(),
+      );
       expect(mockFeedbackRepo.findUserFeedbackForService).toHaveBeenCalledWith(
         mockFeedbackData.serviceId.toString(),
         userId,
@@ -70,7 +70,7 @@ describe('FeedbackService', () => {
     });
 
     it('should throw NotFoundException when service does not exist', async () => {
-      mockServiceProviderRepo.getServiceProductById.mockResolvedValue(null);
+      mockServiceProviderRepo.getServiceById.mockResolvedValue(null);
 
       await expect(
         service.createFeedback(userId, mockFeedbackData),
@@ -78,7 +78,7 @@ describe('FeedbackService', () => {
     });
 
     it('should throw ConflictException when user has already provided feedback', async () => {
-      mockServiceProviderRepo.getServiceProductById.mockResolvedValue({
+      mockServiceProviderRepo.getServiceById.mockResolvedValue({
         id: 'service123',
       });
       mockFeedbackRepo.findUserFeedbackForService.mockResolvedValue({
