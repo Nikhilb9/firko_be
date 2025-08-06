@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   CommunicationMessage,
   CommunicationMessageSchema,
-} from './schema/cummunication-message.schema';
+} from './schema/communication-message.schema';
 import {
   CommunicationRoom,
   CommunicationRoomSchema,

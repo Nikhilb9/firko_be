@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CommunicationRoom } from './schema/communication-room.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CommunicationMessage } from './schema/cummunication-message.schema';
+import { CommunicationMessage } from './schema/communication-message.schema';
 import {
   ICommunicationRoomMessageResponse,
   ICommunicationRoomResponse,

@@ -20,7 +20,7 @@ import { Types } from 'mongoose';
 import { ServiceRepositoryService } from '../../../modules/service-providers/service-providers.repository.service';
 import { ServiceStatus } from '../../../modules/service-providers/enums/service-providers.enum';
 import { CommunicationRoom } from '../schema/communication-room.schema';
-import { CommunicationMessage } from '../schema/cummunication-message.schema';
+import { CommunicationMessage } from '../schema/communication-message.schema';
 
 @WebSocketGateway({ cors: true })
 @UseGuards(WsJwtGuard)
